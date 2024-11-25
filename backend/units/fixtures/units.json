@@ -1,0 +1,1117 @@
+[
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "kilogram",
+            "name_en": "kilogram",
+            "name_de": "Kilogramm",
+            "name_plural": "kilograms",
+            "name_plural_en": "kilograms",
+            "name_plural_de": "Kilogramm",
+            "abbreviation": "kg",
+            "abbreviation_en": "kg",
+            "abbreviation_de": "kg",
+            "base_unit": "kg",
+            "conversion_factor": "1.000000",
+            "unit_system": "Metric"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "gram",
+            "name_en": "gram",
+            "name_de": "Gramm",
+            "name_plural": "grams",
+            "name_plural_en": "grams",
+            "name_plural_de": "Gramm",
+            "abbreviation": "g",
+            "abbreviation_en": "g",
+            "abbreviation_de": "g",
+            "base_unit": "kg",
+            "conversion_factor": "0.001000",
+            "unit_system": "Metric"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "decagram",
+            "name_en": "decagram",
+            "name_de": "Dekagramm",
+            "name_plural": "decagrams",
+            "name_plural_en": "decagrams",
+            "name_plural_de": "Dekagramm",
+            "abbreviation": "dag",
+            "abbreviation_en": "dag",
+            "abbreviation_de": "dag",
+            "base_unit": "kg",
+            "conversion_factor": "0.010000",
+            "unit_system": "Metric"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "milligram",
+            "name_en": "milligram",
+            "name_de": "Milligramm",
+            "name_plural": "milligrams",
+            "name_plural_en": "milligrams",
+            "name_plural_de": "Milligramm",
+            "abbreviation": "mg",
+            "abbreviation_en": "mg",
+            "abbreviation_de": "mg",
+            "base_unit": "kg",
+            "conversion_factor": "0.000001",
+            "unit_system": "Metric"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "microgram",
+            "name_en": "microgram",
+            "name_de": "Mikrogramm",
+            "name_plural": "micrograms",
+            "name_plural_en": "micrograms",
+            "name_plural_de": "Mikrogramm",
+            "abbreviation": "µg",
+            "abbreviation_en": "µg",
+            "abbreviation_de": "µg",
+            "base_unit": "kg",
+            "conversion_factor": "0.000000001",
+            "unit_system": "Metric"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "liter",
+            "name_en": "liter",
+            "name_de": "Liter",
+            "name_plural": "liters",
+            "name_plural_en": "liters",
+            "name_plural_de": "Liter",
+            "abbreviation": "l",
+            "abbreviation_en": "l",
+            "abbreviation_de": "l",
+            "base_unit": "l",
+            "conversion_factor": "0.142060",
+            "unit_system": "Metric"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "milliliter",
+            "name_en": "milliliter",
+            "name_de": "Milliliter",
+            "name_plural": "milliliters",
+            "name_plural_en": "milliliters",
+            "name_plural_de": "Milliliter",
+            "abbreviation": "ml",
+            "abbreviation_en": "ml",
+            "abbreviation_de": "ml",
+            "base_unit": "l",
+            "conversion_factor": "0.001000",
+            "unit_system": "Metric"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "centiliter",
+            "name_en": "centiliter",
+            "name_de": "Zentiliter",
+            "name_plural": "centiliters",
+            "name_plural_en": "centiliters",
+            "name_plural_de": "Zentiliter",
+            "abbreviation": "cl",
+            "abbreviation_en": "cl",
+            "abbreviation_de": "cl",
+            "base_unit": "l",
+            "conversion_factor": "0.010000",
+            "unit_system": "Metric"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "deciliter",
+            "name_en": "deciliter",
+            "name_de": "Deziliter",
+            "name_plural": "deciliters",
+            "name_plural_en": "deciliters",
+            "name_plural_de": "Deziliter",
+            "abbreviation": "dl",
+            "abbreviation_en": "dl",
+            "abbreviation_de": "dl",
+            "base_unit": "l",
+            "conversion_factor": "0.100000",
+            "unit_system": "Metric"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "gill",
+            "name_en": "gill",
+            "name_de": "Gill",
+            "name_plural": "gills",
+            "name_plural_en": "gills",
+            "name_plural_de": "Gill",
+            "abbreviation": "gi.",
+            "abbreviation_en": "gi.",
+            "abbreviation_de": "gi.",
+            "base_unit": "l",
+            "conversion_factor": "0.142070",
+            "unit_system": "imp."
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "gill",
+            "name_en": "gill",
+            "name_de": "Gill",
+            "name_plural": "gills",
+            "name_plural_en": "gills",
+            "name_plural_de": "Gill",
+            "abbreviation": "gi.",
+            "abbreviation_en": "gi.",
+            "abbreviation_de": "gi.",
+            "base_unit": "l",
+            "conversion_factor": "0.118290",
+            "unit_system": "US"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "pound",
+            "name_en": "pound",
+            "name_de": "Pfund",
+            "name_plural": "pounds",
+            "name_plural_en": "pounds",
+            "name_plural_de": "Pfund",
+            "abbreviation": "lb",
+            "abbreviation_en": "lb",
+            "abbreviation_de": null,
+            "base_unit": "kg",
+            "conversion_factor": "0.453592",
+            "unit_system": "US"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "teaspoon",
+            "name_en": "teaspoon",
+            "name_de": "Teelöffel",
+            "name_plural": "teaspoons",
+            "name_plural_en": "teaspoons",
+            "name_plural_de": "Teelöffel",
+            "abbreviation": "tsp.",
+            "abbreviation_en": "tsp.",
+            "abbreviation_de": "TL",
+            "base_unit": "l",
+            "conversion_factor": "0.005000",
+            "unit_system": "Metric"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "tablespoon",
+            "name_en": "tablespoon",
+            "name_de": "Esslöffel",
+            "name_plural": "tablespoons",
+            "name_plural_en": "tablespoons",
+            "name_plural_de": "Esslöffel",
+            "abbreviation": "tbsp.",
+            "abbreviation_en": "tbsp.",
+            "abbreviation_de": "EL",
+            "base_unit": "l",
+            "conversion_factor": "0.015000",
+            "unit_system": "Metric"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "piece",
+            "name_en": "piece",
+            "name_de": "Stück",
+            "name_plural": "pieces",
+            "name_plural_en": "pieces",
+            "name_plural_de": "Stücke",
+            "abbreviation": "pcs.",
+            "abbreviation_en": "pcs.",
+            "abbreviation_de": "St.",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "pinch",
+            "name_en": "pinch",
+            "name_de": "Prise",
+            "name_plural": "pinches",
+            "name_plural_en": "pinches",
+            "name_plural_de": "Prisen",
+            "abbreviation": "pn.",
+            "abbreviation_en": "pn.",
+            "abbreviation_de": "pr.",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "tub",
+            "name_en": "tub",
+            "name_de": "Becher",
+            "name_plural": "tubs",
+            "name_plural_en": "tubs",
+            "name_plural_de": "Becher",
+            "abbreviation": "Be",
+            "abbreviation_en": null,
+            "abbreviation_de": "Be",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "bundle",
+            "name_en": "bundle",
+            "name_de": "Bund",
+            "name_plural": "",
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": "Bd",
+            "abbreviation_en": null,
+            "abbreviation_de": "Bd",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "handful",
+            "name_en": "handful",
+            "name_de": "handvoll",
+            "name_plural": "",
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": null,
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "bag",
+            "name_en": "bag",
+            "name_de": "Beutel",
+            "name_plural": "bags",
+            "name_plural_en": "bags",
+            "name_plural_de": "Beutel",
+            "abbreviation": "Btl",
+            "abbreviation_en": null,
+            "abbreviation_de": "Btl",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "cup",
+            "name_en": "cup",
+            "name_de": "Cup",
+            "name_plural": "cups",
+            "name_plural_en": "cups",
+            "name_plural_de": null,
+            "abbreviation": "c",
+            "abbreviation_en": "c",
+            "abbreviation_de": null,
+            "base_unit": "l",
+            "conversion_factor": "0.2365882365",
+            "unit_system": "US"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "cup",
+            "name_en": "cup",
+            "name_de": "Cup",
+            "name_plural": "cups",
+            "name_plural_en": "cups",
+            "name_plural_de": null,
+            "abbreviation": "c",
+            "abbreviation_en": "c",
+            "abbreviation_de": null,
+            "base_unit": "l",
+            "conversion_factor": "250.000000",
+            "unit_system": "Metric"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "can",
+            "name_en": "can",
+            "name_de": "Dose",
+            "name_plural": "cans",
+            "name_plural_en": "cans",
+            "name_plural_de": "Dosen",
+            "abbreviation": null,
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "bottle",
+            "name_en": "bottle",
+            "name_de": "Flasche",
+            "name_plural": "bottles",
+            "name_plural_en": "bottles",
+            "name_plural_de": "Flaschen",
+            "abbreviation": "btl.",
+            "abbreviation_en": "btl.",
+            "abbreviation_de": "Fl",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "knife tip",
+            "name_en": "knife tip",
+            "name_de": "Messerspitze",
+            "name_plural": "knife tips",
+            "name_plural_en": "knife tips",
+            "name_plural_de": "Messerspitzen",
+            "abbreviation": "Msp.",
+            "abbreviation_en": null,
+            "abbreviation_de": "Msp.",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "",
+            "name_en": "stick",
+            "name_de": "Stange",
+            "name_plural": "sticks",
+            "name_plural_en": "sticks",
+            "name_plural_de": "Stangen",
+            "abbreviation": "Stg",
+            "abbreviation_en": null,
+            "abbreviation_de": "Stg",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "",
+            "name_en": "stem",
+            "name_de": "Stiel",
+            "name_plural": "stems",
+            "name_plural_en": "stems",
+            "name_plural_de": "Stiele",
+            "abbreviation": null,
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "package",
+            "name_en": "package",
+            "name_de": "Packung",
+            "name_plural": "packages",
+            "name_plural_en": "packages",
+            "name_plural_de": "Packungen",
+            "abbreviation": "pkg.",
+            "abbreviation_en": "pkg.",
+            "abbreviation_de": "Pkg",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "dashes",
+            "name_en": "dashes",
+            "name_de": "Spitzer",
+            "name_plural": "dashes",
+            "name_plural_en": "dashes",
+            "name_plural_de": null,
+            "abbreviation": "ds.",
+            "abbreviation_en": "ds.",
+            "abbreviation_de": "Sp",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "drop",
+            "name_en": "drop",
+            "name_de": "Tropfen",
+            "name_plural": "drops",
+            "name_plural_en": "drops",
+            "name_plural_de": "Tropfen",
+            "abbreviation": "dr.",
+            "abbreviation_en": "dr.",
+            "abbreviation_de": "Tr",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "coffeespoon",
+            "name_en": "coffeespoon",
+            "name_de": "Kaffeelöffel",
+            "name_plural": "",
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": "csp.",
+            "abbreviation_en": "csp.",
+            "abbreviation_de": "KL",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "grain",
+            "name_en": "grain",
+            "name_de": "Gran",
+            "name_plural": "grains",
+            "name_plural_en": "grains",
+            "name_plural_de": "Gran",
+            "abbreviation": "gr",
+            "abbreviation_en": "gr",
+            "abbreviation_de": null,
+            "base_unit": "kg",
+            "conversion_factor": "0.000065",
+            "unit_system": "US"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "slice",
+            "name_en": "slice",
+            "name_de": "Scheibe",
+            "name_plural": "slices",
+            "name_plural_en": "slices",
+            "name_plural_de": "Scheiben",
+            "abbreviation": "sl.",
+            "abbreviation_en": "sl.",
+            "abbreviation_de": "Sc",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "splash?",
+            "name_en": "splash?",
+            "name_de": "Schuss",
+            "name_plural": "splashes?",
+            "name_plural_en": "splashes?",
+            "name_plural_de": null,
+            "abbreviation": "",
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "clove",
+            "name_en": "clove",
+            "name_de": "Zehe",
+            "name_plural": "cloves",
+            "name_plural_en": "cloves",
+            "name_plural_de": "Zehen",
+            "abbreviation": "",
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "bulb",
+            "name_en": "bulb",
+            "name_de": "Knolle",
+            "name_plural": "bulbs",
+            "name_plural_en": "bulbs",
+            "name_plural_de": "Knollen",
+            "abbreviation": "",
+            "abbreviation_en": null,
+            "abbreviation_de": "Kn",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "fluid ounce",
+            "name_en": "fluid ounce",
+            "name_de": "Fluid ounce",
+            "name_plural": "",
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": "fl.oz.",
+            "abbreviation_en": "fl.oz.",
+            "abbreviation_de": null,
+            "base_unit": "l",
+            "conversion_factor": "0.028400",
+            "unit_system": "imp."
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "fluid ounce",
+            "name_en": "fluid ounce",
+            "name_de": "Fluid ounce",
+            "name_plural": "fluid ounces",
+            "name_plural_en": "fluid ounces",
+            "name_plural_de": null,
+            "abbreviation": "fl.oz.",
+            "abbreviation_en": "fl.oz.",
+            "abbreviation_de": null,
+            "base_unit": "l",
+            "conversion_factor": "0.029754",
+            "unit_system": "US"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "gallon",
+            "name_en": "gallon",
+            "name_de": "Gallone",
+            "name_plural": "gallons",
+            "name_plural_en": "gallons",
+            "name_plural_de": "Gallonen",
+            "abbreviation": "gal.",
+            "abbreviation_en": "gal.",
+            "abbreviation_de": null,
+            "base_unit": "l",
+            "conversion_factor": "4.546090",
+            "unit_system": "imp."
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "gallon",
+            "name_en": "gallon",
+            "name_de": "Gallone",
+            "name_plural": "gallons",
+            "name_plural_en": "gallons",
+            "name_plural_de": "Gallonen",
+            "abbreviation": "gal.",
+            "abbreviation_en": "gal.",
+            "abbreviation_de": null,
+            "base_unit": "l",
+            "conversion_factor": "3.785411",
+            "unit_system": "US"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "saltspoon",
+            "name_en": "saltspoon",
+            "name_de": null,
+            "name_plural": "saltspoons",
+            "name_plural_en": "saltspoons",
+            "name_plural_de": null,
+            "abbreviation": "ssp.",
+            "abbreviation_en": "ssp.",
+            "abbreviation_de": null,
+            "base_unit": "l",
+            "conversion_factor": "0.001000",
+            "unit_system": "Metric"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "tea cup",
+            "name_en": "tea cup",
+            "name_de": "Tasse",
+            "name_plural": "Tassen",
+            "name_plural_en": null,
+            "name_plural_de": "Tassen",
+            "abbreviation": "tas",
+            "abbreviation_en": null,
+            "abbreviation_de": "tas",
+            "base_unit": "l",
+            "conversion_factor": "0.200000",
+            "unit_system": "Metric"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "pound (dt.)",
+            "name_en": "pound (dt.)",
+            "name_de": "Pfund",
+            "name_plural": "Pfund",
+            "name_plural_en": null,
+            "name_plural_de": "Pfund",
+            "abbreviation": "Pfd.",
+            "abbreviation_en": null,
+            "abbreviation_de": "Pfd.",
+            "base_unit": "kg",
+            "conversion_factor": "0.500000",
+            "unit_system": "Metric"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "pound",
+            "name_en": "pound",
+            "name_de": "Pfund",
+            "name_plural": "pounds",
+            "name_plural_en": "pounds",
+            "name_plural_de": "Pfund",
+            "abbreviation": "lb",
+            "abbreviation_en": "lb",
+            "abbreviation_de": null,
+            "base_unit": "kg",
+            "conversion_factor": "0.453592",
+            "unit_system": "imp."
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "shaku 勺",
+            "name_en": "shaku 勺",
+            "name_de": "Shaku 勺",
+            "name_plural": null,
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": null,
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": "l",
+            "conversion_factor": "0.018039",
+            "unit_system": "Shakkanhou"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "gō 合",
+            "name_en": "gō 合",
+            "name_de": "Gō 合",
+            "name_plural": null,
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": null,
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": "l",
+            "conversion_factor": "0.180390",
+            "unit_system": "Shakkanhou"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "shō 升",
+            "name_en": "shō 升",
+            "name_de": "Shō 升",
+            "name_plural": null,
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": null,
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": "l",
+            "conversion_factor": "1.803900",
+            "unit_system": "Shakkanhou"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "to 斗",
+            "name_en": "to 斗",
+            "name_de": "To 斗",
+            "name_plural": null,
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": null,
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": "l",
+            "conversion_factor": "18.039000",
+            "unit_system": "Shakkanhou"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "koku 石",
+            "name_en": "koku 石",
+            "name_de": "Koku 石",
+            "name_plural": null,
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": null,
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": "l",
+            "conversion_factor": "180.390000",
+            "unit_system": "Shakkanhou"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "fun 分",
+            "name_en": "fun 分",
+            "name_de": "Fun 分",
+            "name_plural": null,
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": null,
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": "kg",
+            "conversion_factor": "0.000375",
+            "unit_system": "Shakkanhou"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "monme 匁",
+            "name_en": "monme 匁",
+            "name_de": "Monme 匁",
+            "name_plural": null,
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": null,
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": "kg",
+            "conversion_factor": "0.003750",
+            "unit_system": "Shakkanhou"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "ryō 両",
+            "name_en": "ryō 両",
+            "name_de": "Ryō 両",
+            "name_plural": null,
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": null,
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": "kg",
+            "conversion_factor": "0.037500",
+            "unit_system": "Shakkanhou"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "kin 斤",
+            "name_en": "kin 斤",
+            "name_de": "Kin 斤",
+            "name_plural": null,
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": null,
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": "kg",
+            "conversion_factor": "0.600000",
+            "unit_system": "Shakkanhou"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "kan 貫(目)",
+            "name_en": "kan 貫(目)",
+            "name_de": "Kan 貫(目)",
+            "name_plural": null,
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": null,
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": "kg",
+            "conversion_factor": "3.750000",
+            "unit_system": "Shakkanhou"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "shō 鍾",
+            "name_en": "shō 鍾",
+            "name_de": "Shō 鍾",
+            "name_plural": null,
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": null,
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": "kg",
+            "conversion_factor": "37.500000",
+            "unit_system": "Shakkanhou"
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "specific gravity",
+            "name_en": "specific gravity",
+            "name_de": "Relative dichte",
+            "name_plural": null,
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": "sp gr",
+            "abbreviation_en": "sp gr",
+            "abbreviation_de": "sp gr",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "brix",
+            "name_en": "brix",
+            "name_de": "Brix",
+            "name_plural": "brix",
+            "name_plural_en": "brix",
+            "name_plural_de": "Brix",
+            "abbreviation": "°Bx",
+            "abbreviation_en": "°Bx",
+            "abbreviation_de": "°Bx",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "iternational unit",
+            "name_en": "iternational unit",
+            "name_de": "Internationale Einheit",
+            "name_plural": null,
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": "IU",
+            "abbreviation_en": "IU",
+            "abbreviation_de": "IU",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "calorie",
+            "name_en": "calorie",
+            "name_de": "Kalorie",
+            "name_plural": "calories",
+            "name_plural_en": "calories",
+            "name_plural_de": "Kalorien",
+            "abbreviation": "kcal",
+            "abbreviation_en": "kcal",
+            "abbreviation_de": "kcal",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "kilojoule",
+            "name_en": "kilojoule",
+            "name_de": "Kilojoul",
+            "name_plural": "kilojoules",
+            "name_plural_en": "kilojoules",
+            "name_plural_de": "Kilojoules",
+            "abbreviation": "kJ",
+            "abbreviation_en": "kJ",
+            "abbreviation_de": "kJ",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name": "parts per million",
+            "name_en": "parts per million",
+            "name_de": "Parts per million",
+            "name_plural": null,
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": "ppm",
+            "abbreviation_en": "ppm",
+            "abbreviation_de": "ppm",
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    },
+    {
+        "model": "units.unit",
+        "pk": null,
+        "fields": {
+            "name_en": "head",
+            "name_de": "Kopf",
+            "name_plural": null,
+            "name_plural_en": null,
+            "name_plural_de": null,
+            "abbreviation": null,
+            "abbreviation_en": null,
+            "abbreviation_de": null,
+            "base_unit": null,
+            "conversion_factor": null,
+            "unit_system": ""
+        }
+    }
+]

@@ -1,0 +1,30 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 80%
+    patch:
+      backend:
+        target: 50%
+        flags:
+          - backend
+      frontend:
+        target: 50%
+        flags:
+          - frontend
+
+comment:
+  layout: "diff, flags, files"
+
+flags:
+  backend:
+    carryforward: false
+    paths:
+      - backend/
+  frontend:
+    carryforward: false
+    paths:
+      - frontend/
+
+github_checks:
+  annotations: true

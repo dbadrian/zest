@@ -1,0 +1,7 @@
+[run]
+omit =
+    zest/__init__.py
+    zest/asgi.py
+    zest/wsgi.py
+    zest/__init__.py
+    zest/settings/*

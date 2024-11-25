@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+set -e
+
+# move old log file
+cp /home/ubuntu/backup_logs /home/ubuntu/backup_logs.old
+
+# Database name
+db_name=zest
+# Backup storage directory 
+backupfolder=~/backups/zest
+# Notification email address 
+recipient_email=dawidh.adrian+zest@gmail.com
+# Number of days to store the backup 
+keep_day=14
+DATE=$(date +%d-%m-%Y_%H-%M-%S)
+sqlfile_name=zest-${DATE}.sql
+sqlfile=$backupfolder/$sqlfile_name
+zipfile_name=zest-${DATE}.tar.gz
+zipfile=$backupfolder/$zipfile_name
+#create backup folder
+mkdir -p $backupfolder
+# Create a backup
+if pg_dump -U postgres -h localhost > $sqlfile ; then
+    echo 'Sql dump created'
+else
+    echo 'pg_dump return non-zero code' | mailx -s 'No backup was created!' $recipient_email
+    exit
+fi
+
+
+DATE=$(date +%Y-%m-%d)
+pushd ~/zest/
+./zest --env env.json manage dumpdata --indent 2 users > $backupfolder/${DATE}_users.json
+./zest --env env.json manage dumpdata --indent 2 favorites > $backupfolder/${DATE}_favorites.json
+./zest --env env.json manage dumpdata --indent 2 recipes > $backupfolder/${DATE}_recipes.json
+./zest --env env.json manage dumpdata --indent 2 shopping_lists > $backupfolder/${DATE}_shopping_lists.json
+./zest --env env.json manage dumpdata --indent 2 units > $backupfolder/${DATE}_units.json
+./zest --env env.json manage dumpdata --indent 2 tags > $backupfolder/${DATE}_tags.json
+./zest --env env.json manage dumpdata --indent 2 foods > $backupfolder/${DATE}_food.json
+popd
+
+
+# Compress backup
+pushd $backupfolder
+if tar -czvf $zipfile_name $sqlfile_name *.json; then
+    echo 'The backup was successfully compressed'
+else
+    echo 'Error compressing backup' #| mailx -s 'Backup was not created!' $recipient_email
+    exit
+fi
+popd
+rm $sqlfile 
+rm $backupfolder/*.json
+
+# Delete old backups 
+echo "Deleting following files older than ${keep_day} days":
+FILES=$(find $backupfolder -mtime +$keep_day -print)
+if [ -z "$FILES" ]
+then
+    echo "No old backups to delete"
+    FILES="None"
+else
+    echo "$FILES"
+    find $backupfolder -mtime +$keep_day -delete
+fi
+
+SIZE=$(du -hs $backupfolder)
+echo "Backup folder size is: $SIZE"
+
+# Send final mail with infos
+printf "New Backup made: $zipfile\n\nFolder Size: $SIZE\n\nFiles Deleted:\n$FILES" 
+#| mailx -s 'Backup was successfully created' $recipient_email
+
+printf "Backup was successfully created. Sync to B2 now"
+/home/ubuntu/bin/b2 sync ~/backups/zest/ b2://zest-db-backup/ --delete
