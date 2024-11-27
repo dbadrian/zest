@@ -181,7 +181,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-artifact
-          path: ${{ runner.temp }}/*.pkg.tar.zst
+          path: |
+            ${{ runner.temp }}/*.pkg.tar.zst
+            ${{ runner.temp }}/*.pkg.tar.zst.sig
           retention-days: 1
 
   deploy-backend:
