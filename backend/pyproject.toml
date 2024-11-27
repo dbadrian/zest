@@ -25,7 +25,7 @@ django-auto-prefetching = "^0.2.12"
 django-silk = "^5.3.1"
 nplusone = "^1.0.0"
 django-redis = "^5.4.0"
-tqdm = "^4.67.0"
+tqdm = "^4.67.1"
 drf-serpy = "^0.5.0"
 serpy = "^0.3.1"
 psycopg = {extras = ["binary"], version = "^3.2.3"}
