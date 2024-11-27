@@ -176,6 +176,7 @@ jobs:
           docker build  --network=host -t archdev --build-arg GPGKEY="$GPG_SIGNING_KEY" .
           chmod 777 ${{ runner.temp }}
           docker run -v ${{ runner.temp }}:/build --rm archdev /bin/bash -c "cp -r /home/builduser/* /build"
+          ls ${{ runner.temp }}
 
       - name: upload_linux
         uses: actions/upload-artifact@v4
@@ -220,7 +221,6 @@ jobs:
           name: linux-artifact
           path: builds/
   
-
       - name: Rename files according to release
         run: |
           mv builds/app-release-signed.aab builds/zest-${GITHUB_REF#refs/*/}.aab
