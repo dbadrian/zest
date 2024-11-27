@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_DB=${SQL_HOST}
+      - POSTGRES_USER=${SQL_USER}
+      - POSTGRES_PASSWORD=${SQL_PASSWORD}
+      - POSTGRES_PORT=${SQL_PORT}
+      - POSTGRES_DB=${SQL_DATABASE}
+  cache:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+
+  backend:
+    user: "${UID}:${GID}"
+    working_dir: /code/backend/
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile
+    # command: python manage.py runserver 0.0.0.0:8000
+    command: gunicorn -c config/gunicorn/dev.py
+    environment:
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - DJANGO_AUTH_MODE=${DJANGO_AUTH_MODE}
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+      - SQL_ENGINE=${SQL_ENGINE}
+      - SQL_DATABASE=${SQL_DATABASE}
+      - SQL_USER=${SQL_USER}
+      - SQL_PASSWORD=${SQL_PASSWORD}
+      - SQL_HOST=${SQL_HOST}
+      - SQL_PORT=${SQL_PORT}
+      - REDIS_ADDRESS=${REDIS_ADDRESS}
+      - TESTFLAGS=${TESTFLAGS} 
+    volumes:
+      - .:/code
+    expose:
+      - 8000
+    # ports:
+    #   - "8000:8000"
+    depends_on:
+      - db
+      - cache
+
+  nginx:
+    build: ./nginx
+    ports:
+      - 1337:80
+    depends_on:
+      - backend

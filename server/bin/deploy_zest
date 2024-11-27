@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -e
+PYTHON=/home/ubuntu/miniforge3/envs/zest/bin/python3.11
+ZEST_DEPLOYMENT_DIR=~/zest
+ENV_PATH=${ZEST_DEPLOYMENT_DIR}/env.json
+mkdir -p ${ZEST_DEPLOYMENT_DIR}
+cd ~/zest-git/backend
+git pull
+${PYTHON} build.py --python ${PYTHON} --release --output-path $ZEST_DEPLOYMENT_DIR
+cd ~/zest
+ln -sf $(ls -td zest-*.pyz | head -1) zest
+
+# clear the shiv cache -> gets huge quickly
+rm -rf /home/ubuntu/.shiv
+
+# and delete the latest versions
+cd ~/zest
+ls -t zest-v*.pyz | tail -n +3 | xargs -d '\n' rm --
+
+tmux has-session -t "zest-live" 2>/dev/null
+
+if [ $? != 0 ]; then
+  echo "Tmux running...killing session"
+  tmux kill-session -t "zest-live"
+fi
+pkill zest # for good measure
+sleep 2
+tmux new-session -s "zest-live" -d "${ZEST_DEPLOYMENT_DIR}/zest --env ${ENV_PATH} production"
+

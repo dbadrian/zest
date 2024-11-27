@@ -1,0 +1,54 @@
+[
+    {
+        "model": "users.customuser",
+        "pk": "6d9ec23f-df05-43e0-adb1-654ff0aefc7c",
+        "fields": {
+            "password": "pbkdf2_sha256$216000$BgOsj6mh5FxS$JGiSTHQd408/xF7Vj9+FV5Dq3lAyOKAkxLtyK+Th4vY=",
+            "last_login": null,
+            "is_superuser": true,
+            "username": "admin",
+            "first_name": "Sir Admin",
+            "last_name": "van Adminson",
+            "email": "",
+            "is_staff": true,
+            "is_active": true,
+            "date_joined": "2020-10-17T18:46:17.254Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "users.customuser",
+        "fields": {
+            "password": "pbkdf2_sha256$216000$Zm2hpD0eJLcf$V8cNsRXE5gyC+lt54jtPLIHdBT9jbc2754baWuENqRQ=",
+            "last_login": null,
+            "is_superuser": true,
+            "username": "dba",
+            "first_name": "David2",
+            "last_name": "Adrian2",
+            "email": "david@recipes.com",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2020-10-12T13:11:15.525Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "users.customuser",
+        "fields": {
+            "password": "pbkdf2_sha256$216000$Zm2hpD0eJLcf$V8cNsRXE5gyC+lt54jtPLIHdBT9jbc2754baWuENqRQ=",
+            "last_login": null,
+            "is_superuser": true,
+            "username": "someone_else",
+            "first_name": "Someone",
+            "last_name": "Else",
+            "email": "smo@else.com",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2020-10-12T14:11:15.525Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    }
+]

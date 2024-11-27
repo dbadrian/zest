@@ -1,0 +1,190 @@
+version: "3"
+
+env:
+  DATA_FOLDER: data/
+
+tasks:
+  docker-build:
+    cmds:
+      - docker compose build
+
+  docker-clean:
+    deps:
+      - docker-stop
+    cmds:
+      - docker compose down -v --rmi all --remove-orphans
+
+  docker-start:
+    cmds:
+      - docker compose up ${COMPOSERFLAGS}
+
+  docker-stop:
+    cmds:
+      - docker compose stop
+
+  docker-restart:
+    deps: [docker-stop, docker-start]
+
+  docker-status:
+    cmds:
+      - docker compose ps
+
+  # django/backend related
+  backend-init:
+    cmds:
+      - docker compose start db
+      - docker compose run --rm db psql -h db -U postgres -d postgres -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm'
+      - docker compose run --rm db psql -h db -U postgres -d postgres -c 'CREATE EXTENSION IF NOT EXISTS btree_gin'
+      - docker compose stop db
+      - task: docker-build
+      - task: backend-django-migrate
+      - task: backend-install-fixtures
+      - task: backend-django-collect-static
+
+  backend-build:
+    deps: [docker-build]
+
+  backend-lint:
+    cmds:
+      - docker compose run --rm backend flake8 .
+
+  backend-clean:
+    cmds:
+      - find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
+
+  backend-django-softreset:
+    deps: [stop, backend-django-clean, backend-django-migrate backend-install-fixtures]
+
+  backend-django-logs:
+    cmds:
+      - docker compose logs -f
+
+  backend-django-clean:
+    cmds:
+      - docker compose start db
+      - docker compose run --rm db psql -h db -U postgres -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'
+      - docker compose stop
+
+  backend-cli:
+    cmds:
+      - docker compose run --rm backend bash
+
+  backend-django-migrate:
+    cmds:
+      - docker compose run --rm backend python manage.py makemigrations users shared units foods tags recipes shopping_lists favorites
+      - docker compose run --rm backend python manage.py migrate
+
+  backend-django-clean-migrations:
+    deps: [docker-stop]
+    cmds:
+      - find . -name \*.pyc -delete
+      - find . -path "*/migrations/*.py" -not -name "__init__.py" -not -name "trigram_support.py" -delete
+
+  backend-django-flush:
+    cmds:
+      - docker compose run --rm backend python manage.py flush --noinput
+
+  backend-install-fixtures:
+    cmds:
+      - docker compose run --rm backend python manage.py loaddata users.json units.json foods.json foods_synonyms.json tags.json recipes.json recipe_categories.json shoppinglists.json
+
+  backend-django-collect-static:
+    cmds:
+      - docker compose run --rm backend python manage.py collectstatic
+
+  backend-django-makemessages:
+    env:
+      MLANG: DE
+    cmds:
+      - docker compose run --rm backend python manage.py makemessages -l {{.CLI_ARGS}}
+
+  backend-django-compilemessages:
+    cmds:
+      - docker compose run --rm backend python manage.py compilemessages
+
+  backend-django-get-fixtures:
+    cmds:
+      - docker compose run --rm backend python manage.py dumpdata {{.CLI_ARGS}} --indent 2
+
+  dump-fixtures:
+    cmds:
+      - mkdir -p data/fixtures
+      - |
+        docker compose run --rm backend bash -c "
+        python manage.py dumpdata units --indent 2 > ../data/fixtures/units.json && \
+        python manage.py dumpdata foods --indent 2 > ../data/fixtures/foods.json && \
+        python manage.py dumpdata tags --indent 2 > ../data/fixtures/tags.json && \
+        python manage.py dumpdata recipes --indent 2 > ../data/fixtures/recipes.json && \
+        python manage.py dumpdata shopping_lists --indent 2 > ../data/fixtures/shopping_lists.json
+        "
+
+  backend-test:
+    deps: [backend-django-migrate]
+    env:
+      TESTSCOPE:
+    cmds:
+      # - docker compose run --rm backend bash -c 'python manage.py test {{.CLI_ARGS}}'/
+      - docker compose run --rm backend bash -c 'pytest -vv  --cov-report xml --cov=.'
+
+  frontend-clean:
+    dir: frontend
+    cmds:
+      - flutter clean
+      - flutter pub get
+
+  frontend-init:
+    dir: frontend
+    silent: True
+    cmds:
+      - echo -e "\e[32mUpdate Flutter Dependencies\e[0m"
+      - flutter pub get
+      - flutter packages upgrade
+      - echo -e "\e[32mBuilding Frontend Dtos (might take a while)\e[0m"
+      - dart run build_runner build --delete-conflicting-outputs
+
+  frontend-build-runner:
+    deps: [frontend-init]
+    dir: frontend
+    cmds:
+      - dart run build_runner watch -d
+
+  frontend-build-partial:
+    deps: [frontend-init]
+    dir: frontend
+    cmds:
+      - dart run build_runner build
+
+  frontend-build-linux:
+    deps: [frontend-init]
+    dir: frontend
+    cmds:
+      - flutter build linux
+
+  frontend-test:
+    deps: [frontend-build-partial]
+    dir: frontend
+    cmds:
+      - flutter test  --coverage
+
+  frontend-lint:
+    cmds:
+      - flutter analyze . --no-fatal-infos --no-fatal-warnings
+
+  frontend-run-linux:
+    cmds:
+      - frontend/build/linux/x64/release/bundle/zest
+
+  # one to rule them all
+  lint:
+    deps: [backend-lint, frontend-lint]
+
+  clean:
+    deps: [backend-clean, frontend-clean]
+
+  cclean:
+    deps: [clean, backend-django-clean-migrations, docker-clean]
+
+  bump-version:
+    deps: [backend-test, frontend-test]
+    cmds:
+      - sh bump_version.sh

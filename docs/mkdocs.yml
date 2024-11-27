@@ -1,0 +1,102 @@
+site_name: Multiview Recordings
+
+nav:
+  - Home: "index.md"
+  - Setup:
+      - "AWS": "setup/aws.md"
+#      - 'Kinects': 'hardware_setup/kinects.md'
+#      - 'Framegrabber Cards': 'hardware_setup/adlink.md'
+#      - 'Allied Vision Cameras': 'hardware_setup/allied_vision.md'
+#      - 'SyncBox': 'hardware_setup/sync_box.md'
+#      # - 'SLAMBox / Secondary / n-th recording PC'
+#  - Software Setup:
+#      - 'PTP': 'software_setup/ptp.md'
+#      - 'NTP / Chrony': 'software_setup/chrony.md'
+#      # - 'Darko': sss
+#  - Recording & Processing:
+#    - "start_mvr.sh": "recproc/start_mvr.md"
+#    - "rectool.py": "recproc/rectool-recording.md"
+
+theme:
+  name: material
+  #  custom_dir: overrides
+  features:
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate
+    - header.autohide
+    - navigation.sections
+
+  # Appearance
+  palette:
+    # Palette toggle for dark mode
+    - scheme: slate
+      media: "(prefers-color-scheme: dark)"
+      primary: blue
+      accent: orange
+      toggle:
+        icon: material/weather-night # material/weather-night + material/weather-sunny
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - scheme: default
+      media: "(prefers-color-scheme: light)"
+      toggle:
+        icon: material/weather-sunny
+
+        name: Switch to dark mode
+
+  icon:
+    tag:
+      html: fontawesome/brands/html5
+      js: fontawesome/brands/js
+      css: fontawesome/brands/css3
+      # cpp:  fontawesome/brands/c-plus-plus
+      python: fontawesome/brands/python
+
+plugins:
+  - search
+
+markdown_extensions:
+  # Python Markdown
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+
+  # Python Markdown Extensions
+  - pymdownx.snippets:
+      auto_append:
+        - includes/abbreviations.md
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+watch:
+  - includes

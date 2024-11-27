@@ -1,0 +1,250 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  test:
+    uses: dbadrian/zest/.github/workflows/test.yml@main
+
+  build-android:
+    runs-on: ubuntu-latest
+    needs: [test]
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - uses: actions/checkout@v2
+      # Setup the Python environment for backend
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+          architecture: "x64"
+      # Setup the flutter environment for frontend
+      - uses: actions/setup-java@v2
+        with:
+          distribution: "zulu"
+          java-version: "17"
+
+      # Setup the flutter environment.
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable" # 'dev', 'alpha', default to: 'stable'
+          # flutter-version: '1.12.x' # you can also specify exact version of flutter
+
+      - run: flutter --version
+      - run: flutter --disable-analytics
+
+      - name: Prepare environment.
+        run: flutter pub get
+
+      - name: Build runner
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Set environment variables
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Install Ubuntu Dependencies
+        run: |
+          sudo apt-get update  
+          sudo apt-get install clang cmake ninja-build pkg-config libgtk-3-dev
+
+      - name: "Build Frontend: Android APK & App Bundle"
+        run: |
+          # flutter config --enable-linux-desktop
+          flutter pub get
+          # flutter build apk --split-per-abi  --release
+          flutter build appbundle --release
+
+      - name: Create the Keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.GPLAY_KEYSTORE }}
+        run: |
+          # import keystore from secrets
+          echo $KEYSTORE_BASE64 | base64 -d --ignore-garbage > $RUNNER_TEMP/my_production.keystore
+      
+      - name: Sign Android App Bundle
+        run: jarsigner -keystore $RUNNER_TEMP/my_production.keystore -storepass '${{ secrets.GPLAY_KEYSTORE_PASSWORD }}' -keypass '${{ secrets.GPLAY_KEYSTORE_PASSWORD }}' -sigalg SHA256withRSA -digestalg SHA-256 -signedjar build/app/outputs/bundle/release/app-release-signed.aab build/app/outputs/bundle/release/app-release.aab upload
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-artifact
+          path: |
+            ./frontend/build/app/outputs/bundle/release/app-release-signed.aab
+          retention-days: 1
+
+  build-windows-misx:
+    runs-on: windows-latest
+    needs: [test]
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - uses: actions/checkout@v2
+      # Setup the flutter environment.
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable" # 'dev', 'alpha', default to: 'stable'
+          # flutter-version: '1.12.x' # you can also specify exact version of flutter
+
+      - run: flutter --version
+      - run: flutter --disable-analytics
+      - run: flutter config --enable-windows-desktop
+      - run: flutter create --platforms=windows .
+
+      - name: Generate MSIX-compatible version
+        uses: ashley-taylor/regex-property-action@1.2
+        id: msixver
+        with:
+          value: ${{ github.event.release.tag_name }}
+          regex: (\-\w+)|(\+\w+)
+          replacement: ""
+  
+      - name: Write MSIX
+        uses: DamianReeves/write-file-action@v1.0
+        with:
+          path: pubspec.yaml
+          contents: |
+            msix_config:
+              display_name: Zest
+              publisher_display_name: DBADRIAN
+              identity_name: com.dbadrian.zest
+              publisher: CN=com.dbadrian.zest, O=DBADRIAN, C=DE
+              sign_msix: false
+              msix_version: ${{ steps.msixver.outputs.value }}.0
+              logo_path: assets\promo-windows\icon.png
+              architecture: x64
+              capabilities: "internetClient,removableStorage"
+              store: false
+              # certificate_path: $RUNNER_TEMP\cert.pfx
+              # certificate_password: ${{ secrets.MSIX_CERT_PASSWORD }}
+              install_certificate: false
+          write-mode: append
+
+      - name: Prepare environment.
+        run: flutter pub get
+
+      - run: flutter pub add --dev msix
+      
+      - name: Build runner
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - run: flutter upgrade
+
+      - run: flutter build windows --release
+
+      - name: Build MSIX
+        env:
+          CODESIGN_BASE64: ${{ secrets.MSIX_CERT_PFX }}
+          CODESIGN_PWD: ${{ secrets.MSIX_CERT_PASSWORD }}
+        run: |
+          New-Item -ItemType directory -Path certificate
+          Set-Content -Path certificate\certificate.txt -Value $env:CODESIGN_BASE64
+          certutil -decode certificate\certificate.txt certificate\certificate.pfx
+          flutter pub run msix:create --install-certificate true --signtool-options "/debug /fd SHA256 /p $env:CODESIGN_PWD /f certificate\certificate.pfx /td sha256"
+
+      - name: upload_windows_artifact_msix
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifact-msix
+          path: frontend\build\windows\x64\runner\Release\zest.msix
+          retention-days: 1
+
+  build-linux:
+    runs-on: ubuntu-latest
+    needs: [test]
+    defaults:
+      run:
+        working-directory: ./frontend
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host
+
+      - name: Build docker images
+        env:
+          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+        run: |
+          docker build  --network=host -t archdev --build-arg GPGKEY="$GPG_SIGNING_KEY" .
+          chmod 777 ${{ runner.temp }}
+          docker run -v ${{ runner.temp }}:/build --rm archdev /bin/bash -c "cp -r /home/builduser/* /build"
+
+      - name: upload_windows_artifact_msix
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifact
+          path: /build/*.pkg.tar.zst, /build/*.pkg.tar.zst.sig
+          retention-days: 1
+
+  deploy-backend:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    needs: [build-android, build-windows-misx]  # assuming github release is not failing
+    steps:
+      - name: Build & Deploy
+        env:
+          PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+          SERVER: ${{secrets.AWS_SERVER}}
+        run: |
+            echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+            ssh -o StrictHostKeyChecking=no -i private_key ${SERVER} '/home/ubuntu/bin/deploy_zest'
+
+  release-github:
+    name: Github Release
+    runs-on: ubuntu-latest
+    needs: [build-android, build-windows-misx, deploy-backend]
+    steps:
+      - name: Retrieve Windows Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-artifact-msix
+          path: builds/
+
+      - name: Retrieve Androids Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: android-artifact
+          path: builds/
+
+      - name: Rename files according to release
+        run: |
+          mv builds/app-release-signed.aab builds/app-release-${GITHUB_REF#refs/*/}.aab
+          mv builds/zest.msix builds/zest-${GITHUB_REF#refs/*/}.msix
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "builds/*.*"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  release-playstore:
+    name: Google Playstore Release
+    runs-on: ubuntu-latest
+    needs: [build-android, deploy-backend] 
+    steps:
+      - name: Retrieve Androids Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: android-artifact
+          path: builds/
+        
+      - name: Upload Release
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+          packageName: com.dbadrian.zest
+          releaseFiles: builds/app-release-signed.aab
+          track: internal
+          status: draft
+          # inAppUpdatePriority: 2
+          # whatsNewDirectory: distribution/whatsnew
+          # mappingFile: app/build/outputs/mapping/release/mapping.txt
+          # debugSymbols: app/intermediates/merged_native_libs/release/out/lib
