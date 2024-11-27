@@ -106,6 +106,7 @@ cd ..
 git add backend/pyproject.toml
 git add backend/zest/version.py
 git add frontend/pubspec.yaml
+git add frontend/PKGBUILD
 git commit -m "Bumping version to ${VERSION}" --no-verify
 git tag v${VERSION}
 git push
