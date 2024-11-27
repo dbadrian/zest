@@ -2,7 +2,7 @@
 # _pkgname=zest
 _pkgname=zest
 pkgname=$_pkgname
-pkgver=0.1.1
+pkgver=0.2.1
 pkgrel=1
 pkgdesc="A recipe app"
 url="https://github.com/dbadrian/zest"
@@ -18,7 +18,7 @@ provides=('zest')
 
 # pkgver() {
 #     cd "$srcdir/$_pkgname"
-#     git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+#     echo $(git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g')
 # }
 
 prepare() {
