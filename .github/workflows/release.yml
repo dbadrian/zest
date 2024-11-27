@@ -177,17 +177,17 @@ jobs:
           chmod 777 ${{ runner.temp }}
           docker run -v ${{ runner.temp }}:/build --rm archdev /bin/bash -c "cp -r /home/builduser/* /build"
 
-      - name: upload_windows_artifact_msix
+      - name: upload_linux
         uses: actions/upload-artifact@v4
         with:
           name: linux-artifact
-          path: /build/*.pkg.tar.zst, /build/*.pkg.tar.zst.sig
+          path: ${{ runner.temp }}/*.pkg.tar.zst, ${{ runner.temp }}/*.pkg.tar.zst.sig
           retention-days: 1
 
   deploy-backend:
     name: Deploy to EC2
     runs-on: ubuntu-latest
-    needs: [build-android, build-windows-misx]  # assuming github release is not failing
+    needs: [build-android, build-linux, build-windows-misx]  # assuming github release is not failing
     steps:
       - name: Build & Deploy
         env:
