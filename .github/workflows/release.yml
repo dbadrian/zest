@@ -214,9 +214,16 @@ jobs:
           name: android-artifact
           path: builds/
 
+      - name: Retrieve Linux Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-artifact
+          path: builds/
+  
+
       - name: Rename files according to release
         run: |
-          mv builds/app-release-signed.aab builds/app-release-${GITHUB_REF#refs/*/}.aab
+          mv builds/app-release-signed.aab builds/zest-${GITHUB_REF#refs/*/}.aab
           mv builds/zest.msix builds/zest-${GITHUB_REF#refs/*/}.msix
 
       - name: Create Release
