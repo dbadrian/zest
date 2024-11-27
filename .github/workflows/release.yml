@@ -176,14 +176,14 @@ jobs:
           docker build  --network=host -t archdev --build-arg GPGKEY="$GPG_SIGNING_KEY" .
           chmod 777 ${{ runner.temp }}
           echo "running next tone!?"
-          docker run -v ${{ runner.temp }}:/build --rm archdev /bin/bash -c "cp /home/builduser/*.pkg.tar.* /build && ls /build"
-          ls ${{ runner.temp }}
+          docker run -v ${{ runner.temp }}:/build --rm archdev /bin/bash -c "cp /home/builduser/*.pkg.tar.* /build"
+          echo "YOO" && ls ${{ runner.temp }}
 
-      - name: upload_linux
+      - name: Upload  Linux artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-artifact
-          path: ${{ runner.temp }}/*.pkg.tar.zst, ${{ runner.temp }}/*.pkg.tar.zst.sig
+          path: ${{ runner.temp }}/*.pkg.tar.zst
           retention-days: 1
 
   deploy-backend:
