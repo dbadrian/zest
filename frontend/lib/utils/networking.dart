@@ -57,8 +57,8 @@ Map<String, dynamic> jsonDecodeResponseData(Response data) {
 /// is not valid Json or doesn't contain Json
 Map<String, dynamic> jsonDecodeResponse(http.Response data) {
   final contentType = data.headers["content-type"];
-  debugPrint(utf8.decode(data.bodyBytes));
-  debugPrint(contentType);
+  // debugPrint(utf8.decode(data.bodyBytes));
+  // debugPrint(contentType);
 
   if (contentType != null &&
       (contentType == "application/json" ||

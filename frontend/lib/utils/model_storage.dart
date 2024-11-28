@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 abstract class ModelStorage<T> {
@@ -88,7 +89,8 @@ abstract class SecureModelStorage<T> extends ModelStorage<T> {
 
   @override
   Future<T?> read() async {
-    final jsonStr = await _storage.read(key: key);
+    final jsonStr =
+        await _storage.read(key: key, aOptions: _getAndroidOptions());
     if (jsonStr != null) {
       return fromJson(jsonDecode(jsonStr));
     } else {
@@ -98,13 +100,18 @@ abstract class SecureModelStorage<T> extends ModelStorage<T> {
 
   @override
   Future<void> save(T instance) async {
-    await _storage.write(key: key, value: jsonEncode(toJson(instance)));
+    await _storage.write(
+        key: key,
+        value: jsonEncode(toJson(instance)),
+        aOptions: _getAndroidOptions());
   }
 
   @override
   Future<void> clear() async {
-    final hasKey = await _storage.containsKey(key: key);
-    if (hasKey) await _storage.delete(key: key);
+    debugPrint("Clearing storage");
+    final hasKey =
+        await _storage.containsKey(key: key, aOptions: _getAndroidOptions());
+    if (hasKey) await _storage.delete(key: key, aOptions: _getAndroidOptions());
   }
 
   T fromJson(Map<String, dynamic> json);

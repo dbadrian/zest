@@ -37,8 +37,8 @@ class MainScaffold extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isAuthenticated = ref.read(authenticationServiceProvider.notifier
         .select((value) => value.isAuthenticated));
-    final user = ref.read(
-        authenticationServiceProvider.notifier.select((value) => value.user));
+    final user = ref.read(authenticationServiceProvider.notifier
+        .select((value) => value.whoIsUser));
     return Scaffold(
       body: child,
       appBar: AppBar(

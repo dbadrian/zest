@@ -121,7 +121,7 @@ class AuthenticationService extends _$AuthenticationService {
 
   bool get isAuthenticated => state.valueOrNull?.token != null;
   bool get isLoading => state.isLoading;
-  User? get user => state.value?.user;
+  User? get whoIsUser => state.value?.user;
 
   @override
   FutureOr<AuthState?> build() async {
@@ -138,7 +138,7 @@ class AuthenticationService extends _$AuthenticationService {
     final user = await getUserFromStorage();
     if (user == null) {
       // something is wrong the stored state
-      debugPrint("User not found in storage");
+      debugPrint("User not found in storage>");
     }
 
     return AuthState(user: user, token: token);
@@ -188,6 +188,7 @@ class AuthenticationService extends _$AuthenticationService {
   /// If no Token is found or can't be renewed, force performs logout
   Future<AuthToken?> getTokenFromStorage() async {
     AuthToken? token = await _tokenStorage.read();
+    debugPrint(token.toString());
     return validateOrRefreshToken(token);
   }
 
@@ -196,7 +197,8 @@ class AuthenticationService extends _$AuthenticationService {
   /// We perform a force logout.
   Future<User?> getUserFromStorage() async {
     final user = await _userStorage.read();
-    if (user == null || !isAuthenticated) {
+    if (user == null) {
+      debugPrint("User not found in storage: $user");
       await logout();
       // return null;
     }
@@ -218,6 +220,7 @@ class AuthenticationService extends _$AuthenticationService {
   /// and possible
   Future<AuthToken?> validateOrRefreshToken(AuthToken? token) async {
     if (token == null) {
+      debugPrint("No token found. Running logout routine");
       // Not token store -> no longer authenticated with still
       await logout();
       return null;
@@ -225,6 +228,7 @@ class AuthenticationService extends _$AuthenticationService {
       // state = AsyncValue.data(AuthState(token: token));
       return token;
     } else if (token.canBeRefreshed) {
+      debugPrint("Token can be refreshed");
       final token = await refreshAccessToken();
       if (token != null) {
         state = AsyncValue.data(state.value!.copyWith(token: token));
@@ -256,6 +260,7 @@ class AuthenticationService extends _$AuthenticationService {
         final body = jsonDecode(utf8.decode(response.bodyBytes));
         final user = User.fromJson(body["user"]);
         await _userStorage.save(user);
+        debugPrint(body.toString());
         final token = AuthToken.fromJson(body);
         await _tokenStorage.save(token);
         state = AsyncAuthState.data(AuthState(token: token, user: user));
@@ -305,6 +310,7 @@ class AuthenticationService extends _$AuthenticationService {
   Future<AuthToken?> refreshAccessToken({AuthToken? token}) async {
     final token_ = token ?? await _tokenStorage.read();
     if (token_ == null || !token_.canBeRefreshed) {
+      debugPrint("Token is null or can't be refreshed");
       return null;
     }
 
@@ -323,6 +329,9 @@ class AuthenticationService extends _$AuthenticationService {
         );
 
         await _tokenStorage.save(newToken);
+
+        final user = await _userStorage.read();
+        debugPrint("Upon refresh (user): $user");
 
         // TODO: Why does copyWith not exist for the AuthToken class?
         state = AsyncAuthState.data(

@@ -23,7 +23,7 @@ class AuthToken with _$AuthToken {
 
   @override
   String toString() {
-    return 'AuthToken{\naccess_token:$accessToken,\nrefresh_token:$refreshToken,\nexpires_in:$accessTokenExpiration,\nrefreshable_till:$refreshTokenExpiration';
+    return 'AuthToken{\naccess_token:$accessToken,\nrefresh_token:$refreshToken,\nexpires_in:${accessTokenExpiration.toLocal()},\nrefreshable_till:${refreshTokenExpiration.toLocal()}';
   }
 
   factory AuthToken.fromJson(Map<String, dynamic> json) =>
