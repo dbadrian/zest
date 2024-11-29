@@ -121,15 +121,19 @@ bool nextPageAvailable(RecipeListResponse? recipeList) {
 class RecipeSearchController extends _$RecipeSearchController {
   @override
   FutureOr<RecipeSearchState> build() async {
-    searchRecipes(state.value?.currentQuery ?? ""); // trigger initial build...
-    return const RecipeSearchState();
+    // state = const ;
+    final filterSettings = ref.watch(recipeSearchFilterSettingsProvider);
+    final ret =
+        await _loadRecipes(query: "", page: 1, filterSettings: filterSettings);
+
+    return ret;
   }
 
-  Future<AsyncValue<RecipeListResponse>> _loadRecipes(
+  Future<RecipeSearchState> _loadRecipes(
       {required String query,
       required int page,
-      required FilterSettingsState filterSettings}) {
-    return AsyncValue.guard(() => ref.read(apiServiceProvider).getRecipes(
+      required FilterSettingsState filterSettings}) async {
+    final ret = await ref.read(apiServiceProvider).getRecipes(
         // pagination related
         page: page,
         pageSize: filterSettings.pageSize,
@@ -141,45 +145,48 @@ class RecipeSearchController extends _$RecipeSearchController {
         searchFields: filterSettings.searchFields
             .map<String>((e) => API_RECIPE_SEARCH_FIELDS[e]!.left)
             .toList(),
-        user: filterSettings.filterOwner ? "owner" : null));
+        user: filterSettings.filterOwner ? "owner" : null);
+    return RecipeSearchState(currentQuery: "", recipeList: ret);
   }
 
   void searchRecipes(String query) async {
     // get and watch current recipeFilterSettings
     final filterSettings = ref.watch(recipeSearchFilterSettingsProvider);
 
-    final ret = await _loadRecipes(
-        query: query, page: 1, filterSettings: filterSettings);
-    ret.when(
-      data: (data) {
-        state =
-            AsyncData(RecipeSearchState(currentQuery: query, recipeList: data));
-      },
-      error: ((error, stackTrace) {
-        state = AsyncError(error, stackTrace);
-      }),
-      loading: (() {
-        state = const AsyncValue.loading();
-      }),
-    );
+    // Set the state to loading
+    state = const AsyncValue.loading();
+
+    // Add the new todo and reload the todo list from the remote repository
+    state = await AsyncValue.guard(() async {
+      return await _loadRecipes(
+          query: query, page: 1, filterSettings: filterSettings);
+    });
   }
 
   void loadNextRecipePage() async {
     final filterSettings = ref.watch(recipeSearchFilterSettingsProvider);
+    state = const AsyncValue.loading();
 
     if (nextPageAvailable(state.value!.recipeList)) {
-      final ret = await _loadRecipes(
-        query: state.value!.currentQuery,
-        page: state.value!.recipeList!.pagination.currentPage + 1,
-        filterSettings: filterSettings,
-      );
+      final ret = await AsyncValue.guard(() async {
+        return await _loadRecipes(
+            query: state.value!.currentQuery,
+            page: state.value!.recipeList!.pagination.currentPage + 1,
+            filterSettings: filterSettings);
+      });
+
+      // final ret = await _loadRecipes(
+      //   query: state.value!.currentQuery,
+      //   page: state.value!.recipeList!.pagination.currentPage + 1,
+      //   filterSettings: filterSettings,
+      // );
       ret.when(
         data: (data) {
           // We create a new state from the latest response as to have the updated pagination
           // but we genearte the complete list of results
-          final newRecipeList = ret.value!.copyWith(recipes: [
+          final newRecipeList = ret.value!.recipeList!.copyWith(recipes: [
             ...state.value!.recipeList!.recipes,
-            ...ret.value!.recipes
+            ...ret.value!.recipeList!.recipes
           ]);
           state = AsyncData(state.value!.copyWith(recipeList: newRecipeList));
         },

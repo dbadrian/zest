@@ -102,7 +102,19 @@ class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
 
   Widget buildBody() {
     final recipeList = ref.watch(recipeSearchControllerProvider);
-    return recipeList.when(data: ((state) {
+
+    // return recipeList.when(
+    //   data: (recipeList) =>
+    //       Text("loaded recipes ${recipeList.recipeList?.recipes.length}"),
+    //   error: (err, stack) => Text("got err"),
+    //   loading: () => Center(child: CircularProgressIndicator()),
+    // );
+
+    return recipeList.when(
+        // show progress indicator
+        loading: (() {
+      return const Center(child: CircularProgressIndicator());
+    }), data: ((state) {
       final recipes = state.recipeList?.recipes;
       if (recipes == null || recipes.isEmpty) {
         return const ListTile(
@@ -172,8 +184,6 @@ class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
           title: Text("Error: ${error.toString()}."),
         );
       }
-    }), loading: (() {
-      return const Center(child: CircularProgressIndicator());
     }));
   }
 
