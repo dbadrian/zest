@@ -61,7 +61,20 @@ class LoginPageState extends ConsumerState<LoginPage> {
                     ),
                     controller: passwordCtrl,
                     obscureText: true,
-                    textInputAction: TextInputAction.next,
+                    // textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) async {
+                      final loggedIn = await ref
+                          .read(authenticationServiceProvider.notifier)
+                          .login(userCtrl.text, passwordCtrl.text);
+
+                      if (loggedIn) {
+                        if (context.mounted) {
+                          GoRouter.of(context)
+                              .go(RecipeSearchPage.routeLocation);
+                        }
+                      }
+                      ;
+                    },
                     // validator: controller.emptyValidator,
                   ),
                 ),
