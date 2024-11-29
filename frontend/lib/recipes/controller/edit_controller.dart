@@ -889,7 +889,7 @@ class RecipeEditController extends _$RecipeEditController {
       // check if entry is of type bool, else set to private
 
       private: json["private"] is bool ? json["private"] ?? false : true,
-      ownerComment: (json["owner"] ?? "").toString(),
+      ownerComment: (json["owner_comment"] ?? "").toString(),
       difficulty: (int.tryParse((json["difficulty"] ?? "").toString()) ?? 0)
           .clamp(0, 3),
       // categories: recipe.categories,
