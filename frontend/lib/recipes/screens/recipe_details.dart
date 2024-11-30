@@ -602,28 +602,31 @@ TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient,
         onTap: markCallback,
         child: Wrap(
           children: [
-            TranslatableField(
-              field: food.name,
-              textStyle: TextStyle(
-                  fontWeight: isMarked ? FontWeight.bold : FontWeight.normal),
-              onConfirm: (String value) async {
-                final translatedName = TranslatedField(values: [
-                  TranslatedValue(
-                      value: value, lang: ref.read(settingsProvider).language)
-                ]);
-                final translatedFood = food.copyWith(name: translatedName);
-                final json = translatedFood.toJson(); // toJsonExplicit();
-                final foodJson = jsonEncode(json);
-                // TODO: WE dont handle if the food translation already exists...
-                final food_ = await ref
-                    .read(apiServiceProvider)
-                    .updateFood(translatedFood.id, foodJson);
-                if (food_ != null) {
-                  final notifier = ref
-                      .read(recipeDetailsControllerProvider(recipeId).notifier);
-                  notifier.loadRecipe();
-                }
-              },
+            Tooltip(
+              message: " you can edit the name of the ingredient",
+              child: TranslatableField(
+                field: food.name,
+                textStyle: TextStyle(
+                    fontWeight: isMarked ? FontWeight.bold : FontWeight.normal),
+                onConfirm: (String value) async {
+                  final translatedName = TranslatedField(values: [
+                    TranslatedValue(
+                        value: value, lang: ref.read(settingsProvider).language)
+                  ]);
+                  final translatedFood = food.copyWith(name: translatedName);
+                  final json = translatedFood.toJson(); // toJsonExplicit();
+                  final foodJson = jsonEncode(json);
+                  // TODO: WE dont handle if the food translation already exists...
+                  final food_ = await ref
+                      .read(apiServiceProvider)
+                      .updateFood(translatedFood.id, foodJson);
+                  if (food_ != null) {
+                    final notifier = ref.read(
+                        recipeDetailsControllerProvider(recipeId).notifier);
+                    notifier.loadRecipe();
+                  }
+                },
+              ),
             ),
             details != null
                 ? Padding(

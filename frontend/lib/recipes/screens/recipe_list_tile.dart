@@ -32,10 +32,12 @@ class RecipeListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      trailing: IconButton(
-        icon: const Icon(Icons.delete_forever),
-        onPressed: onDelete,
-      ),
+      trailing: onDelete != null
+          ? IconButton(
+              icon: const Icon(Icons.delete_forever),
+              onPressed: onDelete,
+            )
+          : null,
       visualDensity: const VisualDensity(horizontal: 0, vertical: -4),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
       subtitle: RichText(
