@@ -251,7 +251,9 @@ jobs:
           packageName: com.dbadrian.zest
           releaseFiles: builds/app-release-signed.aab
           track: internal
-          status: draft
+          # status: draft
+          status: completed
+          changesNotSentForReview: true
           # inAppUpdatePriority: 2
           # whatsNewDirectory: distribution/whatsnew
           # mappingFile: app/build/outputs/mapping/release/mapping.txt
