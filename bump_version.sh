@@ -100,7 +100,7 @@ cd backend
 poetry version ${VERSION}
 echo "__version__ = '${VERSION}'" > zest/version.py
 cd ../frontend
-cider version ${VERSION}+$(git rev-list --count HEAD)
+cider version ${VERSION}+$(($(git rev-list --count HEAD) + 1148))
 sed -i "s/pkgver=.*$/pkgver=${VERSION}/g" PKGBUILD
 cd ..
 git add backend/pyproject.toml
