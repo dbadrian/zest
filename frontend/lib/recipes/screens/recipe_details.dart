@@ -603,7 +603,8 @@ TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient,
         child: Wrap(
           children: [
             Tooltip(
-              message: " you can edit the name of the ingredient",
+              message: food.description?.value() ??
+                  "", // TODO : add tooltip based on food description
               child: TranslatableField(
                 field: food.name,
                 textStyle: TextStyle(
