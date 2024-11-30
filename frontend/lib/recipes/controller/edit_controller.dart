@@ -247,6 +247,7 @@ class RecipeEditController extends _$RecipeEditController {
         );
         pushState(s);
         ref.watch(recipeEditorHistoryControllerProvider.notifier).reset();
+        state = AsyncValue.data(s);
         return s;
       }
     } else if (draftId != null) {
@@ -258,6 +259,7 @@ class RecipeEditController extends _$RecipeEditController {
         final s =
             draftState.copyWith(validRecipeCategoryChoices: validCategories);
         pushState(s);
+        state = AsyncValue.data(s);
         ref.watch(recipeEditorHistoryControllerProvider.notifier).reset();
         return s;
       }
@@ -291,7 +293,7 @@ class RecipeEditController extends _$RecipeEditController {
 
     pushState(s);
     ref.watch(recipeEditorHistoryControllerProvider.notifier).reset();
-
+    state = AsyncValue.data(s);
     return s;
 
     // return RecipeEditState(
@@ -570,6 +572,7 @@ class RecipeEditController extends _$RecipeEditController {
   }
 
   void updateIngredient(int groupId, int ingredientId, IngredientState update) {
+    debugPrint("updateIngredient $groupId $ingredientId $update");
     final grps = [...state.value!.ingredientGroups];
     grps[groupId] = grps[groupId].updateIngredient(ingredientId, update);
     if (update.selectedFood != null &&
@@ -598,8 +601,13 @@ class RecipeEditController extends _$RecipeEditController {
   }
 
   void deleteIngredient(int groupId, int ingredientId) {
+    final ingrCpy = [...state.value!.ingredientGroups[groupId].ingredients];
+    ingrCpy.removeAt(ingredientId);
+
+    // place it back
     final newGroups = [...state.value!.ingredientGroups];
-    newGroups[groupId] = newGroups[groupId].delete(ingredientId);
+    newGroups[groupId] = newGroups[groupId].copyWith(ingredients: ingrCpy);
+
     pushAndUpdateState(state.value!.copyWith(ingredientGroups: newGroups));
   }
 
@@ -780,6 +788,11 @@ class RecipeEditController extends _$RecipeEditController {
   }
 
   void fillRecipeFromJSON(Map<String, dynamic> json) async {
+    state = const AsyncValue.loading();
+
+    final recipeBackup = state.value!.recipe;
+    pushAndUpdateState(state.value?.copyWith(recipe: null) ?? state.value!);
+
     // final state = RecipeEditState(
     //   // formKey: GlobalKey<FormState>(),
 
@@ -811,7 +824,6 @@ class RecipeEditController extends _$RecipeEditController {
     if (json["ingredient_groups"] != null &&
         json["ingredient_groups"] is List) {
       for (final e in (json["ingredient_groups"] as List<dynamic>)) {
-        print(e);
         try {
           final ingr = <IngredientState>[];
           for (final tel in (e["ingredients"] as List<dynamic>)) {
@@ -883,26 +895,26 @@ class RecipeEditController extends _$RecipeEditController {
     }
 
     pushAndUpdateState(state.value!.copyWith(
-      lang: lang,
-      title: (json["title"] ?? "").toString(),
-      subtitle: (json["subtitle"] ?? "").toString(),
-      // check if entry is of type bool, else set to private
+        lang: lang,
+        title: (json["title"] ?? "").toString(),
+        subtitle: (json["subtitle"] ?? "").toString(),
+        // check if entry is of type bool, else set to private
 
-      private: json["private"] is bool ? json["private"] ?? false : true,
-      ownerComment: (json["owner_comment"] ?? "").toString(),
-      difficulty: (int.tryParse((json["difficulty"] ?? "").toString()) ?? 0)
-          .clamp(0, 3),
-      // categories: recipe.categories,
-      // tags: recipe.tags,
-      servings: (json["servings"] ?? "").toString(),
-      prepTime: (json["prep_time"] ?? "").toString(),
-      cookTime: (json["cook_time"] ?? "").toString(),
-      sourceName: (json["source_name"] ?? "").toString(),
-      sourcePage: (json["source_page"] ?? "").toString(),
-      sourceUrl: (json["source_url"] ?? "").toString(),
-      instructionGroups: instructions,
-      ingredientGroups: ingredients,
-    ));
+        private: json["private"] is bool ? json["private"] ?? false : true,
+        ownerComment: (json["owner_comment"] ?? "").toString(),
+        difficulty: (int.tryParse((json["difficulty"] ?? "").toString()) ?? 0)
+            .clamp(0, 3),
+        // categories: recipe.categories,
+        // tags: recipe.tags,
+        servings: (json["servings"] ?? "").toString(),
+        prepTime: (json["prep_time"] ?? "").toString(),
+        cookTime: (json["cook_time"] ?? "").toString(),
+        sourceName: (json["source_name"] ?? "").toString(),
+        sourcePage: (json["source_page"] ?? "").toString(),
+        sourceUrl: (json["source_url"] ?? "").toString(),
+        instructionGroups: instructions,
+        ingredientGroups: ingredients,
+        recipe: recipeBackup));
   }
 }
 

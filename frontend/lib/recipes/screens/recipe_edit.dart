@@ -15,6 +15,7 @@ import 'package:zest/recipes/models/models.dart';
 import 'package:zest/recipes/screens/recipe_details.dart';
 import 'package:zest/recipes/screens/widgets/ingredient_form.dart';
 import 'package:zest/ui/widgets/divider_text.dart';
+import 'package:zest/ui/widgets/generics.dart';
 import 'package:zest/utils/form_validators.dart';
 import 'package:zest/utils/loading_indicator.dart';
 
@@ -59,9 +60,40 @@ class RecipeEditPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // We filter based on recipe, as this will only ever change
     // when the the editor is first loaded or user pressed save
+    // final recipeRemote = ref.watch(
+    //     recipeEditControllerProvider(recipeId, draftId: draftId)
+    //         .selectAsync((value) => value.recipe));
     final recipeRemote = ref.watch(
         recipeEditControllerProvider(recipeId, draftId: draftId)
             .selectAsync((value) => value.recipe));
+
+    // return state.when(
+    //   data: (value) {
+    //     return LayoutBuilder(
+    //       builder: (BuildContext context, BoxConstraints constraints) {
+    //         if (constraints.maxWidth > 800) {
+    //           return RecipeEditWideWidget(
+    //             recipeId: recipeId,
+    //             draftId: draftId,
+    //           );
+    //         } else {
+    //           return RecipeEditNarrowWidget(
+    //             recipeId: recipeId,
+    //             draftId: draftId,
+    //           );
+    //         }
+    //       },
+    //     );
+    //   },
+    //   loading: () {
+    //     return CircularProgressIndicator();
+    //   },
+    //   error: (e, s) {
+    //     debugPrint("Error: $e");
+    //     return Text("Error: $e");
+    //   },
+    // );
+
     // map all its states to widgets and return the result
     return FutureBuilder(
       future: recipeRemote,
@@ -69,6 +101,11 @@ class RecipeEditPage extends ConsumerWidget {
         if (snapshot.connectionState != ConnectionState.done) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasData) {
+          final state = ref
+              .read(recipeEditControllerProvider(recipeId, draftId: draftId));
+          if (state.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
           return LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
               if (constraints.maxWidth > 800) {
@@ -85,7 +122,15 @@ class RecipeEditPage extends ConsumerWidget {
             },
           );
         } else {
-          return Text("Error: Couldn't build recipe editing widget $recipeId.");
+          // return Text("Error: Couldn't build recipe editing widget $recipeId.");
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Preparing Recipe Editor... please wait a moment!"),
+              ElementsVerticalSpace(),
+              const Center(child: CircularProgressIndicator()),
+            ],
+          );
         }
       },
     );

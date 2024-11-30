@@ -348,7 +348,10 @@ class _UnitSelectionFieldState extends ConsumerState<UnitSelectionField> {
           ),
           initialValue: TextEditingValue(text: widget.unitController.text),
           displayStringForOption: (p0) => p0.name.value(),
-          onChanged: (p0) => widget.onUpdate(unit: p0),
+          onChanged: (p0) {
+            debugPrint("[onChanged] Selected unit: ${p0} // $selectedUnit_");
+            widget.onUpdate(unit: p0, selectedUnit: selectedUnit_);
+          },
           optionsViewBuilder: (context, onSelected, options) {
             return Align(
               alignment: Alignment.topLeft,
@@ -414,7 +417,8 @@ class _UnitSelectionFieldState extends ConsumerState<UnitSelectionField> {
                 pattern.toLowerCase() !=
                     selectedUnit_?.name.value().toLowerCase()) {
               selectedUnit_ = null;
-              widget.onUpdate(selectedUnit: selectedUnit_);
+              //important: we need to supply the unit string as well
+              widget.onUpdate(selectedUnit: null, unit: pattern);
             }
 
             //TODO: [MAJOR] Handle timeouts etc as in food
@@ -515,7 +519,10 @@ class _FoodSelectionFieldState extends ConsumerState<FoodSelectionField> {
           ),
           initialValue: TextEditingValue(text: widget.foodController.text),
           displayStringForOption: (p0) => p0.name.value(),
-          onChanged: (p0) => widget.onUpdate(food: p0),
+          onChanged: (p0) {
+            debugPrint("[onChanged] Selected food: ${p0} // $selectedFood_");
+            widget.onUpdate(food: p0, selectedFood: selectedFood_);
+          },
           optionsViewBuilder: (context, onSelected, options) {
             return Align(
               alignment: Alignment.topLeft,
@@ -638,12 +645,18 @@ class _FoodSelectionFieldState extends ConsumerState<FoodSelectionField> {
             );
           },
           search: (String pattern) async {
+            debugPrint("Searching for food with pattern: $pattern");
             currentQuery_ = pattern;
             if (selectedFood_ != null &&
                 pattern.toLowerCase() !=
                     selectedFood_?.name.value().toLowerCase()) {
+              debugPrint(
+                  "Selected food was: ${selectedFood_?.name}, changing to null");
+
               selectedFood_ = null;
-              widget.onUpdate(selectedFood: selectedFood_);
+              // important: we need to supply the food string as well
+              // or else the food item wont be updated
+              widget.onUpdate(selectedFood: null, food: pattern);
             }
             final foods = await ref.read(apiServiceProvider).getFoods(
                 search: pattern,
@@ -716,7 +729,7 @@ class _FoodSelectionFieldState extends ConsumerState<FoodSelectionField> {
           onSelected: (Food? suggestion) async {
             final food = suggestion!;
             widget.onUpdate(food: food.name.value(), selectedFood: food);
-            // setState(() => );
+            debugPrint("[onSelected] food: ${suggestion}");
             selectedFood_ = food;
             node.requestFocus();
           },
