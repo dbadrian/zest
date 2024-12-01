@@ -36,7 +36,7 @@ GoRouter getRouter(GetRouterRef ref) {
       ShellRoute(
         navigatorKey: shellNavigatorKey,
         builder: (BuildContext context, GoRouterState state, Widget child) {
-          return MainScaffold(child: child);
+          return MainScaffold(key: const Key("MainScaffold"), child: child);
         },
         routes: [
           GoRoute(
