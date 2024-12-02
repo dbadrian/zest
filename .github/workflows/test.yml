@@ -97,10 +97,10 @@ jobs:
       - name: Tests
         run: flutter test --coverage
 
-      # - name: Generate Coverage
-      #   run: |
-      #     sudo apt-get install -y lcov
-      #     lcov --remove coverage/lcov.info 'lib/*/*.freezed.dart' 'lib/*.g.dart' 'lib/*/*.part.dart' 'lib/generated/*.dart' 'lib/generated/*/*.dart' -o coverage/lcov.info
+      - name: Generate Coverage
+        run: |
+          sudo apt-get install -y lcov
+          lcov --ignore-errors unused --remove coverage/lcov.info 'lib/*/*.freezed.dart' 'lib/*.g.dart' 'lib/*/*.part.dart' 'lib/generated/*.dart' 'lib/generated/*/*.dart' -o coverage/lcov.info
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
