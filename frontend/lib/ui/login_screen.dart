@@ -44,6 +44,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
                 const ElementsVerticalSpace(),
                 Expanded(
                   child: TextFormField(
+                    key: const Key('username'),
                     controller: userCtrl,
                     decoration: const InputDecoration(
                       labelText: "Username",
@@ -55,6 +56,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
                 const ElementsVerticalSpace(),
                 Expanded(
                   child: TextFormField(
+                    key: const Key('password'),
                     decoration: const InputDecoration(
                       labelText: "Password",
                       // border: OutlineInputBorder(),
@@ -80,6 +82,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
                 ),
                 if (state.hasError)
                   Text(
+                    key: const Key('loginError_incorrect_credentials'),
                     "Login failed: ${ref.read(authenticationServiceProvider).error.toString()}",
                     style: const TextStyle(
                       color: Colors.deepOrangeAccent,
@@ -90,6 +93,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
                   ),
                 const ElementsVerticalSpace(),
                 ElevatedButton(
+                  key: const Key('login'),
                   onPressed: state.isLoading
                       ? null
                       // otherwise, get the notifier and sign in
