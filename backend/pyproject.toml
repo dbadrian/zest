@@ -38,11 +38,11 @@ django-stubs = "^5.1.1"
 coloredlogs = "^15.0.1"
 shiv = "^1.0.8"
 coverage = "^7.6"
-virtualenv = "^20.27.1"
+virtualenv = "^20.28.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^4.0.1"
-pytest = "^8.3.3"
+pytest = "^8.3.4"
 pytest-django = "^4.9.0"
 pytest-cov = "^6.0.0"
 nplusone = "^1.0.0"
