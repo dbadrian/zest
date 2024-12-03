@@ -17,11 +17,11 @@ import 'package:integration_test/integration_test.dart';
 
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  // get rid of debugPrints
+// get rid of debugPrints
   if (isProduction) {
-    // analyser does not like empty function body
-    // debugPrint = (String message, {int wrapWidth}) {};
-    // so i changed it to this:
+// analyser does not like empty function body
+// debugPrint = (String message, {int wrapWidth}) {};
+// so i changed it to this:
     debugPrint = (String? message, {int? wrapWidth}) {};
   }
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +29,7 @@ void main() async {
   final sharedPrefs = await SharedPreferences.getInstance();
 
   if (Platform.isWindows || Platform.isLinux) {
-    // Initialize FFI
+// Initialize FFI
     sqfliteFfiInit();
   }
 
@@ -45,13 +45,13 @@ void main() async {
   final appDocumentsDir = await getApplicationDocumentsDirectory();
 
   final database = await openDatabase(
-    // Set the path to the database. Note: Using the `join` function from the
-    // `path` package is best practice to ensure the path is correctly
-    // constructed for each platform.
+// Set the path to the database. Note: Using the `join` function from the
+// `path` package is best practice to ensure the path is correctly
+// constructed for each platform.
     join(appDocumentsDir.path, 'sqlite.db'),
 
     onCreate: (db, version) {
-      // Run the CREATE TABLE statement on the database.
+// Run the CREATE TABLE statement on the database.
       return db.execute(
         'CREATE TABLE $RECIPE_DRAFT_DB_KEY(id INTEGER PRIMARY KEY, updatedLast INT, state TEXT)',
       );
@@ -63,25 +63,11 @@ void main() async {
             "ALTER TABLE $RECIPE_DRAFT_DB_KEY ADD COLUMN updatedLast INT;");
       }
     },
-    // Set the version. This executes the onCreate function and provides a
-    // path to perform database upgrades and downgrades.
+// Set the version. This executes the onCreate function and provides a
+// path to perform database upgrades and downgrades.
     version: 3,
   );
 
-  // void packageInfoMock() {
-  //   const MethodChannel('plugins.flutter.io/package_info')
-  //       .setMockMethodCallHandler((MethodCall methodCall) async {
-  //     if (methodCall.method == 'getAll') {
-  //       return <String, dynamic>{
-  //         'appName': 'ABC', // <--- set initial values here
-  //         'packageName': 'A.B.C', // <--- set initial values here
-  //         'version': '1.0.0', // <--- set initial values here
-  //         'buildNumber': '' // <--- set initial values here
-  //       };
-  //     }
-  //     return null;
-  //   });
-  // }
   PackageInfo.setMockInitialValues(
       appName: "abc",
       packageName: "com.example.example",
@@ -90,8 +76,8 @@ void main() async {
       buildSignature: "buildSignature");
   packageInfo = await PackageInfo.fromPlatform();
 
-  // Configure headers
-  // TODO: Remove for public version
+// Configure headers
+// TODO: Remove for public version
   UpdatGlobalOptions.downloadReleaseHeaders = {
     "Accept": "application/octet-stream",
   };
@@ -108,43 +94,76 @@ void main() async {
       expect(find.byKey(const Key('MainScaffold')), findsOneWidget);
     });
 
-    testWidgets('Check login-screen is present by checking for widgets',
-        (tester) async {
+    testWidgets('Test login functionality via real API', (tester) async {
+      await tester.pumpWidget(ProviderScope(overrides: [
+        sharedPreferencesProvider.overrideWithValue(sharedPrefs),
+        sqliteDbProvider.overrideWithValue(database),
+      ], child: const ZestApp()));
+      final usernameKey = const Key('username');
+      final passwordKey = const Key('password');
+      expect(find.byKey(usernameKey), findsOneWidget);
+      expect(find.byKey(passwordKey), findsOneWidget);
+      final loginButton = find.byKey(const Key('login'));
+      expect(loginButton, findsOneWidget);
+
+//test without having entered correct user data to loging
+      await tester.enterText(find.byKey(usernameKey), 'user');
+      await tester.enterText(find.byKey(passwordKey), 'password');
+      await tester.tap(loginButton);
+      await tester.pumpAndSettle();
+      expect(find.byKey(usernameKey), findsOneWidget);
+      expect(find.byKey(passwordKey), findsOneWidget);
+      final loginError = const Key('loginError_incorrect_credentials');
+      expect(find.byKey(loginError), findsOneWidget);
+
+//test with having entered user data to loging
+      await tester.enterText(find.byKey(usernameKey), 'user');
+      await tester.enterText(find.byKey(passwordKey), 'password');
+      await tester.tap(loginButton);
+      await tester.pumpAndSettle();
+      expect(find.byKey(loginError), findsOneWidget);
+      expect(find.byKey(const Key('appbar_search_icon')), findsNothing);
+
+      await tester.enterText(find.byKey(usernameKey), 'admin');
+      await tester.enterText(find.byKey(passwordKey), 'admin');
+      await tester.tap(loginButton);
+      await tester.pumpAndSettle();
+      expect(find.byKey(loginError), findsNothing);
+
+      expect(find.byKey(const Key('appbar_search_icon')), findsOneWidget);
+    });
+
+    testWidgets('Test cached username for login', (tester) async {
+      FlutterSecureStorage.setMockInitialValues({
+        "authentication_service_user":
+            '{"pk":"...","username":"admin","email":"..","first_name":"...","last_name":"..."}'
+      });
+
       await tester.pumpWidget(ProviderScope(overrides: [
         sharedPreferencesProvider.overrideWithValue(sharedPrefs),
         sqliteDbProvider.overrideWithValue(database),
       ], child: const ZestApp()));
 
-      expect(find.byKey(const Key('username')), findsOneWidget);
-      expect(find.byKey(const Key('password')), findsOneWidget);
+      final usernameKey = const Key('username');
+      final passwordKey = const Key('password');
+      expect(find.byKey(usernameKey), findsOneWidget);
+      expect(find.byKey(passwordKey), findsOneWidget);
       final loginButton = find.byKey(const Key('login'));
       expect(loginButton, findsOneWidget);
 
-      //test without having entered correct user data to loging
-      await tester.enterText(find.byKey(const Key('username')), 'user');
-      await tester.enterText(find.byKey(const Key('password')), 'password');
-      await tester.tap(loginButton);
-      await tester.pumpAndSettle();
-      expect(find.byKey(const Key('username')), findsOneWidget);
-      expect(find.byKey(const Key('password')), findsOneWidget);
-      expect(find.byKey(const Key('loginError_incorrect_credentials')),
-          findsOneWidget);
+      // final fieldWidget = find.byKey(usernameKey).evaluate().first.widget;
+      // final fieldTextValue = (fieldWidget as TextFormField).controller!.text;
+      // print("YTOO >$fieldTextValue<");
 
-      //test with having entered user data to loging
-      await tester.enterText(find.byKey(const Key('username')), 'user');
-      await tester.enterText(find.byKey(const Key('password')), 'password');
-      await tester.tap(loginButton);
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('loginError_incorrect_credentials')),
-          findsOneWidget);
-      expect(find.byKey(const Key('appbar_search_icon')), findsNothing);
+      final TextFormField formfield =
+          tester.widget<TextFormField>(find.byKey(usernameKey));
 
-      await tester.enterText(find.byKey(const Key('username')), 'admin');
-      await tester.enterText(find.byKey(const Key('password')), 'admin');
+      expect(formfield.controller!.text, "admin");
+
+      await tester.enterText(find.byKey(passwordKey), 'admin');
       await tester.tap(loginButton);
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('loginError_incorrect_credentials')),
-          findsNothing);
 
       expect(find.byKey(const Key('appbar_search_icon')), findsOneWidget);
     });

@@ -124,7 +124,7 @@ class AuthenticationService extends _$AuthenticationService {
   User? get whoIsUser => state.value?.user;
 
   @override
-  FutureOr<AuthState?> build() async {
+  Future<AuthState?> build() async {
     state = const AsyncLoading();
     _client =
         ref.read(httpJSONClientProvider(withAuthenticationInterceptor: false));
@@ -244,7 +244,7 @@ class AuthenticationService extends _$AuthenticationService {
   Future<bool> login(String username, String password) async {
     final SettingsState settings = ref.read(settingsProvider);
     final url = getAPIUrl(settings, '/auth/login/');
-    state = const AsyncLoading<AuthState?>();
+    state = const AsyncLoading();
     try {
       final response = await _client.post(
         url,
