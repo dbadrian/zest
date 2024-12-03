@@ -116,7 +116,7 @@ jobs:
       - name: Build docker images
         run: |
           task backend-init-ci
-          task docker-start
+          task docker-start &
 
       - name: Tests
         run: flutter test --coverage
