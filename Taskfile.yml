@@ -41,6 +41,12 @@ tasks:
       - task: backend-install-fixtures
       - task: backend-django-collect-static
 
+  backend-init-ci:
+    cmds:
+      - task: docker-build
+      - task: backend-django-migrate
+      - task: backend-install-fixtures
+
   backend-build:
     deps: [docker-build]
 
