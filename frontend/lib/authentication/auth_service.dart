@@ -303,6 +303,7 @@ class AuthenticationService extends _$AuthenticationService {
     // state = const AsyncAuthState.data(null);
     state = AsyncAuthState.data(state.value?.copyWith(token: null));
     await _tokenStorage.clear();
+    debugPrint((await _userStorage.read()).toString());
     // We do  not! have to evict the user data
     // let the user fix this themselves...
   }
