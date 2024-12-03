@@ -12,7 +12,7 @@ part 'settings_provider.g.dart';
 // Keys for basic settings
 const _languageKey = 'settings_language';
 const _searchAllLanguagesKey = 'settings_search_all_languages_key';
-const _apiUrlKey = 'settings_api_url';
+const apiUrlKey = 'settings_api_url';
 
 const _themeUseDarkThemeKey = 'settings_useDarkTheme';
 const _themeBaseColorKey = 'settings_themeBaseColor';
@@ -91,7 +91,7 @@ class Settings extends _$Settings {
     // Advanced
     final showAdvancedSettings =
         prefs.getBool(_showAdvancedSettingsKey) ?? false;
-    final apiUrl = prefs.getString(_apiUrlKey) ?? DEFAULT_API_URL;
+    final apiUrl = prefs.getString(apiUrlKey) ?? DEFAULT_API_URL;
     return SettingsState(
       useDarkTheme: useDarkTheme,
       pickerColor: Color(pickerColor),
@@ -126,6 +126,6 @@ class Settings extends _$Settings {
     prefs.setBool(_searchAllLanguagesKey, state.searchAllLanguages);
     // Advanced
     prefs.setBool(_showAdvancedSettingsKey, state.showAdvancedSettings);
-    prefs.setString(_apiUrlKey, state.apiUrl);
+    prefs.setString(apiUrlKey, state.apiUrl);
   }
 }

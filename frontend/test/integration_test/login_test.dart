@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:updat/utils/global_options.dart';
 import 'package:zest/config/constants.dart';
+import 'package:zest/settings/settings_provider.dart';
 import 'package:zest/main.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -25,7 +26,12 @@ void main() async {
     debugPrint = (String? message, {int? wrapWidth}) {};
   }
   WidgetsFlutterBinding.ensureInitialized();
-  SharedPreferences.setMockInitialValues({});
+
+  // set important variables
+  SharedPreferences.setMockInitialValues({
+    apiUrlKey: "http://localhost:1337/api/v1",
+  });
+
   final sharedPrefs = await SharedPreferences.getInstance();
 
   if (Platform.isWindows || Platform.isLinux) {
