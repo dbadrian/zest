@@ -4,6 +4,14 @@ AUTH_USER_MODEL = "users.CustomUser"
 
 AUTH_MODE = os.environ.get("DJANGO_AUTH_MODE", default="jwt")
 
+# disables (or technically enables if chosen) the ability to create new users
+# via the API. This is useful for when you want to manually create users
+
+# check environ variable to see if we want to allow new users to be created
+ALLOW_NEW_USERS = os.environ.get("ALLOW_NEW_USERS", default="false")
+if ALLOW_NEW_USERS.lower() == "false":
+    ACCOUNT_ADAPTER = 'users.account_adapter.NoNewUsersAccountAdapter'
+
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
