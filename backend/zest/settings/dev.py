@@ -6,6 +6,9 @@ import os
 
 from .base import *  # noqa: F403
 
+ACCOUNT_ADAPTER = 'users.account_adapter.NoNewUsersAccountAdapter'
+
+
 DEBUG = 1
 AUTH_MODE = os.environ.get("DJANGO_AUTH_MODE", default="session")
 

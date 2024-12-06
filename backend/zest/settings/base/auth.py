@@ -7,10 +7,6 @@ AUTH_MODE = os.environ.get("DJANGO_AUTH_MODE", default="jwt")
 # disables (or technically enables if chosen) the ability to create new users
 # via the API. This is useful for when you want to manually create users
 
-# check environ variable to see if we want to allow new users to be created
-ALLOW_NEW_USERS = os.environ.get("ALLOW_NEW_USERS", default="false")
-if ALLOW_NEW_USERS.lower() == "false":
-    ACCOUNT_ADAPTER = 'users.account_adapter.NoNewUsersAccountAdapter'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -42,6 +38,14 @@ REST_AUTH = {
     "JWT_AUTH_HTTPONLY": False,
     "JWT_AUTH_RETURN_EXPIRATION": True,
 }
+
+# check environ variable to see if we want to allow new users to be created
+# This only works because the custom adapter doesnt implement any other logic
+# obviously adapt if you change the logic
+ALLOW_NEW_USERS = os.environ.get("ALLOW_NEW_USERS", default="false")
+if ALLOW_NEW_USERS.lower() == "false":
+    ACCOUNT_ADAPTER = "users.account_adapter.NoNewUsersAccountAdapter"
+    REST_AUTH["REGISTER_SERIALIZER"] = "users.registration.RegisterSerializer"
 
 # REST_AUTH_SERIALIZERS = {
 #     "JWT_SERIALIZER": "dj_rest_auth.serializers.JWTSerializerWithExpiration",
