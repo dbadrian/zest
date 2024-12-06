@@ -19,6 +19,9 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "rest_framework.authtoken",
+    # list high so its found because of adapter
+    "users.apps.UsersConfig",
+    #
     "dj_rest_auth",
     "allauth",
     "allauth.account",
@@ -29,7 +32,6 @@ INSTALLED_APPS = [
     # "allauth.socialaccount",
     # "drf_yasg2",
     # local (ORDERED LIST)
-    "users.apps.UsersConfig",
     "shared.apps.SharedConfig",
     "units.apps.UnitsConfig",
     "foods.apps.FoodsConfig",

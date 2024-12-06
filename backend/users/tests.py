@@ -29,3 +29,16 @@ class CustomUserTests(TestCase):
         self.assertTrue(admin_user.is_active)
         self.assertTrue(admin_user.is_staff)
         self.assertTrue(admin_user.is_superuser)
+class AuthAPITest(TestCase):
+    """Test the authentication API endpoints."""
+
+    def test_create_user(self):
+        """Test creating a new user. We except registration to be disabled!"""
+        payload = {
+            "username": "recipeuser",
+            "email": "asd@asd.de",
+            "password1": "testpass123",
+            "password2": "testpass123",
+        }
+        res = self.client.post("/api/v1/auth/registration/", payload)
+        self.assertEqual(res.status_code, 403)
