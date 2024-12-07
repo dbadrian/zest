@@ -145,6 +145,7 @@ class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
                   prepTime: item.prepTime,
                   cookTime: item.cookTime,
                   difficulty: item.difficulty,
+                  language: item.language,
                   onTap: () {
                     context.goNamed(
                       RecipeDetailsPage.routeName,
@@ -360,35 +361,76 @@ class FilterSettingsBottomWindow extends ConsumerWidget {
           subtitle: const Text('Recipes from all languages will be shown!'),
         ),
         const Divider(),
-        ListTile(
-          visualDensity: VisualDensity.compact,
-          leading: const Icon(Icons.search),
-          title: Row(
-            children: [
-              // const Text('Search Fields:'),
-              Flexible(
-                child: FormBuilderCheckboxGroup<String>(
-                  visualDensity: VisualDensity.compact,
-                  name: "search_fields",
-                  decoration: const InputDecoration(border: InputBorder.none),
-                  initialValue: settings.searchFields,
-                  options: API_RECIPE_SEARCH_FIELDS.entries
-                      .map<FormBuilderFieldOption<String>>(
-                          (e) => FormBuilderFieldOption(value: e.key))
-                      .toList(),
-                  onChanged: ((value) {
-                    ref
-                        .read(recipeSearchFilterSettingsProvider.notifier)
-                        .updateSearchFields(value!);
-                  }),
-                  wrapAlignment: WrapAlignment.center,
-                ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 200,
+              height: 40,
+              child: Center(
+                child: Text('Search Fields:',
+                    style: Theme.of(context).textTheme.titleMedium),
               ),
-            ],
-          ),
-          subtitle: const Text(
-              'Will search in all selected fields for matching terms; if none selected, will search in all fields.'),
+            ),
+            Flexible(
+              fit: FlexFit.tight,
+              child: FormBuilderCheckboxGroup<String>(
+                visualDensity: VisualDensity.compact,
+                name: "search_fields",
+                decoration: const InputDecoration(border: InputBorder.none),
+                initialValue: settings.searchFields,
+                options: API_RECIPE_SEARCH_FIELDS.entries
+                    .map<FormBuilderFieldOption<String>>(
+                        (e) => FormBuilderFieldOption(value: e.key))
+                    .toList(),
+                onChanged: ((value) {
+                  ref
+                      .read(recipeSearchFilterSettingsProvider.notifier)
+                      .updateSearchFields(value!);
+                }),
+                wrapAlignment: WrapAlignment.center,
+              ),
+            ),
+          ],
         ),
+        // ListTile(
+        //   visualDensity: VisualDensity.compact,
+        //   leading: const Icon(Icons.search),
+        //   title:
+        //   subtitle: const Text(
+        //       'Will search in all selected fields for matching terms; if none selected, will search in all fields.'),
+        // ),
+
+        // FIXME: This was once the correct way of doing it.
+        // ListTile(
+        //   visualDensity: VisualDensity.compact,
+        //   leading: const Icon(Icons.search),
+        //   title: Row(
+        //     children: [
+        //       // const Text('Search Fields:'),
+        //       Expanded(
+        //         child: FormBuilderCheckboxGroup<String>(
+        //           visualDensity: VisualDensity.compact,
+        //           name: "search_fields",
+        //           decoration: const InputDecoration(border: InputBorder.none),
+        //           initialValue: settings.searchFields,
+        //           options: API_RECIPE_SEARCH_FIELDS.entries
+        //               .map<FormBuilderFieldOption<String>>(
+        //                   (e) => FormBuilderFieldOption(value: e.key))
+        //               .toList(),
+        //           onChanged: ((value) {
+        //             ref
+        //                 .read(recipeSearchFilterSettingsProvider.notifier)
+        //                 .updateSearchFields(value!);
+        //           }),
+        //           wrapAlignment: WrapAlignment.center,
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        //   subtitle: const Text(
+        //       'Will search in all selected fields for matching terms; if none selected, will search in all fields.'),
+        // ),
         const Divider(),
         SwitchListTile(
           visualDensity: VisualDensity.compact,
