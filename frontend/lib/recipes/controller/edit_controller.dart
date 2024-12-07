@@ -641,6 +641,11 @@ class RecipeEditController extends _$RecipeEditController {
     pushAndUpdateState(state.value!.copyWith(ingredientGroups: grps));
   }
 
+  void updateLanguage(String lang) {
+    debugPrint("updateLanguage $lang");
+    pushAndUpdateState(state.value!.copyWith(lang: lang));
+  }
+
   void purgeEmptyOptionals() {
     final List<int> toDeleteInstruction = [];
     state.value!.instructionGroups!.asMap().forEach((key, value) {
@@ -701,6 +706,7 @@ class RecipeEditController extends _$RecipeEditController {
     final newRecipe = state.value!.recipe!.copyWith(
         title: state.value!.title,
         subtitle: state.value!.subtitle,
+        language: state.value!.lang,
         ownerComment: state.value!.ownerComment,
         difficulty: state.value!.difficulty,
         categories: state.value!.categories,
@@ -720,7 +726,8 @@ class RecipeEditController extends _$RecipeEditController {
 
     if (newRecipe.recipeId.isEmpty) {
       recipeJson.remove("recipe_id");
-      return apiService.createRecipeRemote(jsonEncode(recipeJson));
+      return apiService.createRecipeRemote(jsonEncode(recipeJson),
+          lang: state.value!.lang);
     } else {
       return apiService.updateRecipeRemote(
           newRecipe.recipeId, jsonEncode(recipeJson));
