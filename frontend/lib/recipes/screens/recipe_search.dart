@@ -401,6 +401,7 @@ class FilterSettingsBottomWindow extends ConsumerWidget {
         //       'Will search in all selected fields for matching terms; if none selected, will search in all fields.'),
         // ),
 
+        // FIXME: This was once the correct way of doing it.
         // ListTile(
         //   visualDensity: VisualDensity.compact,
         //   leading: const Icon(Icons.search),

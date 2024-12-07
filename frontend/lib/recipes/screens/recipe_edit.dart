@@ -416,10 +416,6 @@ class RecipeEditWideWidget extends HookConsumerWidget {
                   //     .isNotEmpty)
                   ElevatedButton(
                     onPressed: () async {
-                      final rId = ref.read(recipeEditControllerProvider(
-                              recipeId,
-                              draftId: draftId)
-                          .select((v) => v.value!.recipe!.recipeId));
                       // Validate returns true if the form is valid, or false otherwise.
                       if (recipeEditStateFormKey.currentState!.validate()) {
                         recipeEditStateFormKey.currentState!.save();
@@ -437,6 +433,11 @@ class RecipeEditWideWidget extends HookConsumerWidget {
                         }
 
                         LoadingIndicatorDialog().dismiss();
+
+                        final rId = ref.read(recipeEditControllerProvider(
+                                recipeId,
+                                draftId: draftId)
+                            .select((v) => v.value!.recipe!.recipeId));
 
                         if (success) {
                           if (context.mounted) {
