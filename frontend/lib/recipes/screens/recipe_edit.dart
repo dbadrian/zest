@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -9,6 +10,7 @@ import 'package:form_builder_extra_fields/form_builder_extra_fields.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:zest/config/constants.dart';
 
 import 'package:zest/recipes/controller/edit_controller.dart';
 import 'package:zest/recipes/models/models.dart';
@@ -637,24 +639,74 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
         ),
         // const SizedBox(height: 30),
         const SizedBox(height: 12),
-        TextFormField(
-          // initialValue: ref.watch(
-          //     recipeEditControllerProvider(recipeId, draftId: draftId)
-          //         .select((s) => s.value!.title)),
-          controller: titleController,
-          /* */
-          validator: emptyValidator,
-          decoration: const InputDecoration(
-            labelText: 'Title *',
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-          ),
-          onChanged: (s) => controller.updateTitle(s),
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          // maxLength: 255,
-          inputFormatters: [
-            LengthLimitingTextInputFormatter(255),
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                // initialValue: ref.watch(
+                //     recipeEditControllerProvider(recipeId, draftId: draftId)
+                //         .select((s) => s.value!.title)),
+                controller: titleController,
+                /* */
+                validator: emptyValidator,
+                decoration: const InputDecoration(
+                  labelText: 'Title *',
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                ),
+                onChanged: (s) => controller.updateTitle(s),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                // maxLength: 255,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(255),
+                ],
+                maxLines: null,
+              ),
+            ),
+            if (widget.recipeId == null)
+              SizedBox(
+                width: 20,
+              ),
+            if (widget.recipeId == null)
+              DropdownButton<String>(
+                  value: ref.watch(recipeEditControllerProvider(widget.recipeId,
+                          draftId: widget.draftId)
+                      .select((s) => s.value!.lang)),
+                  icon: const Icon(Icons.arrow_downward),
+                  iconSize: 24,
+                  elevation: 16,
+                  // style: const TextStyle(color: Colors.deepPurple),
+                  // underline: Container(
+                  //   height: 2,
+                  //   color: Theme.of(ref).colorScheme.primary,
+                  // ),
+                  onChanged: (String? newValue) {
+                    ref
+                        .read(recipeEditControllerProvider(widget.recipeId,
+                                draftId: widget.draftId)
+                            .notifier)
+                        .updateLanguage(newValue!);
+                  },
+                  items: [
+                    for (final entry in AVAILABLE_LANGUAGES.entries)
+                      DropdownMenuItem<String>(
+                        value: entry.key,
+                        child: Row(
+                          children: [
+                            CountryFlag.fromLanguageCode(
+                              entry.key,
+                              height: 30,
+                              width: 40,
+                              shape: const RoundedRectangle(6),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(entry.value)
+                          ],
+                        ),
+                      ),
+                  ]),
           ],
-          maxLines: null,
         ),
         const SizedBox(height: 12),
         TextFormField(

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:country_flags/country_flags.dart';
+
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:zest/settings/settings_provider.dart';
 import 'package:zest/utils/duration.dart';
 
-class RecipeListTile extends StatelessWidget {
+class RecipeListTile extends ConsumerWidget {
   const RecipeListTile({
     super.key,
     required this.title,
@@ -10,6 +14,7 @@ class RecipeListTile extends StatelessWidget {
     this.cookTime,
     this.prepTime,
     this.difficulty,
+    this.language,
     this.onTap,
     required this.isAlt,
     required this.isHighlighted,
@@ -22,6 +27,7 @@ class RecipeListTile extends StatelessWidget {
   final int? cookTime;
   final int? prepTime;
   final int? difficulty;
+  final String? language;
 
   final GestureTapCallback? onTap;
   final bool isAlt;
@@ -30,13 +36,26 @@ class RecipeListTile extends StatelessWidget {
   final Function()? onDelete;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
-      trailing: onDelete != null
-          ? IconButton(
-              icon: const Icon(Icons.delete_forever),
-              onPressed: onDelete,
-            )
+      // trailing: onDelete != null
+      //     ? IconButton(
+      //         icon: const Icon(Icons.delete_forever),
+      //         onPressed: onDelete,
+      //       )
+      //     : null,
+
+      trailing: (language != null &&
+              language!.isNotEmpty &&
+              language != ref.watch(settingsProvider).language)
+          ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              CountryFlag.fromLanguageCode(
+                language!,
+                height: 20,
+                width: 30,
+                shape: const RoundedRectangle(6),
+              )
+            ])
           : null,
       visualDensity: const VisualDensity(horizontal: 0, vertical: -4),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
