@@ -39,25 +39,27 @@ String? fractionalValidator(String? value,
 }
 
 String? minValueValidator(String? value,
-    {required double minValue, String? customError}) {
+    {required double minValue, String? customError, bool forceInt = false}) {
   if (value == null) {
     return "Can't validate fractional part of empty number.";
   }
   final number = double.tryParse(value) ?? 0;
   if (number < minValue) {
-    return customError ?? "Needs to be larger than $minValue.";
+    return customError ??
+        "Needs to be larger than or equal to ${forceInt ? minValue.toInt() : minValue}.";
   }
   return null;
 }
 
 String? maxValueValidator(String? value,
-    {required double maxValue, String? customError}) {
+    {required double maxValue, String? customError, bool forceInt = false}) {
   if (value == null) {
     return "Can't validate fractional part of empty number.";
   }
   final number = double.tryParse(value) ?? 0;
   if (number > maxValue) {
-    return customError ?? "Needs to be smaller or equal to $maxValue.";
+    return customError ??
+        "Needs to be smaller than or equal to ${forceInt ? maxValue.toInt() : maxValue}.";
   }
   return null;
 }

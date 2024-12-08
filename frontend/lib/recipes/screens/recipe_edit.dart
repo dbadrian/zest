@@ -309,6 +309,7 @@ class RecipeEditWideWidget extends HookConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   OutlinedButton(
+                    key: const Key("recipeBackButton"),
                     onPressed: () async {
                       if (recipeId != null) {
                         // TODO: Can this be avoided somehow?
@@ -328,6 +329,7 @@ class RecipeEditWideWidget extends HookConsumerWidget {
                     width: 25,
                   ),
                   OutlinedButton(
+                    key: const Key("recipeRestoreButton"),
                     onPressed: () {
                       final controller = ref.read(recipeEditControllerProvider(
                               recipeId,
@@ -373,6 +375,7 @@ class RecipeEditWideWidget extends HookConsumerWidget {
                   //   width: 25,
                   // ),
                   ElevatedButton(
+                    key: const Key("recipeSaveDraftButton"),
                     onPressed: () async {
                       final controller = ref.read(recipeEditControllerProvider(
                               recipeId,
@@ -394,6 +397,7 @@ class RecipeEditWideWidget extends HookConsumerWidget {
                     width: 25,
                   ),
                   ElevatedButton(
+                    key: const Key("recipeSaveButton"),
                     onPressed: () async {
                       final success = await saveRecipe(
                           ref, recipeEditStateFormKey, context);
@@ -415,6 +419,7 @@ class RecipeEditWideWidget extends HookConsumerWidget {
                   //         .select((v) => v.value!.recipe!.recipeId))
                   //     .isNotEmpty)
                   ElevatedButton(
+                    key: const Key("recipeSaveCloseButton"),
                     onPressed: () async {
                       // Validate returns true if the form is valid, or false otherwise.
                       if (recipeEditStateFormKey.currentState!.validate()) {
@@ -629,6 +634,7 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
             textStyle: TextStyle(fontWeight: FontWeight.w600),
             text: "General Details"),
         ListTile(
+          key: const Key("recipeVisibilityCheckbox"),
           leading: const Icon(Icons.security_rounded),
           title: const Text("Recipe Visibility (private)"),
           trailing: Checkbox(
@@ -644,9 +650,7 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
           children: [
             Expanded(
               child: TextFormField(
-                // initialValue: ref.watch(
-                //     recipeEditControllerProvider(recipeId, draftId: draftId)
-                //         .select((s) => s.value!.title)),
+                key: const Key("recipeTitleField"),
                 controller: titleController,
                 /* */
                 validator: emptyValidator,
@@ -669,6 +673,7 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
               ),
             if (widget.recipeId == null)
               DropdownButton<String>(
+                  key: const Key("recipeLanguageDropdown"),
                   value: ref.watch(recipeEditControllerProvider(widget.recipeId,
                           draftId: widget.draftId)
                       .select((s) => s.value!.lang)),
@@ -711,6 +716,7 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
         ),
         const SizedBox(height: 12),
         TextFormField(
+          key: const Key("recipeSubtitleField"),
           controller: subtitleController,
           decoration: const InputDecoration(
             labelText: 'Subtitle',
@@ -726,6 +732,7 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
         ),
         const SizedBox(height: 12),
         TextFormField(
+          key: const Key("recipeCommentField"),
           controller: commentController,
           decoration: const InputDecoration(
             labelText: 'Comment',
@@ -742,6 +749,7 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
         ),
         const SizedBox(height: 12),
         FormBuilderRatingBar(
+          key: const Key("recipeDifficultySelector"),
           name: "difficulty",
           initialValue: ref.watch(recipeEditControllerProvider(widget.recipeId,
                   draftId: widget.draftId)
@@ -770,11 +778,14 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
         ),
         const SizedBox(height: 12),
         TextFormField(
+          key: const Key("recipeServingsField"),
           controller: servingsController,
           validator: ((value) => chainValidators(value, [
                 emptyValidator,
-                ((value) => minValueValidator(value, minValue: 1)),
-                ((value) => maxValueValidator(value, maxValue: 99)),
+                ((value) =>
+                    minValueValidator(value, minValue: 1, forceInt: true)),
+                ((value) =>
+                    maxValueValidator(value, maxValue: 99, forceInt: true)),
               ])),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           decoration: const InputDecoration(labelText: 'Servings *'),
@@ -787,6 +798,7 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
             textStyle: TextStyle(fontWeight: FontWeight.w600),
             text: "Categories"),
         FormBuilderFilterChip(
+          key: const Key("recipeCategoriesSelector"),
           validator: emptyListValidator,
           name: "categories",
           showCheckmark: false,
@@ -817,6 +829,7 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
               .entries
               .map(
                 (e) => FormBuilderChipOption<int>(
+                  key: Key("recipeCategoryChip_${e.key}"),
                   value: e.key,
                   child: Text(
                     e.value.name!.value(),
@@ -904,11 +917,14 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
             textStyle: TextStyle(fontWeight: FontWeight.w600), text: "Time"),
         const SizedBox(height: 12),
         TextFormField(
+          key: const Key("recipePrepTimeField"),
           controller: prepTimeController,
           validator: ((value) => chainValidators(value, [
                 emptyValidator,
-                ((value) => minValueValidator(value, minValue: 0)),
-                ((value) => maxValueValidator(value, maxValue: 32767)),
+                ((value) =>
+                    minValueValidator(value, minValue: 0, forceInt: true)),
+                ((value) =>
+                    maxValueValidator(value, maxValue: 32767, forceInt: true)),
               ])),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           decoration: const InputDecoration(
@@ -921,12 +937,15 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
         ),
         const SizedBox(height: 12),
         TextFormField(
+          key: const Key("recipeCookTimeField"),
           controller: cookTimeController,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           validator: ((value) => chainValidators(value, [
                 emptyValidator,
-                ((value) => minValueValidator(value, minValue: 0)),
-                ((value) => maxValueValidator(value, maxValue: 32767)),
+                ((value) =>
+                    minValueValidator(value, minValue: 0, forceInt: true)),
+                ((value) =>
+                    maxValueValidator(value, maxValue: 32767, forceInt: true)),
               ])),
           decoration: const InputDecoration(
             labelText: 'Cook time *',
@@ -941,6 +960,7 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
             text: "Recipe Source"),
         const SizedBox(height: 12),
         TextFormField(
+          key: const Key("recipeSourceNameField"),
           controller: sourceNameController,
           decoration: const InputDecoration(
             labelText: 'Source Name',
@@ -951,11 +971,14 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
         ),
         const SizedBox(height: 12),
         TextFormField(
+          key: const Key("recipeSourcePageField"),
           controller: sourcePageController,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           validator: ((value) => chainValidators(value, [
-                ((value) => minValueValidator(value, minValue: 0)),
-                ((value) => maxValueValidator(value, maxValue: 32767)),
+                ((value) =>
+                    minValueValidator(value, minValue: 0, forceInt: true)),
+                ((value) =>
+                    maxValueValidator(value, maxValue: 32767, forceInt: true)),
               ])),
           decoration: const InputDecoration(
             labelText: 'Source Page',
@@ -967,6 +990,7 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
         ),
         const SizedBox(height: 12),
         TextFormField(
+          key: const Key("recipeSourceUrlField"),
           controller: sourceUrlController,
           validator: urlValidator,
           decoration: const InputDecoration(

@@ -37,7 +37,7 @@ class MainScaffold extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isAuthenticated = ref.read(authenticationServiceProvider.notifier
         .select((value) => value.isAuthenticated));
-    final user = ref.read(authenticationServiceProvider.notifier
+    final user = ref.watch(authenticationServiceProvider.notifier
         .select((value) => value.whoIsUser));
     return Scaffold(
       key: const Key('mainScaffold'),
@@ -94,8 +94,8 @@ class MainScaffold extends ConsumerWidget {
                   children: [
                     if (isAuthenticated)
                       UserAccountsDrawerHeader(
-                        accountName: Text(user!.firstName),
-                        accountEmail: Text(user.email),
+                        accountName: Text(user?.firstName ?? ""),
+                        accountEmail: Text(user?.email ?? ""),
                         // onDetailsPressed: () => print("asdasds"),
                       ),
                     if (!isAuthenticated)
