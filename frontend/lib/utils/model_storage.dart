@@ -92,7 +92,12 @@ abstract class SecureModelStorage<T> extends ModelStorage<T> {
     final jsonStr =
         await _storage.read(key: key, aOptions: _getAndroidOptions());
     if (jsonStr != null) {
-      return fromJson(jsonDecode(jsonStr));
+      try {
+        return fromJson(jsonDecode(jsonStr));
+      } catch (e) {
+        debugPrint("Failure decoding key (invalid Json): $key: $e -- $jsonStr");
+        return null;
+      }
     } else {
       return null;
     }
@@ -108,7 +113,7 @@ abstract class SecureModelStorage<T> extends ModelStorage<T> {
 
   @override
   Future<void> clear() async {
-    debugPrint("Clearing storage");
+    debugPrint("Clearing $key from secure storage");
     final hasKey =
         await _storage.containsKey(key: key, aOptions: _getAndroidOptions());
     if (hasKey) await _storage.delete(key: key, aOptions: _getAndroidOptions());

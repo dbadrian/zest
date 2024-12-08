@@ -51,18 +51,31 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build docker images
         run: |
-          task backend-build backend-django-migrate backend-install-fixtures
+          task backend-init-ci
       - name: Test
         run: task backend-test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
           files: backend/coverage.xml
-          flags: backend,unittest
+          flags: backend
           token: ${{ secrets.CODECOV_TOKEN }}
 
   test-frontend:
     runs-on: ubuntu-latest
+    env:
+      DJANGO_SETTINGS_MODULE: zest.settings.dev
+      DJANGO_SECRET_KEY: "JASIDJ*@ioda89dY2hdaiophd80a23p06i%8-4ods3"
+      DJANGO_ALLOWED_HOSTS: localhost,0.0.0.0,127.0.0.1
+      DJANGO_AUTH_MODE: jwt
+      TESTFLAGS: "--with-coverage --cover-xml --cover-erase"
+      SQL_ENGINE: django.db.backends.postgresql
+      SQL_DATABASE: zest
+      SQL_USER: postgres
+      SQL_PASSWORD: postgres
+      SQL_HOST: db
+      SQL_PORT: 5432
+      REDIS_ADDRESS: redis://cache:6379/1
     defaults:
       run:
         working-directory: frontend
@@ -81,6 +94,8 @@ jobs:
 
       - run: flutter --version
       - run: flutter --disable-analytics
+      - name: Install Ubuntu Dependencies
+        run: sudo apt-get install -y lcov sqlite3 libsqlite3-dev
 
       - name: Prepare environment.
         run: flutter pub get
@@ -94,17 +109,27 @@ jobs:
       - name: Static code analysis (no-fatal-infos)
         run: flutter analyze . --no-fatal-infos --no-fatal-warnings
 
+      - name: Install Task
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build docker images
+        run: |
+          task backend-init-ci
+          task docker-start &
+
       - name: Tests
         run: flutter test --coverage
 
-      # - name: Generate Coverage
-      #   run: |
-      #     sudo apt-get install -y lcov
-      #     lcov --remove coverage/lcov.info 'lib/*/*.freezed.dart' 'lib/*.g.dart' 'lib/*/*.part.dart' 'lib/generated/*.dart' 'lib/generated/*/*.dart' -o coverage/lcov.info
+      - name: Generate Coverage
+        run: |
+          lcov --ignore-errors unused --remove coverage/lcov.info 'lib/*/*.freezed.dart' 'lib/*.g.dart' 'lib/*/*.part.dart' 'lib/generated/*.dart' 'lib/generated/*/*.dart' -o coverage/lcov.info
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
           files: coverage/lcov.info
-          flags: frontend,unittest
+          flags: frontend
           token: ${{ secrets.CODECOV_TOKEN }}
