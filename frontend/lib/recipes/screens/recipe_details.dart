@@ -91,7 +91,7 @@ class RecipeDetailsWideWidget extends ConsumerWidget {
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: [
-        TitleWidget(recipeId: recipeId),
+        TitleWidget(key: Key("RecipeTitleWidget"), recipeId: recipeId),
         Expanded(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -38,6 +38,7 @@ class RecipeListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
+      key: const Key("recipeListTile"),
       // trailing: onDelete != null
       //     ? IconButton(
       //         icon: const Icon(Icons.delete_forever),
