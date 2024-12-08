@@ -94,6 +94,8 @@ jobs:
 
       - run: flutter --version
       - run: flutter --disable-analytics
+      - name: Install Ubuntu Dependencies
+        run: sudo apt-get install -y lcov sqlite3 libsqlite3-dev
 
       - name: Prepare environment.
         run: flutter pub get
@@ -123,7 +125,6 @@ jobs:
 
       - name: Generate Coverage
         run: |
-          sudo apt-get install -y lcov
           lcov --ignore-errors unused --remove coverage/lcov.info 'lib/*/*.freezed.dart' 'lib/*.g.dart' 'lib/*/*.part.dart' 'lib/generated/*.dart' 'lib/generated/*/*.dart' -o coverage/lcov.info
 
       - name: Upload coverage to Codecov
