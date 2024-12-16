@@ -82,7 +82,7 @@ jobs:
           set: |
             *.cache-from=type=gha,scope=${{ github.workflow }}
             *.cache-to=type=gha,mode=max,scope=${{ github.workflow }}
-            *.output=type=docker,dest=/tmp/docker.tar
+            *.output=type=docker
 
       - name: "📂 docker artifacts"
         uses: actions/upload-artifact@v4
