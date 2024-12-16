@@ -70,7 +70,7 @@ jobs:
       - name: Create Docker Export Artifact
         run: |
           # Step 2: Pull prebuilt images (skip locally built ones)
-          # docker compose pull db cache --ignore-pull-failures
+          docker compose pull db
 
           # Step 3: Extract all image names from the compose file
           IMAGES=$(docker compose config | grep 'image:' | awk '{print $2}' | grep -v '^$' | xargs)
