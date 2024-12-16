@@ -27,8 +27,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}} # Only required for Organizations, not personal accounts.
   
+  build-docker:
+    uses: dbadrian/zest/.github/workflows/build-docker.yaml@main
+        
+
   test-backend:
     runs-on: ubuntu-latest
+    needs: [build-docker]
     env:
       DJANGO_SETTINGS_MODULE: zest.settings.dev
       DJANGO_SECRET_KEY: "JASIDJ*@ioda89dY2hdaiophd80a23p06i%8-4ods3"
@@ -49,6 +54,18 @@ jobs:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/checkout@v3
+
+      - name: "📂 download docker artifacts"
+        uses: actions/download-artifact@v4
+        with:
+          name: docker
+          path: /tmp
+
+      - name: "📦 load tag"
+        run: |
+          docker load --input /tmp/docker.tar
+          docker image ls -a
+
       - name: Build docker images
         run: |
           task backend-init-ci
@@ -63,6 +80,7 @@ jobs:
 
   test-frontend:
     runs-on: ubuntu-latest
+    needs: [build-docker]
     env:
       DJANGO_SETTINGS_MODULE: zest.settings.dev
       DJANGO_SECRET_KEY: "JASIDJ*@ioda89dY2hdaiophd80a23p06i%8-4ods3"
