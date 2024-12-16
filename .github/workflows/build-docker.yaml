@@ -66,11 +66,6 @@ jobs:
           images: ${{ github.repository }}
           tags: latest
 
-      - name: Build docker images
-        run: |
-          # Step 1: Build images defined under the 'build' section
-          docker buildx bake --file docker-compose.yml
-
       - name: Build and Push Docker Images
         uses: docker/bake-action@v5
         env:
