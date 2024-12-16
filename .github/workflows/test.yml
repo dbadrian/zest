@@ -29,7 +29,7 @@ jobs:
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}} # Only required for Organizations, not personal accounts.
   
   build-docker:
-    uses: dbadrian/zest/.github/workflows/build-docker.yaml@main
+    uses: dbadrian/zest/.github/workflows/build-docker.yaml@feature/unified_docker
         
 
   test-backend:
