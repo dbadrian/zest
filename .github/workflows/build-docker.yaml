@@ -84,13 +84,6 @@ jobs:
             *.cache-from=type=gha,scope=${{ github.workflow }}
             *.cache-to=type=gha,mode=max,scope=${{ github.workflow }}
 
-      - name: "📂 docker artifacts"
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker
-          path: /tmp/docker.tar
-          compression-level: 0
-
       - name: Create Docker Export Artifact
         run: |
           # Step 2: Pull prebuilt images (skip locally built ones)
@@ -103,9 +96,15 @@ jobs:
           echo "Exporting images: $IMAGES"
 
           # Step 4: Save all images to a tar file
-          docker save -o docker2.tar $IMAGES
+          docker save -o docker.tar $IMAGES
 
-          echo "Images saved to docker2.tar"
+      - name: "📂 docker artifacts"
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker
+          path: /tmp/docker.tar
+          compression-level: 0
+
 
   test:
     name: Download and Run container
