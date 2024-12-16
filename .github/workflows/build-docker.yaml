@@ -91,21 +91,21 @@ jobs:
           path: /tmp/docker.tar
           compression-level: 0
 
-      # - name: Create Docker Export Artifact
-      #   run: |
-      #     # Step 2: Pull prebuilt images (skip locally built ones)
-      #     # docker compose pull db cache --ignore-pull-failures
+      - name: Create Docker Export Artifact
+        run: |
+          # Step 2: Pull prebuilt images (skip locally built ones)
+          # docker compose pull db cache --ignore-pull-failures
 
-      #     # Step 3: Extract all image names from the compose file
-      #     IMAGES=$(docker compose config | grep 'image:' | awk '{print $2}' | grep -v '^$' | xargs)
+          # Step 3: Extract all image names from the compose file
+          IMAGES=$(docker compose config | grep 'image:' | awk '{print $2}' | grep -v '^$' | xargs)
 
-      #     # Debug: Print the images being exported
-      #     echo "Exporting images: $IMAGES"
+          # Debug: Print the images being exported
+          echo "Exporting images: $IMAGES"
 
-      #     # Step 4: Save all images to a tar file
-      #     docker save -o docker.tar $IMAGES
+          # Step 4: Save all images to a tar file
+          docker save -o docker2.tar $IMAGES
 
-      #     echo "Images saved to docker.tar"
+          echo "Images saved to docker2.tar"
 
   test:
     name: Download and Run container
