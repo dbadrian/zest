@@ -15,6 +15,7 @@ class RecipeListTile extends ConsumerWidget {
     this.prepTime,
     this.difficulty,
     this.language,
+    this.isFavorite,
     this.onTap,
     required this.isAlt,
     required this.isHighlighted,
@@ -27,6 +28,7 @@ class RecipeListTile extends ConsumerWidget {
   final int? cookTime;
   final int? prepTime;
   final int? difficulty;
+  final bool? isFavorite;
   final String? language;
 
   final GestureTapCallback? onTap;
@@ -59,7 +61,15 @@ class RecipeListTile extends ConsumerWidget {
             ])
           : null,
       visualDensity: const VisualDensity(horizontal: 0, vertical: -4),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+      title: Row(children: [
+        Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        if (isFavorite != null && isFavorite!)
+          Icon(
+            key: const Key("favoriteIcon"),
+            Icons.favorite,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+      ]),
       subtitle: RichText(
         text: TextSpan(
           children: [
