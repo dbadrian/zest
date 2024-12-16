@@ -1,6 +1,9 @@
 services:
   db:
-    image: postgres:latest
+    build:
+      context: ./docker
+      dockerfile: postgres.Dockerfile
+    image: zest/postgres:latest
     environment:
       - POSTGRES_DB=${SQL_HOST}
       - POSTGRES_USER=${SQL_USER}
@@ -8,8 +11,10 @@ services:
       - POSTGRES_PORT=${SQL_PORT}
 
   cache:
-    image: redis:latest
-    restart: always
+    build:
+      context: ./docker
+      dockerfile: redis.Dockerfile
+    image: zest/redis:latest  # Optional tag for clarity    restart: always
     ports:
       - "6379:6379"
 
