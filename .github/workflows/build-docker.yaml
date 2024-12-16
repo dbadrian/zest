@@ -106,3 +106,32 @@ jobs:
       #     docker save -o docker.tar $IMAGES
 
       #     echo "Images saved to docker.tar"
+
+  test:
+    name: Download and Run container
+    runs-on: ubuntu-latest
+    needs: [build-backend]
+    steps:
+      - name: "☁️ checkout repository"
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: "📂 download docker artifacts"
+        uses: actions/download-artifact@v4
+        with:
+          name: docker
+          path: /tmp
+
+      - name: "🔧 docker meta"
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ github.repository }}
+          tags: latest
+
+      - name: "📦 load tag"
+        run: |
+          docker load --input /tmp/docker.tar
+          docker image ls -a
+          docker compose run --rm backend bash
