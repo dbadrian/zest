@@ -84,18 +84,25 @@ jobs:
             *.cache-to=type=gha,mode=max,scope=${{ github.workflow }}
             *.output=type=docker,dest=/tmp/docker.tar
 
-      - name: Create Docker Export Artifact
-        run: |
-          # Step 2: Pull prebuilt images (skip locally built ones)
-          # docker compose pull db cache --ignore-pull-failures
+      - name: "📂 docker artifacts"
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker
+          path: /tmp/docker.tar
+          compression-level: 0
 
-          # Step 3: Extract all image names from the compose file
-          IMAGES=$(docker compose config | grep 'image:' | awk '{print $2}' | grep -v '^$' | xargs)
+      # - name: Create Docker Export Artifact
+      #   run: |
+      #     # Step 2: Pull prebuilt images (skip locally built ones)
+      #     # docker compose pull db cache --ignore-pull-failures
 
-          # Debug: Print the images being exported
-          echo "Exporting images: $IMAGES"
+      #     # Step 3: Extract all image names from the compose file
+      #     IMAGES=$(docker compose config | grep 'image:' | awk '{print $2}' | grep -v '^$' | xargs)
 
-          # Step 4: Save all images to a tar file
-          docker save -o docker.tar $IMAGES
+      #     # Debug: Print the images being exported
+      #     echo "Exporting images: $IMAGES"
 
-          echo "Images saved to docker.tar"
+      #     # Step 4: Save all images to a tar file
+      #     docker save -o docker.tar $IMAGES
+
+      #     echo "Images saved to docker.tar"
