@@ -78,9 +78,9 @@ jobs:
         with:
           source: "."
           files: "docker-compose.yml"
-          set: |
-            *.cache-from=type=gha,scope=${{ github.workflow }}
-            *.cache-to=type=gha,mode=max,scope=${{ github.workflow }}
+          # set: |
+          #   *.cache-from=type=gha,scope=${{ github.workflow }}
+          #   *.cache-to=type=gha,mode=max,scope=${{ github.workflow }}
 
       - name: Create Docker Export Artifact
         run: |
