@@ -78,9 +78,11 @@ jobs:
         with:
           source: "."
           files: "docker-compose.yml"
-          # set: |
-          #   *.cache-from=type=gha,scope=${{ github.workflow }}
-          #   *.cache-to=type=gha,mode=max,scope=${{ github.workflow }}
+          push: false
+          set: |
+            *.cache-from=type=gha,scope=${{ github.workflow }}
+            *.cache-to=type=gha,mode=max,scope=${{ github.workflow }}
+            *.output=type=docker,dest=/tmp/docker.tar
 
       - name: Create Docker Export Artifact
         run: |
@@ -94,6 +96,6 @@ jobs:
           echo "Exporting images: $IMAGES"
 
           # Step 4: Save all images to a tar file
-          docker save -o docker.tar  zest/backend:latest zest/redis:latest # $IMAGES
+          docker save -o docker.tar $IMAGES
 
           echo "Images saved to docker.tar"
