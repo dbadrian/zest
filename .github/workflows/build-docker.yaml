@@ -117,13 +117,6 @@ jobs:
           name: docker
           path: /tmp
 
-      - name: "🔧 docker meta"
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: ${{ github.repository }}
-          tags: latest
-
       - name: "📦 load tag"
         run: |
           docker load --input /tmp/docker.tar
