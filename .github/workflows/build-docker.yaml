@@ -1,0 +1,85 @@
+name: Backend & Frontend Test
+
+on:
+  push:
+    # This should disable running the workflow on tags, according to the
+    # on.<push|pull_request>.<branches|tags> GitHub Actions docs.
+    # cheers @ https://github.com/psycopg/psycopg/blob/5681de9c42f916d5b2436ad9c6f47b79c8aeaa12/.github/workflows/tests.yml#L4-L8
+    branches:
+      - "*"
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_call:
+
+
+jobs:
+  secret-scan:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}} # Only required for Organizations, not personal accounts.
+  
+  build-backend:
+    name: Build Backend
+    runs-on: ubuntu-latest
+    env:
+      DJANGO_SETTINGS_MODULE: zest.settings.dev
+      DJANGO_SECRET_KEY: "JASIDJ*@ioda89dY2hdaiophd80a23p06i%8-4ods3"
+      DJANGO_ALLOWED_HOSTS: localhost,0.0.0.0,127.0.0.1
+      DJANGO_AUTH_MODE: jwt
+      TESTFLAGS: "--with-coverage --cover-xml --cover-erase"
+      SQL_ENGINE: django.db.backends.postgresql
+      SQL_DATABASE: zest
+      SQL_USER: postgres
+      SQL_PASSWORD: postgres
+      SQL_HOST: db
+      SQL_PORT: 5432
+      REDIS_ADDRESS: redis://cache:6379/1
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # This gives us access to buildx
+      - name: Set up Docker CLI
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build docker images
+        run: |
+          # Step 1: Build images defined under the 'build' section
+          docker buildx bake --file docker-compose.yml
+
+      - name: Build and Push Docker Images
+        uses: docker/bake-action@v5
+        env:
+          TAG: ${{ steps.release-tag.outputs.tag }}
+        with:
+          source: "."
+          files: "docker-compose.yml"
+          workdir: "./docker"
+          set: |
+            *.cache-from=type=gha,scope=${{ github.workflow }}
+            *.cache-to=type=gha,mode=max,scope=${{ github.workflow }}
+
+      - name: Create Docker Export Artifact
+        run: |
+          # Step 2: Pull prebuilt images (skip locally built ones)
+          docker-compose pull db cache --ignore-pull-failures
+
+          # Step 3: Extract all image names from the compose file
+          IMAGES=$(docker-compose config | grep 'image:' | awk '{print $2}' | grep -v '^$' | xargs)
+
+          # Debug: Print the images being exported
+          echo "Exporting images: $IMAGES"
+
+          # Step 4: Save all images to a tar file
+          docker save -o docker.tar $IMAGES
+
+          echo "Images saved to docker.tar"
