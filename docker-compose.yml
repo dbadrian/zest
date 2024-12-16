@@ -18,6 +18,14 @@ services:
     ports:
       - "6379:6379"
 
+  nginx:
+    image: zest/nginx:latest
+    build:
+      context: ./nginx/
+      dockerfile: Dockerfile
+    ports:
+      - 1337:80
+
   backend:
     image: zest/backend:latest
     user: "${UID}:${GID}"
@@ -47,13 +55,4 @@ services:
     depends_on:
       - db
       - cache
-
-  nginx:
-    image: zest/nginx:latest
-    build:
-      context: ./nginx/
-      dockerfile: Dockerfile
-    ports:
-      - 1337:80
-    depends_on:
-      - backend
+      - nginx
