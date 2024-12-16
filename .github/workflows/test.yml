@@ -29,21 +29,7 @@ jobs:
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}} # Only required for Organizations, not personal accounts.
   
   build-docker:
-    env:
-      DJANGO_SETTINGS_MODULE: zest.settings.dev
-      DJANGO_SECRET_KEY: "JASIDJ*@ioda89dY2hdaiophd80a23p06i%8-4ods3"
-      DJANGO_ALLOWED_HOSTS: localhost,0.0.0.0,127.0.0.1
-      DJANGO_AUTH_MODE: jwt
-      TESTFLAGS: "--with-coverage --cover-xml --cover-erase"
-      SQL_ENGINE: django.db.backends.postgresql
-      SQL_DATABASE: zest
-      SQL_USER: postgres
-      SQL_PASSWORD: postgres
-      SQL_HOST: db
-      SQL_PORT: 5432
-      REDIS_ADDRESS: redis://cache:6379/1
     uses: dbadrian/zest/.github/workflows/build-docker.yaml@feature/unified_dockerfile
-        
 
   test-backend:
     runs-on: ubuntu-latest
