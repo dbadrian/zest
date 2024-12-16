@@ -79,10 +79,11 @@ jobs:
           source: "."
           files: "docker-compose.yml"
           push: false
+          load: true
           set: |
             *.cache-from=type=gha,scope=${{ github.workflow }}
             *.cache-to=type=gha,mode=max,scope=${{ github.workflow }}
-            *.output=type=docker
+            # *.output=type=docker
 
       - name: "📂 docker artifacts"
         uses: actions/upload-artifact@v4
