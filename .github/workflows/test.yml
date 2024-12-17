@@ -135,9 +135,23 @@ jobs:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build docker images
+      - name: "📂 download docker artifacts"
+        uses: actions/download-artifact@v4
+        with:
+          name: docker
+          path: /tmp
+  
+      - name: "📦 load tag"
+        run: |
+          docker load --input /tmp/docker.tar
+          docker image ls -a
+
+      - name: Initialize backend
         run: |
           task backend-init-ci
+
+      - name: Start docker
+        run: |
           task docker-start &
 
       - name: Tests
