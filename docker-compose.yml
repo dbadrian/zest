@@ -1,10 +1,10 @@
 services:
   db:
-    # build:
-    #   context: ./docker
-    #   dockerfile: postgres.Dockerfile
-    # image: zest/postgres:latest
-    image: postgres
+    build:
+      context: ./docker
+      dockerfile: postgres.Dockerfile
+    image: zest/postgres:latest
+    # image: postgres
     environment:
       - POSTGRES_DB=${SQL_DATABASE}
       - POSTGRES_USER=${SQL_USER}

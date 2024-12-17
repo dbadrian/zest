@@ -66,12 +66,13 @@ jobs:
           docker load --input /tmp/docker.tar
           docker image ls -a
 
-      - name: Build docker images
+      - name: Initialize backend
         run: |
-          docker compose up -d
           task backend-init-ci
+
       - name: Test
         run: task backend-test
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:

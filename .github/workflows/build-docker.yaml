@@ -81,7 +81,7 @@ jobs:
           # Step 4: Save all images to a tar file
           docker save -o /tmp/docker.tar $IMAGES
 
-      - name: "📂 docker artifacts"
+      - name: "📂 Upload Docker Artifacts"
         uses: actions/upload-artifact@v4
         with:
           name: docker
