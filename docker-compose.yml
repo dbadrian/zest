@@ -10,6 +10,8 @@ services:
       - POSTGRES_USER=${SQL_USER}
       - POSTGRES_PASSWORD=${SQL_PASSWORD}
       - POSTGRES_PORT=${SQL_PORT}
+    ports:
+      - "${SQL_PORT}:${SQL_PORT}"
 
   cache:
     build:
