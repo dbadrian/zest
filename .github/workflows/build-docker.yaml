@@ -67,6 +67,16 @@ jobs:
             *.cache-from=type=gha,scope=${{ github.workflow }}
             *.cache-to=type=gha,mode=max,scope=${{ github.workflow }}
 
+      - name: Install Task
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Initialize backend
+        run: |
+          task backend-init-ci
+
       - name: Create Docker Export Artifact
         run: |
           # Step 2: Pull prebuilt images (skip locally built ones)

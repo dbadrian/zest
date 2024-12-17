@@ -66,9 +66,9 @@ jobs:
           docker load --input /tmp/docker.tar
           docker image ls -a
 
-      - name: Initialize backend
-        run: |
-          task backend-init-ci
+      # - name: Initialize backend
+      #   run: |
+      #     task backend-init-ci
 
       - name: Test
         run: task backend-test
@@ -146,9 +146,9 @@ jobs:
           docker load --input /tmp/docker.tar
           docker image ls -a
 
-      - name: Initialize backend
-        run: |
-          task backend-init-ci
+      # - name: Initialize backend
+      #   run: |
+      #     task backend-init-ci
 
       - name: Start docker
         run: |
