@@ -4,14 +4,14 @@ services:
     #   context: ./docker
     #   dockerfile: postgres.Dockerfile
     # image: zest/postgres:latest
-    image: postgres:latest
+    image: postgres
     environment:
-      - POSTGRES_DB=${SQL_HOST}
+      - POSTGRES_DB=${SQL_DATABASE}
       - POSTGRES_USER=${SQL_USER}
       - POSTGRES_PASSWORD=${SQL_PASSWORD}
       - POSTGRES_PORT=${SQL_PORT}
-    ports:
-      - "${SQL_PORT}:${SQL_PORT}"
+    # ports:
+    #   - "${SQL_PORT}:${SQL_PORT}"
 
   cache:
     build:
