@@ -13,7 +13,6 @@ import 'package:zest/recipes/screens/recipe_search.dart';
 
 import 'package:path/path.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:sqflite/sqflite.dart';
 
 import 'authentication/auth_service.dart';
 import 'routing/app_router.dart';

@@ -120,13 +120,18 @@ bool nextPageAvailable(RecipeListResponse? recipeList) {
 @riverpod
 class RecipeSearchController extends _$RecipeSearchController {
   @override
-  FutureOr<RecipeSearchState> build() async {
+  Future<RecipeSearchState> build() async {
     // state = const ;
     final filterSettings = ref.watch(recipeSearchFilterSettingsProvider);
-    final ret =
-        await _loadRecipes(query: "", page: 1, filterSettings: filterSettings);
+    final asyncState = await AsyncValue.guard(() async {
+      return await _loadRecipes(
+          query: "", page: 1, filterSettings: filterSettings);
+    });
 
-    return ret;
+    if (asyncState.hasValue) {
+      return asyncState.value!;
+    }
+    return RecipeSearchState(currentQuery: "", recipeList: null);
   }
 
   Future<RecipeSearchState> _loadRecipes(
