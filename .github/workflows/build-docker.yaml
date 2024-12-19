@@ -1,16 +1,6 @@
 name: Docker Build
 
 on:
-  push:
-    # This should disable running the workflow on tags, according to the
-    # on.<push|pull_request>.<branches|tags> GitHub Actions docs.
-    # cheers @ https://github.com/psycopg/psycopg/blob/5681de9c42f916d5b2436ad9c6f47b79c8aeaa12/.github/workflows/tests.yml#L4-L8
-    branches:
-      - "*"
-  pull_request:
-    branches: [main]
-  schedule:
-    - cron: "0 0 * * *"
   workflow_call:
   workflow_dispatch: # manual
 
