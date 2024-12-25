@@ -1,4 +1,5 @@
 from typing import List
+import uuid
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
@@ -40,7 +41,19 @@ def filter_by_list_of_pks(qs, request):
     # check if parameter "pks" exists, gets a list and then filters the queryset accordingly
     if (pks := request.query_params.get("pks")) is not None:
         pks = pks.split(",")
-        return qs.filter(id__in=pks)
+        cleaned_pks = []
+        for pk in pks:
+            try:
+                uuid.UUID(pk)
+                cleaned_pks.append(pk)
+            except:
+                # TODO: Logger should be used
+                print(f"{pk} seems invalid")
+                pass
+        if not pks:
+            return qs
+        # we should check and verify that the pks list is valid
+        return qs.filter(id__in=cleaned_pks)
     else:
         return qs
 
