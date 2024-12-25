@@ -75,25 +75,26 @@ fi
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/dbadrian/miniforge3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+SCR="/home/$USER/miniforge3/bin/conda"
+__conda_setup="$($SCR 'shell.zsh' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
-    if [ -f "/home/dbadrian/miniforge3/etc/profile.d/conda.sh" ]; then
-        . "/home/dbadrian/miniforge3/etc/profile.d/conda.sh"
+    if [ -f "/home/$USER/miniforge3/etc/profile.d/conda.sh" ]; then
+        . "/home/$USER/miniforge3/etc/profile.d/conda.sh"
     else
-        export PATH="/home/dbadrian/miniforge3/bin:$PATH"
+        export PATH="/home/$USER/miniforge3/bin:$PATH"
     fi
 fi
 unset __conda_setup
 
-if [ -f "/home/dbadrian/miniforge3/etc/profile.d/mamba.sh" ]; then
-    . "/home/dbadrian/miniforge3/etc/profile.d/mamba.sh"
+if [ -f "/home/$USER/miniforge3/etc/profile.d/mamba.sh" ]; then
+    . "/home/$USER/miniforge3/etc/profile.d/mamba.sh"
 fi
 # <<< conda initialize <<<
 
 
-conda activate zest
+mamba activate zest
 on_failure $? "Couldn't activate zest environment"
 cd $SCRIPT_DIR
 cd backend
