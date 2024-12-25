@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "zest"
-version = "0.1.12"
+version = "0.1.13"
 description = ""
 authors = ["David B. Adrian <dawidh.adrian@googlemail.com>"]
 
@@ -47,6 +47,7 @@ pytest-django = "^4.9.0"
 pytest-cov = "^6.0.0"
 nplusone = "^1.0.0"
 pandas = "^2.2.3"
+faker = "^33.1.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
