@@ -289,6 +289,31 @@ class APIService {
     );
   }
 
+  Future<FoodListResponse> getFoodsPagination({
+    int page = 1,
+    int? pageSize,
+    String? search,
+    String? language,
+    List<String>? pks,
+  }) async {
+    final SettingsState settings = ref.read(settingsProvider);
+
+    final queryParameters = {
+      'lang': language ?? settings.language,
+      if (search != null && search.isNotEmpty) 'search': search,
+      if (pageSize != null) 'page_size': pageSize.toString(),
+      if (pks != null) 'pks': pks.join(','),
+      'page': page.toString()
+    };
+
+    final url = getAPIUrl(settings, "/foods/", // ?similarity=0.5
+        queryParameters: queryParameters);
+    return genericResponseHandler(
+      requestCallback: () async => client.get(url),
+      create: (json) => FoodListResponse.fromJson(json),
+    );
+  }
+
   Future<Food?> updateFood(String foodId, String foodJson,
       {String? language}) async {
     final SettingsState settings = ref.read(settingsProvider);
@@ -325,6 +350,30 @@ class APIService {
     return genericResponseHandler(
       requestCallback: () async => client.get(url),
       create: (json) => FoodSynonymsListResponse.fromJson(json).foodSynonyms,
+    );
+  }
+
+  Future<FoodSynonymsListResponse> getFoodSynonymsPagination({
+    int page = 1,
+    int? pageSize,
+    String? search,
+    List<String>? lcFilter,
+  }) async {
+    final SettingsState settings = ref.read(settingsProvider);
+
+    final queryParameters = {
+      if (lcFilter != null) 'lc_filter': lcFilter.join(','),
+      if (search != null && search.isNotEmpty) 'search': search,
+      if (pageSize != null) 'page_size': pageSize.toString(),
+      "page": page.toString()
+    };
+
+    final url = getAPIUrl(settings, "/food_synonyms/",
+        queryParameters: queryParameters);
+
+    return genericResponseHandler(
+      requestCallback: () async => client.get(url),
+      create: (json) => FoodSynonymsListResponse.fromJson(json),
     );
   }
 
@@ -366,7 +415,7 @@ class APIService {
 }
 
 @Riverpod(keepAlive: true)
-APIService apiService(ApiServiceRef ref) => APIService(
+APIService apiService(Ref ref) => APIService(
       ref: ref,
       client: ref.read(
         httpJSONClientProvider(withAuthenticationInterceptor: true),
