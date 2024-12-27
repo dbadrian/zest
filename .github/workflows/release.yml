@@ -10,7 +10,7 @@ jobs:
     uses: dbadrian/zest/.github/workflows/test.yml@main
 
   build-android:
-    uses: dbadrian/zest/.github/workflows/build-android.yml@main
+    uses: dbadrian/zest/.github/workflows/build-android.yaml@main
     needs: [test]
 
   build-windows-misx:
