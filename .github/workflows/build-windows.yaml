@@ -7,7 +7,6 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
-    needs: [test]
     defaults:
       run:
         working-directory: ./frontend
