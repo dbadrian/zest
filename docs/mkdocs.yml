@@ -2,8 +2,9 @@ site_name: Multiview Recordings
 
 nav:
   - Home: "index.md"
-  - Setup:
+  - Setup Backend:
       - "AWS": "setup/aws.md"
+      - "Hetzner": "setup/hetzner.md"
 #      - 'Kinects': 'hardware_setup/kinects.md'
 #      - 'Framegrabber Cards': 'hardware_setup/adlink.md'
 #      - 'Allied Vision Cameras': 'hardware_setup/allied_vision.md'

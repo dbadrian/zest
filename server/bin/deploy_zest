@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-PYTHON=/home/ubuntu/miniforge3/envs/zest/bin/python3.11
+PYTHON=/home/$USER/miniforge3/envs/zest/bin/python3.11
 ZEST_DEPLOYMENT_DIR=~/zest
 ENV_PATH=${ZEST_DEPLOYMENT_DIR}/env.json
 mkdir -p ${ZEST_DEPLOYMENT_DIR}
@@ -11,7 +11,7 @@ cd ~/zest
 ln -sf $(ls -td zest-*.pyz | head -1) zest
 
 # clear the shiv cache -> gets huge quickly
-rm -rf /home/ubuntu/.shiv
+rm -rf /home/$USER/.shiv
 
 # and delete the latest versions
 cd ~/zest
