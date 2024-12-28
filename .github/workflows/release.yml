@@ -12,6 +12,7 @@ jobs:
   build-android:
     uses: dbadrian/zest/.github/workflows/build-android.yaml@main
     needs: [test]
+    secrets: inherit
 
   build-windows-misx:
     runs-on: windows-latest
