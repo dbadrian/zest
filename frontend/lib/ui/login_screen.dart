@@ -22,12 +22,16 @@ class LoginPageState extends ConsumerState<LoginPage> {
   final userCtrl = TextEditingController(text: '');
   final passwordCtrl = TextEditingController(text: '');
 
+  var showPassword = false;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     userCtrl.text =
         ref.read(authenticationServiceProvider).value?.user?.username ?? '';
+
+    showPassword = false;
   }
 
   @override
@@ -82,33 +86,51 @@ class LoginPageState extends ConsumerState<LoginPage> {
                   ),
                 ),
                 const ElementsVerticalSpace(),
-                Expanded(
-                  child: TextFormField(
-                    key: const Key('password'),
-                    decoration: const InputDecoration(
-                      labelText: "Password",
-                      // border: OutlineInputBorder(),
+                Stack(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        key: const Key('password'),
+                        decoration: const InputDecoration(
+                          labelText: "Password",
+                          // border: OutlineInputBorder(),
+                        ),
+                        controller: passwordCtrl,
+                        obscureText: !showPassword,
+                        enabled: !state.isLoading,
+                        // maxLength: 32,
+
+                        // textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (_) async {
+                          final loggedIn = await ref
+                              .read(authenticationServiceProvider.notifier)
+                              .login(userCtrl.text, passwordCtrl.text);
+
+                          if (loggedIn) {
+                            if (context.mounted) {
+                              GoRouter.of(context)
+                                  .go(RecipeSearchPage.routeLocation);
+                            }
+                          }
+                          ;
+                        },
+                        // validator: controller.emptyValidator,
+                      ),
                     ),
-                    controller: passwordCtrl,
-                    obscureText: true,
-                    enabled: !state.isLoading,
-
-                    // textInputAction: TextInputAction.done,
-                    onFieldSubmitted: (_) async {
-                      final loggedIn = await ref
-                          .read(authenticationServiceProvider.notifier)
-                          .login(userCtrl.text, passwordCtrl.text);
-
-                      if (loggedIn) {
-                        if (context.mounted) {
-                          GoRouter.of(context)
-                              .go(RecipeSearchPage.routeLocation);
-                        }
-                      }
-                      ;
-                    },
-                    // validator: controller.emptyValidator,
-                  ),
+                    Positioned(
+                        // top: MediaQuery.of(context).size.height * 0.45,
+                        top: 10,
+                        right: 0, // the position from the right
+                        child: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                showPassword = !showPassword;
+                              });
+                            },
+                            icon: Icon(!showPassword
+                                ? Icons.visibility_rounded
+                                : Icons.visibility_off_rounded))),
+                  ],
                 ),
                 if (state.hasError)
                   Text(
