@@ -2,6 +2,9 @@
 
 import os
 from distutils.util import strtobool
+import getpass
+
+USER = getpass.getuser()
 
 # Django WSGI application path in pattern MODULE_NAME:VARIABLE_NAME
 wsgi_app = "zest.wsgi:application"
@@ -16,8 +19,10 @@ bind = os.getenv("GU_BIND", "0.0.0.0:8000")
 reload = bool(strtobool(os.getenv("GU_RELOAD", "false")))
 # Write access and error info to /var/log
 # accesslog = errorlog = "/var/log/gunicorn/production.log"
-accesslog = f'{os.getenv("LOGS_PATH", "/home/ubuntu")}/gunicorn_acc.log'
-errorlog = f'{os.getenv("LOGS_PATH", "/home/ubuntu")}/gunicorn_err.log'
+base_log_path = os.getenv("LOGS_PATH", f"/home/{USER}")
+
+accesslog = f'{base_log_path}/gunicorn_acc.log'
+errorlog = f'{base_log_path}/gunicorn_err.log'
 
 access_log_format = (
     "%(h)s %(l)s %(u)s %(t)s '%(r)s' %(s)s %(b)s '%(f)s' '%(a)s' in %(D)sµs"
@@ -26,6 +31,6 @@ access_log_format = (
 capture_output = True
 # PID file so you can easily fetch process ID
 # pidfile = "/var/run/gunicorn/prod.pid"
-pidfile = "/home/ubuntu/tmp/gunicorn.pid"
+pidfile = f"/home/{USER}/tmp/gunicorn.pid"
 # Daemonize the Gunicorn process (detach & enter background)
 daemon = False
