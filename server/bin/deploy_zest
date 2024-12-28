@@ -28,5 +28,5 @@ if [ $? != 0 ]; then
 fi
 pkill zest # for good measure
 sleep 2
-tmux new-session -s "zest-live" -d "${ZEST_DEPLOYMENT_DIR}/zest --env ${ENV_PATH} production"
+tmux new-session -s "zest-live" -d "${ZEST_DEPLOYMENT_DIR}/zest/zest --env ${ENV_PATH} production"
 

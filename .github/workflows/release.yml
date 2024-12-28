@@ -26,16 +26,9 @@ jobs:
 
   deploy-backend:
     name: Deploy to EC2
-    runs-on: ubuntu-latest
+    uses: dbadrian/zest/.github/workflows/deploy-backend.yaml@main
     needs: [build-android, build-linux, build-windows-misx]  # assuming github release is not failing
-    steps:
-      - name: Build & Deploy
-        env:
-          PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
-          SERVER: ${{secrets.AWS_SERVER}}
-        run: |
-            echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-            ssh -o StrictHostKeyChecking=no -i private_key ${SERVER} '/home/ubuntu/bin/deploy_zest'
+    secrets: inherit
 
   release-github:
     name: Github Release
