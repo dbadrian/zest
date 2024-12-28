@@ -2,7 +2,7 @@
 set -e
 
 # move old log file
-cp /home/ubuntu/backup_logs /home/ubuntu/backup_logs.old
+cp /home/zest/backup_logs /home/zest/backup_logs.old
 
 # Database name
 db_name=zest
@@ -72,4 +72,4 @@ printf "New Backup made: $zipfile\n\nFolder Size: $SIZE\n\nFiles Deleted:\n$FILE
 #| mailx -s 'Backup was successfully created' $recipient_email
 
 printf "Backup was successfully created. Sync to B2 now"
-/home/ubuntu/bin/b2 sync ~/backups/zest/ b2://zest-db-backup/ --delete
+/home/zest/bin/b2 sync ~/backups/zest/ b2://zest-db-backup/ --delete
