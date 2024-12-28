@@ -17,7 +17,7 @@ rm -rf /home/$USER/.shiv
 # and delete the latest versions
 echo "Linking latest pyz"
 cd ~/zest
-ls -t zest-v*.pyz | tail -n +3 | xargs -d '\n' rm --
+ls -t zest-v*.pyz | tail -n +3 | xargs -r -d '\n' rm --
 
 echo 'Looking for running server and restarting'
 tmux has-session -t "zest-live" 2>/dev/null
