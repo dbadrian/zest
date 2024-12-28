@@ -20,7 +20,7 @@ zipfile=$backupfolder/$zipfile_name
 #create backup folder
 mkdir -p $backupfolder
 # Create a backup
-if pg_dump -U postgres -h localhost > $sqlfile ; then
+if pg_dump -U zest -h localhost > $sqlfile ; then
     echo 'Sql dump created'
 else
     echo 'pg_dump return non-zero code' | mailx -s 'No backup was created!' $recipient_email
