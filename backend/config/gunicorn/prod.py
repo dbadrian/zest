@@ -31,6 +31,6 @@ access_log_format = (
 capture_output = True
 # PID file so you can easily fetch process ID
 # pidfile = "/var/run/gunicorn/prod.pid"
-pidfile = f"/home/{USER}/tmp/gunicorn.pid"
+pidfile = f"/home/{USER}/gunicorn.pid"
 # Daemonize the Gunicorn process (detach & enter background)
 daemon = False
