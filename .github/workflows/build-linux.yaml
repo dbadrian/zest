@@ -1,0 +1,38 @@
+name: Build Linux
+
+on:
+  workflow_call:
+  workflow_dispatch: # manual
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host
+
+      - name: Build docker images
+        env:
+          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+        run: |
+          docker build  --network=host -t archdev --build-arg GPGKEY="$GPG_SIGNING_KEY" .
+          chmod 777 ${{ runner.temp }}
+          docker run -v ${{ runner.temp }}:/build --rm archdev /bin/bash -c "cp /home/builduser/*.pkg.tar.* /build"
+
+      - name: Upload  Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifact
+          path: |
+            ${{ runner.temp }}/*.pkg.tar.zst
+            ${{ runner.temp }}/*.pkg.tar.zst.sig
+          retention-days: 1
