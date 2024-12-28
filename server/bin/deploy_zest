@@ -11,12 +11,15 @@ cd ~/zest
 ln -sf $(ls -td zest-*.pyz | head -1) zest
 
 # clear the shiv cache -> gets huge quickly
+echo "Deleting shiv cache"
 rm -rf /home/$USER/.shiv
 
 # and delete the latest versions
+echo "Linking latest pyz"
 cd ~/zest
 ls -t zest-v*.pyz | tail -n +3 | xargs -d '\n' rm --
 
+echo 'Looking for running server and restarting'
 tmux has-session -t "zest-live" 2>/dev/null
 
 if [ $? != 0 ]; then
