@@ -4,9 +4,9 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.db import models
 
-# from django.contrib.postgres.indexes import GinIndex
-from django.contrib.postgres.search import SearchVectorField
-from shared.translator import get_fields_with_lang_extension
+from django.contrib.postgres.indexes import GinIndex
+# from django.contrib.postgres.search import SearchVectorField
+# from shared.translator import get_fields_with_lang_extension
 
 from shared.utils.generic import check_dependent_fields
 from units.models import Unit
@@ -45,9 +45,9 @@ class Food(models.Model):
         verbose_name = _("Food")
         verbose_name_plural = _("Foods")
         ordering = ("name",)
-        # indexes = [
-        #     GinIndex(name=f'GinIndexFoods_{lc}', fields=[f"name_{lc}"], opclasses=['gin_trgm_ops']) for lc, _ in LANGUAGES
-        # ] + [GinIndex(name=f'GinIndexFoods_name', fields=[f"name"], opclasses=['gin_trgm_ops'])]
+        indexes = [
+            GinIndex(name=f'GinIndexFoods_{lc}', fields=[f"name_{lc}"], opclasses=['gin_trgm_ops']) for lc, _ in LANGUAGES
+        ] + [GinIndex(name=f'GinIndexFoods_name', fields=[f"name"], opclasses=['gin_trgm_ops'])]
 
     def __str__(self):  # pragma: no cover
         return self.name
@@ -65,11 +65,9 @@ class FoodNameSynonyms(models.Model):
     class Meta:
         verbose_name = _("Food Synonym")
         ordering = ("name",)
-        # indexes = [
-        #     GinIndex(
-        #         name="GinIndexFoodSynonyms", fields=["name"], opclasses=["gin_trgm_ops"]
-        #     ),
-        # ]
+        indexes = [
+            GinIndex(fields=["name"], opclasses=["gin_trgm_ops"])
+        ]
 
     def __str__(self):  # pragma: no cover
         return self.name
