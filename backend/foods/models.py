@@ -46,8 +46,8 @@ class Food(models.Model):
         verbose_name_plural = _("Foods")
         ordering = ("name",)
         indexes = [
-            GinIndex(name=f'GinIndexFoods_{lc}', fields=[f"name_{lc}"], opclasses=['gin_trgm_ops']) for lc, _ in LANGUAGES
-        ] + [GinIndex(name=f'GinIndexFoods_name', fields=[f"name"], opclasses=['gin_trgm_ops'])]
+            GinIndex(name=f'gin_index_name_{lc}', fields=[f"name_{lc}"], opclasses=['gin_trgm_ops']) for lc, _ in LANGUAGES
+        ] + [GinIndex(name=f'gin_index_name', fields=[f"name"], opclasses=['gin_trgm_ops'])]
 
     def __str__(self):  # pragma: no cover
         return self.name
@@ -66,7 +66,7 @@ class FoodNameSynonyms(models.Model):
         verbose_name = _("Food Synonym")
         ordering = ("name",)
         indexes = [
-            GinIndex(fields=["name"], opclasses=["gin_trgm_ops"])
+            GinIndex(name=f'gin_index_food_synonyms', fields=["name"], opclasses=["gin_trgm_ops"])
         ]
 
     def __str__(self):  # pragma: no cover
