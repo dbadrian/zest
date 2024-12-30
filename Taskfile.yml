@@ -74,9 +74,12 @@ tasks:
     cmds:
       - docker compose run --rm backend bash
 
+  backend-django-makemigrations:
+    cmds:
+      - docker compose run --rm backend python manage.py makemigrations
+
   backend-django-migrate:
     cmds:
-      - docker compose run --rm backend python manage.py makemigrations users shared units foods tags recipes shopping_lists favorites
       - docker compose run --rm backend python manage.py migrate
 
   backend-django-clean-migrations:
