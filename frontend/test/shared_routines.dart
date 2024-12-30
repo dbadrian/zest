@@ -109,3 +109,16 @@ ProviderContainer createContainer({
 
   return container;
 }
+
+Future<void> performLogin(tester) async {
+  final usernameKey = const Key('username');
+  final passwordKey = const Key('password');
+  final loginKey = const Key('login');
+  final loginButton = find.byKey(loginKey);
+
+  await tester.enterText(find.byKey(passwordKey), 'admin'); // why the fuck
+  await tester.enterText(find.byKey(usernameKey), 'admin');
+  await tester.enterText(find.byKey(passwordKey), 'admin');
+  await tester.tap(loginButton);
+  await tester.pumpAndSettle();
+}

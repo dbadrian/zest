@@ -88,34 +88,35 @@ class LoginPageState extends ConsumerState<LoginPage> {
                 const ElementsVerticalSpace(),
                 Stack(
                   children: [
-                    Expanded(
-                      child: TextFormField(
-                        key: const Key('password'),
-                        decoration: const InputDecoration(
-                          labelText: "Password",
-                          // border: OutlineInputBorder(),
-                        ),
-                        controller: passwordCtrl,
-                        obscureText: !showPassword,
-                        enabled: !state.isLoading,
-                        // maxLength: 32,
-
-                        // textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) async {
-                          final loggedIn = await ref
-                              .read(authenticationServiceProvider.notifier)
-                              .login(userCtrl.text, passwordCtrl.text);
-
-                          if (loggedIn) {
-                            if (context.mounted) {
-                              GoRouter.of(context)
-                                  .go(RecipeSearchPage.routeLocation);
-                            }
-                          }
-                          ;
-                        },
-                        // validator: controller.emptyValidator,
+                    // Expanded(
+                    //   child:
+                    TextFormField(
+                      key: const Key('password'),
+                      decoration: const InputDecoration(
+                        labelText: "Password",
+                        // border: OutlineInputBorder(),
                       ),
+                      controller: passwordCtrl,
+                      obscureText: !showPassword,
+                      enabled: !state.isLoading,
+                      // maxLength: 32,
+
+                      // textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) async {
+                        final loggedIn = await ref
+                            .read(authenticationServiceProvider.notifier)
+                            .login(userCtrl.text, passwordCtrl.text);
+
+                        if (loggedIn) {
+                          if (context.mounted) {
+                            GoRouter.of(context)
+                                .go(RecipeSearchPage.routeLocation);
+                          }
+                        }
+                        ;
+                      },
+                      // validator: controller.emptyValidator,
+                      // ),
                     ),
                     Positioned(
                         // top: MediaQuery.of(context).size.height * 0.45,
