@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.11-slim
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -66,7 +66,7 @@ COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh && \
     groupadd -g $GID zest && useradd -u $UID -g $GID -m zest && \
     passwd -d zest && \
-    echo 'zest ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
+    echo 'zest ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 ENTRYPOINT ["/entrypoint.sh"]
 
 # Default command to run Bash
