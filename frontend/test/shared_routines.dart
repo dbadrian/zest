@@ -24,7 +24,7 @@ Future<(SharedPreferences, Database)> prepareAppForIntegrationTest() async {
 
   // We test against a local server
   SharedPreferences.setMockInitialValues({
-    apiUrlKey: "http://localhost:1337/api/v1",
+    apiUrlKey: "http://localhost:8000/api/v1",
   });
 
   final sharedPrefs = await SharedPreferences.getInstance();
