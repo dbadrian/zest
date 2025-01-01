@@ -20,8 +20,8 @@ jobs:
       SQL_PASSWORD: zest
       SQL_HOST: db
       SQL_PORT: 5432
-      UID: 1000
-      GID: 1000
+      UID: 1001
+      GID: 121
       REDIS_ADDRESS: redis://cache:6379/1
 
     steps:
