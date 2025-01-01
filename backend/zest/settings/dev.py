@@ -49,11 +49,14 @@ SIMPLE_JWT["SLIDING_TOKEN_LIFETIME"] = timedelta(minutes=10000)
 SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"] = timedelta(minutes=10000)
 
 MIDDLEWARE = [
-    # "silk.middleware.SilkyMiddleware",
     "nplusone.ext.django.NPlusOneMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
 ] + MIDDLEWARE
 
+if os.environ.get("USE_SILK_PROFILE") == "yes":
+    MIDDLEWARE = [
+        "silk.middleware.SilkyMiddleware",
+    ] + MIDDLEWARE
 
 REST_FRAMEWORK.update(  # noqa: F405
     {

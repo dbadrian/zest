@@ -59,4 +59,5 @@ FILE_UPLOAD_PERMISSIONS = 0o640  # TODO: Configure that correctly
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
-SILKY_PYTHON_PROFILER = True
+if os.environ.get("USE_SILK_PROFILE") == "yes":
+    SILKY_PYTHON_PROFILER = True

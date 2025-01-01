@@ -64,6 +64,7 @@ REST_FRAMEWORK.update(  # noqa: F405
 # API Prefix
 API_PREFIX = os.environ.get("API_PREFIX", "")
 
-MIDDLEWARE = [
-    # 'silk.middleware.SilkyMiddleware',
-] + MIDDLEWARE
+if os.environ.get("USE_SILK_PROFILE") == "yes":
+    MIDDLEWARE = [
+        "silk.middleware.SilkyMiddleware",
+    ] + MIDDLEWARE

@@ -58,7 +58,7 @@ api_urls = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
-    # path('silk/', include('silk.urls', namespace='silk'))
+    path('silk/', include('silk.urls', namespace='silk'))
 ]
 
 # api_docs_urls = [

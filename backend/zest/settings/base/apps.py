@@ -1,5 +1,6 @@
 # Application definition
 import logging
+import os
 
 
 INSTALLED_APPS = [
@@ -13,9 +14,19 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "whitenoise.runserver_nostatic",
     "django.contrib.sites",
-    # 3rd-party
-    # "silk",
-    # "nplusone.ext.django",
+]
+
+if os.environ.get("USE_SILK_PROFILE") == "yes":
+    INSTALLED_APPS = [
+        "silk"
+    ] + INSTALLED_APPS
+    
+if os.environ.get("USE_NPLUSONE") == "yes":
+    INSTALLED_APPS = [
+        "nplusone.ext.django",
+    ] + INSTALLED_APPS
+
+INSTALLED_APPS += [    
     "corsheaders",
     "rest_framework",
     "rest_framework.authtoken",
