@@ -153,12 +153,14 @@ jobs:
         run: |
           task backend-init-ci
 
-      - name: Start docker
-        run: |
-          task docker-start &
+      # - name: Start docker
+      #   run: |
+      #     task docker-start &
 
       - name: Tests
-        run: flutter test --coverage
+        run: |
+          task docker-start
+          flutter test --coverage
 
       - name: Generate Coverage
         run: |
