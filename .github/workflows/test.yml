@@ -45,6 +45,8 @@ jobs:
       SQL_PASSWORD: zest
       SQL_HOST: db
       SQL_PORT: 5432
+      UID: 1000
+      GID: 1000
       REDIS_ADDRESS: redis://cache:6379/1
     steps:
       - name: Install Task

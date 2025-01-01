@@ -27,7 +27,8 @@ RUN apt-get update && apt-get install -y \
     nginx \
     sudo \
     gettext libgettextpo-dev nano vim \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \ 
+    && mkdir /code
 
 # Switch to the postgres user to set up the database
 USER postgres
@@ -50,7 +51,7 @@ EXPOSE ${POSTGRES_PORT} 5432 6379
 
 USER root
 
-RUN mkdir /code
+RUN 
 WORKDIR /code
 COPY backend/poetry.lock backend/pyproject.toml /code/
 RUN pip install --upgrade pip>=24.0 \
@@ -63,11 +64,10 @@ RUN pip install --upgrade pip>=24.0 \
 
 # start entrypoint
 COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-# RUN useradd -rm -d /home/zest -s /bin/bash -g root -G sudo zest/
-RUN groupadd -g $GID zest && useradd -u $UID -g $GID -m zest
-RUN passwd -d zest
-RUN echo 'zest ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN chmod +x /entrypoint.sh && \
+    groupadd -g $GID zest && useradd -u $UID -g $GID -m zest && \
+    passwd -d zest && \
+    echo 'zest ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
 ENTRYPOINT ["/entrypoint.sh"]
 
 # Default command to run Bash
