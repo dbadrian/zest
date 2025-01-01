@@ -34,8 +34,8 @@ tasks:
     cmds:
       - task: docker-build
       - docker compose start db
-      - docker compose run --rm db psql -h db -U zest -d zest -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm'
-      - docker compose run --rm db psql -h db -U zest -d zest -c 'CREATE EXTENSION IF NOT EXISTS btree_gin'
+      - docker compose run db psql -h db -U zest -d zest -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm'
+      - docker compose run db psql -h db -U zest -d zest -c 'CREATE EXTENSION IF NOT EXISTS btree_gin'
       - docker compose stop db
       - task: backend-django-migrate
       - task: backend-install-fixtures
@@ -51,7 +51,7 @@ tasks:
 
   backend-lint:
     cmds:
-      - docker compose run --rm backend flake8 .
+      - docker compose run backend flake8 .
 
   backend-clean:
     cmds:
@@ -67,20 +67,20 @@ tasks:
   backend-django-clean:
     cmds:
       - docker compose start db
-      - docker compose run --rm db psql -h db -U postgres -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'
+      - docker compose run db psql -h db -U postgres -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'
       - docker compose stop
 
   backend-cli:
     cmds:
-      - docker compose run --rm backend bash
+      - docker compose run backend bash
 
   backend-django-makemigrations:
     cmds:
-      - docker compose run --rm backend python manage.py makemigrations
+      - docker compose run backend python manage.py makemigrations
 
   backend-django-migrate:
     cmds:
-      - docker compose run --rm backend python manage.py migrate
+      - docker compose run backend python manage.py migrate
 
   backend-django-clean-migrations:
     deps: [docker-stop]
@@ -90,35 +90,35 @@ tasks:
 
   backend-django-flush:
     cmds:
-      - docker compose run --rm backend python manage.py flush --noinput
+      - docker compose run backend python manage.py flush --noinput
 
   backend-install-fixtures:
     cmds:
-      - docker compose run --rm backend python manage.py loaddata users.json units.json foods.json foods_synonyms.json tags.json recipes.json recipe_categories.json shoppinglists.json
+      - docker compose run backend python manage.py loaddata users.json units.json foods.json foods_synonyms.json tags.json recipes.json recipe_categories.json shoppinglists.json
 
   backend-django-collect-static:
     cmds:
-      - docker compose run --rm backend python manage.py collectstatic
+      - docker compose run backend python manage.py collectstatic
 
   backend-django-makemessages:
     env:
       MLANG: DE
     cmds:
-      - docker compose run --rm backend python manage.py makemessages -l {{.CLI_ARGS}}
+      - docker compose run backend python manage.py makemessages -l {{.CLI_ARGS}}
 
   backend-django-compilemessages:
     cmds:
-      - docker compose run --rm backend python manage.py compilemessages
+      - docker compose run backend python manage.py compilemessages
 
   backend-django-get-fixtures:
     cmds:
-      - docker compose run --rm backend python manage.py dumpdata {{.CLI_ARGS}} --indent 2
+      - docker compose run backend python manage.py dumpdata {{.CLI_ARGS}} --indent 2
 
   dump-fixtures:
     cmds:
       - mkdir -p data/fixtures
       - |
-        docker compose run --rm backend bash -c "
+        docker compose run backend bash -c "
         python manage.py dumpdata units --indent 2 > ../data/fixtures/units.json && \
         python manage.py dumpdata foods --indent 2 > ../data/fixtures/foods.json && \
         python manage.py dumpdata tags --indent 2 > ../data/fixtures/tags.json && \
@@ -131,8 +131,8 @@ tasks:
     env:
       TESTSCOPE:
     cmds:
-      # - docker compose run --rm backend bash -c 'python manage.py test {{.CLI_ARGS}}'/
-      - docker compose run --rm backend bash -c 'pytest -vv  --cov-report xml --cov=.'
+      # - docker compose run backend bash -c 'python manage.py test {{.CLI_ARGS}}'/
+      - docker compose run backend bash -c 'pytest -vv  --cov-report xml --cov=.'
 
   frontend-clean:
     dir: frontend
