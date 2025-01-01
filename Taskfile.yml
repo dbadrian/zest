@@ -102,6 +102,7 @@ tasks:
       - docker compose exec backend python manage.py makemigrations
 
   backend-django-migrate:
+    deps: [docker-start]
     cmds:
       - docker compose exec backend python manage.py migrate
 
@@ -154,7 +155,7 @@ tasks:
     env:
       TESTSCOPE:
     cmds:
-      # - docker compose exec backend bash -c 'python manage.py test {{.CLI_ARGS}}'/
+      - task: docker-start
       - docker compose exec backend bash -c 'pytest -vv  --cov-report xml --cov=.'
 
   frontend-clean:
