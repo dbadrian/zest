@@ -182,7 +182,7 @@ Now we can make the migrations, migrate, and install the fixtures
 # create folder for statics and media
 sudo mkdir -p /var/www/html/zest/media
 sudo mkdir -p /var/www/html/zest/static
-sudo chown -R zest:zest /var/www/html/zest/static /var/www/html/zest/media
+sudo chown -R www-data:www-data /var/www/html/zest/static /var/www/html/zest/media
 sudo chmod -R 755 /var/www/html/zest/static /var/www/html/zest/media
 ./zest --env env.json manage collectstatic
 ```
@@ -238,8 +238,13 @@ http {
 
     keepalive_timeout 5;
 
-    # path for static files
-    root /var/www/html/zest/static;
+    location /static/ {
+        alias /var/www/html/zest/static/;
+    }
+
+    location /media/ {
+        alias /var/www/html/zest/media/;
+    }
 
     location / {
       # checks for static file, if not found proxy to app
