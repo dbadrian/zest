@@ -181,7 +181,9 @@ Now we can make the migrations, migrate, and install the fixtures
 
 # create folder for statics and media
 sudo mkdir -p /var/www/html/zest/media
-sudo chown -R zest:zest /var/www/html/zest
+sudo mkdir -p /var/www/html/zest/static
+sudo chown -R zest:zest /var/www/html/zest/static /var/www/html/zest/media
+sudo chmod -R 755 /var/www/html/zest/static /var/www/html/zest/media
 ./zest --env env.json manage collectstatic
 ```
 
