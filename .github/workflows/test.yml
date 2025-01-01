@@ -14,7 +14,6 @@ on:
   workflow_call:
   workflow_dispatch: # manual
 
-
 jobs:
   secret-scan:
     name: gitleaks
@@ -29,7 +28,7 @@ jobs:
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}} # Only required for Organizations, not personal accounts.
   
   build-docker:
-    uses: dbadrian/zest/.github/workflows/build-docker.yaml@feature/unified_dockerfile
+    uses: dbadrian/zest/.github/workflows/build-docker.yaml@main
 
   test-backend:
     runs-on: ubuntu-latest
