@@ -1,3 +1,4 @@
+import os
 from django.contrib import admin
 from rest_framework import permissions
 from django.urls import path, include, re_path
@@ -58,8 +59,11 @@ api_urls = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
-    path('silk/', include('silk.urls', namespace='silk'))
 ]
+
+if os.environ.get("USE_SILK_PROFILE") == "yes":
+    path('silk/', include('silk.urls', namespace='silk'))
+
 
 # api_docs_urls = [
 #     re_path(
