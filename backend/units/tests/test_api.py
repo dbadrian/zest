@@ -56,7 +56,7 @@ class UnitApiTest(TestCase):
         names = [u["name"][0]["value"] for u in units]
         lang = [u["name"][0]["lang"] for u in units]
         # if the following fails, then most likely the ordering setting was changed
-        self.assertEqual(names, ["kilogram", "Unit1", "Unit2", "Unit3"])
+        self.assertEqual(names, ["Unit1", "Unit2", "Unit3", "kilogram"])
         self.assertEqual(lang, ["en", "en", "en", "en"])
 
     def test_translation_test(self):
@@ -68,7 +68,7 @@ class UnitApiTest(TestCase):
         lang = [u["name"][0]["lang"] for u in units]
         # if the following fails, then most likely the ordering setting was changed
         # the Unit2/Unit3 should say en due to fallback
-        self.assertEqual(names, ["kilogram_de", "Unit1_de", "Unit2", "Unit3"])
+        self.assertEqual(names, ["Unit1_de", "kilogram_de", "Unit2", "Unit3"])
         self.assertEqual(lang, ["de", "de", "en", "en"])
 
     def test_check_fields(self):
@@ -94,7 +94,8 @@ class UnitApiTest(TestCase):
                 self.assertIn(f, u)
 
         # for last unit we can check a bit more
-        unit_kg = units[0]
+        # if this breaks, then the ordering of the units changed
+        unit_kg = units[-1]
         for f in fields + [
             "name_plural",
             "abbreviation",
