@@ -19,6 +19,9 @@ ENV POSTGRES_DB=${POSTGRES_DB} \
     POSTGRES_PW=${POSTGRES_PW} \
     POSTGRES_PORT=${POSTGRES_PORT}
 
+COPY backend/poetry.lock backend/pyproject.toml /code/
+WORKDIR /code
+
 # Install PostgreSQL and other necessary packages
 RUN apt-get update && apt-get install -y \
     postgresql \
@@ -26,9 +29,15 @@ RUN apt-get update && apt-get install -y \
     redis-server \
     nginx \
     sudo \
-    gettext libgettextpo-dev nano vim \
+    # gettext libgettextpo-dev nano vim \
     && rm -rf /var/lib/apt/lists/* \ 
-    && mkdir /code
+    && apt-get clean \
+    && pip install --upgrade pip>=24.0 \
+    && pip install poetry \
+    && pip install virtualenv \
+    && poetry config installer.max-workers 10 \
+    && poetry config virtualenvs.create false \
+    && poetry install --no-interaction
 
 # Switch to the postgres user to set up the database
 USER postgres
@@ -51,14 +60,7 @@ EXPOSE ${POSTGRES_PORT} 5432 6379
 
 USER root
 
-WORKDIR /code
-COPY backend/poetry.lock backend/pyproject.toml /code/
-RUN pip install --upgrade pip>=24.0 \
-    && pip install poetry \
-    && pip install virtualenv \
-    && poetry config installer.max-workers 10 \
-    && poetry config virtualenvs.create false \
-    && poetry install --no-interaction
+
 # COPY backend/ /code/
 
 # start entrypoint

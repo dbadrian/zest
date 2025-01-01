@@ -151,7 +151,7 @@ tasks:
         "
 
   backend-test:
-    deps: [backend-django-migrate]
+    # deps: [backend-django-migrate]
     env:
       TESTSCOPE:
     cmds:
@@ -196,6 +196,7 @@ tasks:
     deps: [frontend-build-partial]
     dir: frontend
     cmds:
+      - task: docker-start
       - flutter test  --coverage
 
   frontend-lint:
