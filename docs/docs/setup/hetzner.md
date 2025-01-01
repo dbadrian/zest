@@ -75,7 +75,7 @@ sudo systemctl enable nginx
 
 # get cert
 sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d dbadrian.com 
+sudo certbot --nginx -d yourdomain.com 
 sudo ufw allow 'Nginx Full'
 ```
 
@@ -122,7 +122,7 @@ systemctl restart redis
 mkdir bin
 echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
 source　~/.bashrc
-git clone https://github.com/dbadrian/zest.git zest-git
+git clone https://github.com/yourdomain/zest.git zest-git
 ln -s ~/zest-git/server/bin/* ~/bin/
 deploy_zest # to trigger an initial deployment
 ```
@@ -157,10 +157,10 @@ nano ~/zest/env.json
 {
     "DJANGO_SETTINGS_MODULE": "zest.settings.production",
     "DJANGO_SECRET_KEY": "$(python3 -c 'import secrets; print(secrets.token_urlsafe(100))')",
-    "DJANGO_ALLOWED_HOSTS": "dbadrian.com",
+    "DJANGO_ALLOWED_HOSTS": "yourdomain.com",
     "DJANGO_AUTH_MODE": "jwt",
-    "CORS_ALLOWED_ORIGINS": "https://0.0.0.0:8000,http://0.0.0.0:8000,https://dbadrian.com",
-    "CSRF_TRUSTED_ORIGINS": "https://0.0.0.0:8000,http://0.0.0.0:8000,https://dbadrian.com",
+    "CORS_ALLOWED_ORIGINS": "https://0.0.0.0:8000,http://0.0.0.0:8000,https://yourdomain.com",
+    "CSRF_TRUSTED_ORIGINS": "https://0.0.0.0:8000,http://0.0.0.0:8000,https://yourdomain.com",
     "SQL_ENGINE": "django.db.backends.postgresql",
     "SQL_HOST": "localhost",
     "SQL_PORT": "5432",
@@ -188,7 +188,7 @@ sudo chmod -R 755 /var/www/html/zest/static /var/www/html/zest/media
 ```
 
 Adjust the nginx config as follows
-```
+```nginx
 worker_processes 1;
 
 user nobody nogroup;
@@ -230,13 +230,15 @@ http {
   server {
     # use 'listen 80 deferred;' for Linux
     # use 'listen 80 accept_filter=httpready;' for FreeBSD
-    listen 80;
     client_max_body_size 4G;
 
     # set the correct host(s) for your site
-    server_name dbadrian.com www.dbadrian.com;
+    server_name yourdomain.com www.yourdomain.com;
 
     keepalive_timeout 5;
+
+    # path for static files
+#    root /var/www/html/zest/static;
 
     location /static/ {
         alias /var/www/html/zest/static/;
@@ -265,9 +267,37 @@ http {
     location = /500.html {
       root /path/to/app/current/public;
     }
-  }
+  
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
 }
+
+
+  server {
+    if ($host = yourdomain.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+    return 404; # managed by Certbot
+
+
+}}
 ```
+
+```bash
+sudo certbot --nginx -d yourdomain.com
+```
+
+!!! note
+
+    If using cloudflare, make sure to use "full" mode for SSL.
 
 Reload nginx
 ```
