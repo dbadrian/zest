@@ -51,7 +51,6 @@ EXPOSE ${POSTGRES_PORT} 5432 6379
 
 USER root
 
-RUN 
 WORKDIR /code
 COPY backend/poetry.lock backend/pyproject.toml /code/
 RUN pip install --upgrade pip>=24.0 \
