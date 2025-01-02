@@ -12,11 +12,7 @@ jobs:
         working-directory: ./frontend
     steps:
       - uses: actions/checkout@v2
-      # Setup the Python environment for backend
-      - uses: actions/setup-python@v2
-        with:
-          python-version: "3.9"
-          architecture: "x64"
+
       # Setup the flutter environment for frontend
       - uses: actions/setup-java@v4
         with:
@@ -26,6 +22,7 @@ jobs:
       # Setup the flutter environment.
       - uses: subosito/flutter-action@v2
         with:
+          cache: true
           channel: "stable" # 'dev', 'alpha', default to: 'stable'
           # flutter-version: '1.12.x' # you can also specify exact version of flutter
 

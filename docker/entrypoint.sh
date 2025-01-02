@@ -1,15 +1,14 @@
 #!/bin/bash
 
 
-# start nginx services
-sudo service nginx start
+# # start nginx services
+# nginx
 
-# start redis service
-sudo service redis-server start
+# # start redis service
+redis-server & 
 
 # IMPORTANT: CLEAN LAST AS HEALTH CHECK CHECKS FOR PORT 5432
-# start postgres services
-sudo service postgresql start
+sudo su - postgres -c "pg_ctl start -D /var/lib/postgresql/data"
 
 # Print a message to indicate services are running
 echo "Services started. Opening Bash shell..."

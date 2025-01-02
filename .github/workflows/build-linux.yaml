@@ -19,6 +19,9 @@ jobs:
         uses: docker/setup-buildx-action@v3
         with:
           driver-opts: network=host
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build docker images
         env:
