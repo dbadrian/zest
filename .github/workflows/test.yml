@@ -96,6 +96,10 @@ jobs:
           # flutter-version: 3.27.0
           cache: true
 
+      - name: "???"
+        run: |
+          echo $(pwd)
+
       - name: Prepare environment.
         run: flutter pub get
 
@@ -200,11 +204,6 @@ jobs:
 
       - name: Prepare environment.
         run: flutter pub get
-
-      - name: "📦 load tag"
-        run: |
-          echo $(pwd)
-
 
       - uses: actions/cache@v4
         name: Build Runner Cache
