@@ -104,8 +104,8 @@ jobs:
         id: flutter_build_runner_cache
         with:
           path:  |
-            lib/generated/
             lib/**/*.g.dart
+            lib/**/*.part.dart
           key: flutter_build_runner_cache_${{ runner.os }}_${{ github.sha }}
 
       - name: Build Runner
