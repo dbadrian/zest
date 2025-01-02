@@ -110,11 +110,16 @@ jobs:
           channel: stable
           # flutter-version: 3.27.0
           cache: true
+          # optional parameters follow
+          cache-key: "flutter-:os:-:channel:-:version:-:arch:-:hash:" # optional, change this to force refresh cache
+          cache-path: "${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:" # optional, change this to specify the cache path
+          pub-cache-key: "flutter-pub:os:-:channel:-:version:-:arch:-:hash:" # optional, change this to force refresh cache of dart pub get dependencies
+          pub-cache-path: "${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:" # optional, change this to specify the cache path
 
       - run: flutter --version
       - run: flutter --disable-analytics
       - name: Install Ubuntu Dependencies
-        run: sudo apt-get install -y lcov sqlite3 libsqlite3-dev libsecret-1-0 libsecret-1-dev
+        run: sudo apt-get install --no-install-recommends -y lcov sqlite3 libsqlite3-dev libsecret-1-0 libsecret-1-dev
 
       - name: Prepare environment.
         run: flutter pub get
