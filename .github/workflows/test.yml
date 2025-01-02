@@ -150,9 +150,7 @@ jobs:
         name: Build Runner Cache
         id: flutter_build_runner_cache
         with:
-          path:  |
-            lib/generated/
-            lib/**/*.g.dart
+          path: ./frontend/lib/
           key: flutter_build_runner_cache_${{ runner.os }}_${{ github.sha }}
 
       - name: Build Runner
@@ -203,13 +201,16 @@ jobs:
       - name: Prepare environment.
         run: flutter pub get
 
+      - name: "📦 load tag"
+        run: |
+          echo $(pwd)
+
+
       - uses: actions/cache@v4
         name: Build Runner Cache
         id: flutter_build_runner_cache
         with:
-          path:  |
-            lib/generated/
-            lib/**/*.g.dart
+          path: ./frontend/lib/
           key: flutter_build_runner_cache_${{ runner.os }}_${{ github.sha }}
 
       - name: Build Runner
