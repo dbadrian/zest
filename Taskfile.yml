@@ -54,11 +54,8 @@ tasks:
   # django/backend related
   backend-init:
     cmds:
-      - task: docker-build
-      - docker compose start db
-      - docker compose exec db psql -h db -U zest -d zest -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm'
-      - docker compose exec db psql -h db -U zest -d zest -c 'CREATE EXTENSION IF NOT EXISTS btree_gin'
-      - docker compose stop db
+      - docker compose exec backend psql -h localhost -U zest -d zest -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm'
+      - docker compose exec backend psql -h localhost -U zest -d zest -c 'CREATE EXTENSION IF NOT EXISTS btree_gin'
       - task: backend-django-migrate
       - task: backend-install-fixtures
       - task: backend-django-collect-static
@@ -90,7 +87,7 @@ tasks:
   backend-django-clean:
     cmds:
       - docker compose start db
-      - docker compose exec db psql -h db -U postgres -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'
+      - ddocker compose exec backend psql -h localhost -U zest -d zest -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'
       - docker compose stop
 
   backend-cli:
