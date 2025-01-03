@@ -43,6 +43,10 @@ class ApiStatus extends _$ApiStatus {
   Future<void> _updateStatus() async {
     state = await AsyncValue.guard(() => _checkBackendStatus());
   }
+
+  Future<void> updateStatus(bool isOnline) async {
+    state = AsyncValue.data(isOnline);
+  }
 }
 
 // @riverpod

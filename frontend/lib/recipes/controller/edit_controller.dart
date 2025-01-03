@@ -8,8 +8,10 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:zest/api/api_service.dart';
+import 'package:zest/api/api_status_provider.dart';
 import 'package:zest/main.dart';
 import 'package:zest/recipes/controller/draft_controller.dart';
+import 'package:zest/recipes/screens/recipe_search.dart';
 import 'package:zest/settings/settings_provider.dart';
 import 'package:zest/utils/utils.dart';
 
@@ -217,7 +219,11 @@ class RecipeEditController extends _$RecipeEditController {
             // TODO: onconfirm
             );
       } else if (categories.error is ServerNotReachableException) {
-        openServerNotAvailableDialog();
+        openServerNotAvailableDialog(onPressed: () {
+          ref.read(apiStatusProvider.notifier).updateStatus(false);
+          shellNavigatorKey.currentState!.overlay!.context
+              .goNamed(RecipeSearchPage.routeName);
+        });
       }
     }
     // express the list as a map

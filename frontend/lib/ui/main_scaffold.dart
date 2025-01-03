@@ -49,7 +49,7 @@ class MainScaffold extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         title: backendStatus.value ?? false
-            ? const Text("Online")
+            ? Container()
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -71,9 +71,11 @@ class MainScaffold extends ConsumerWidget {
             IconButton(
               icon: const Icon(
                   key: Key("appbar_addrecipe_icon"), Icons.add_card_rounded),
-              onPressed: () {
-                context.goNamed(RecipeEditPage.routeNameCreate);
-              },
+              onPressed: (backendStatus.value ?? false)
+                  ? () {
+                      context.goNamed(RecipeEditPage.routeNameCreate);
+                    }
+                  : null,
             ),
           if (isAuthenticated)
             IconButton(

@@ -131,7 +131,7 @@ class ResourceNotFoundInterceptor extends InterceptorContract {
       case 400:
         throw BadRequestException();
       case 500:
-        throw Exception("Server error");
+        throw ServerNotReachableException(); // "Internal Server Error [500]"
     }
     return response;
   }
