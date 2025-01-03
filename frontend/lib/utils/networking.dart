@@ -116,11 +116,22 @@ class ResourceNotFoundInterceptor extends InterceptorContract {
   @override
   Future<BaseResponse> interceptResponse(
       {required BaseResponse response}) async {
-    if (response.statusCode == 404) {
-      if (response is Response) {
-        final ret = jsonDecodeResponseData(response);
-        throw ResourceNotFoundException(message: ret.toString());
-      }
+    // if (response.statusCode == 404) {
+    //   if (response is Response) {
+    //     final ret = jsonDecodeResponseData(response);
+    //     throw ResourceNotFoundException(message: ret.toString());
+    //   }
+    // }
+
+    switch (response.statusCode) {
+      case 404:
+        throw ResourceNotFoundException();
+      case 401:
+        throw NotAuthorizedException();
+      case 400:
+        throw BadRequestException();
+      case 500:
+        throw ServerNotReachableException(); // "Internal Server Error [500]"
     }
     return response;
   }

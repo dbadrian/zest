@@ -8,6 +8,7 @@ import 'package:downloadsfolder/downloadsfolder.dart';
 import 'package:path/path.dart' as p;
 
 import 'package:zest/api/api_service.dart';
+import 'package:zest/api/api_status_provider.dart';
 import 'package:zest/main.dart';
 import 'package:zest/recipes/controller/search_controller.dart';
 import 'package:zest/recipes/screens/recipe_draft_search.dart';
@@ -39,21 +40,42 @@ class MainScaffold extends ConsumerWidget {
         .select((value) => value.isAuthenticated));
     final user = ref.watch(authenticationServiceProvider.notifier
         .select((value) => value.whoIsUser));
+
+    final backendStatus = ref.watch(apiStatusProvider);
+
     return Scaffold(
       key: const Key('mainScaffold'),
       body: child,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
-        // title: const Text("Zest"),
+        title: backendStatus.value ?? false
+            ? Container()
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.cloud_off_rounded,
+                    //set warning colors
+                    color: Theme.of(context).colorScheme.onInverseSurface,
+                  ),
+                  const SizedBox(width: 5),
+                  Text("Offline",
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onInverseSurface,
+                          fontWeight: FontWeight.w600)),
+                ],
+              ),
         centerTitle: true,
         actions: [
           if (isAuthenticated)
             IconButton(
               icon: const Icon(
                   key: Key("appbar_addrecipe_icon"), Icons.add_card_rounded),
-              onPressed: () {
-                context.goNamed(RecipeEditPage.routeNameCreate);
-              },
+              onPressed: (backendStatus.value ?? false)
+                  ? () {
+                      context.goNamed(RecipeEditPage.routeNameCreate);
+                    }
+                  : null,
             ),
           if (isAuthenticated)
             IconButton(
