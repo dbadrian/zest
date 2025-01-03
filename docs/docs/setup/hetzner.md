@@ -249,6 +249,11 @@ http {
     }
 
     location / {
+      # check if backend is alive
+      auth_request /api/v1/info; # should yield 2xx http status code
+
+      error_page 500 =503 @status_offline;
+
       # checks for static file, if not found proxy to app
       try_files $uri @proxy_to_app;
     }
