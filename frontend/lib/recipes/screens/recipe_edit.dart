@@ -65,6 +65,7 @@ class RecipeEditPage extends ConsumerWidget {
     // final recipeRemote = ref.watch(
     //     recipeEditControllerProvider(recipeId, draftId: draftId)
     //         .selectAsync((value) => value.recipe));
+    debugPrint("Building Recipe Edit Page: $recipeId, $draftId");
     final recipeRemote = ref.watch(
         recipeEditControllerProvider(recipeId, draftId: draftId)
             .selectAsync((value) => value.recipe));
@@ -103,11 +104,13 @@ class RecipeEditPage extends ConsumerWidget {
         if (snapshot.connectionState != ConnectionState.done) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasData) {
-          final state = ref
-              .read(recipeEditControllerProvider(recipeId, draftId: draftId));
-          if (state.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          // print("Building Recipe Edit Page: $recipeId, $draftId");
+          // final state = ref
+          //     .read(recipeEditControllerProvider(recipeId, draftId: draftId));
+          // if (snapshot.isLoading) {
+          //   return const Center(child: CircularProgressIndicator());
+          // }
+          debugPrint("returning");
           return LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
               if (constraints.maxWidth > 800) {
@@ -225,12 +228,14 @@ class RecipeEditWideWidget extends HookConsumerWidget {
         },
         const SingleActivator(LogicalKeyboardKey.keyZ, control: true): () {
           ref
-              .read(recipeEditControllerProvider(recipeId).notifier)
+              .read(recipeEditControllerProvider(recipeId, draftId: draftId)
+                  .notifier)
               .stepStateBack();
         },
         const SingleActivator(LogicalKeyboardKey.keyY, control: true): () {
           ref
-              .read(recipeEditControllerProvider(recipeId).notifier)
+              .read(recipeEditControllerProvider(recipeId, draftId: draftId)
+                  .notifier)
               .stepStateForward();
         }
       },
@@ -245,16 +250,18 @@ class RecipeEditWideWidget extends HookConsumerWidget {
                   IconButton(
                       onPressed: () {
                         ref
-                            .read(
-                                recipeEditControllerProvider(recipeId).notifier)
+                            .read(recipeEditControllerProvider(recipeId,
+                                    draftId: draftId)
+                                .notifier)
                             .stepStateBack();
                       },
                       icon: const Icon(Icons.arrow_back)),
                   IconButton(
                       onPressed: () {
                         ref
-                            .read(
-                                recipeEditControllerProvider(recipeId).notifier)
+                            .read(recipeEditControllerProvider(recipeId,
+                                    draftId: draftId)
+                                .notifier)
                             .stepStateForward();
                       },
                       icon: const Icon(Icons.arrow_forward)),
@@ -267,7 +274,8 @@ class RecipeEditWideWidget extends HookConsumerWidget {
                                 value); // Attempt to decode the JSON string
                             // debugPrint(json);
                             ref
-                                .read(recipeEditControllerProvider(recipeId)
+                                .read(recipeEditControllerProvider(recipeId,
+                                        draftId: draftId)
                                     .notifier)
                                 .fillRecipeFromJSON(json);
                           } catch (e) {
@@ -518,47 +526,56 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
 
     titleController = updateTextController(
         titleController,
-        ref.read(recipeEditControllerProvider(widget.recipeId)
-            .select((s) => s.value?.title ?? "MEH")));
+        ref.read(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
+            .select((s) => s.value?.title ?? "")));
 
     subtitleController = updateTextController(
         subtitleController,
-        ref.read(recipeEditControllerProvider(widget.recipeId)
+        ref.read(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.subtitle ?? "")));
 
     commentController = updateTextController(
         commentController,
-        ref.read(recipeEditControllerProvider(widget.recipeId)
+        ref.read(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.ownerComment ?? "")));
 
     servingsController = updateTextController(
         servingsController,
-        ref.read(recipeEditControllerProvider(widget.recipeId)
+        ref.read(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.servings ?? "")));
 
     prepTimeController = updateTextController(
         prepTimeController,
-        ref.read(recipeEditControllerProvider(widget.recipeId)
+        ref.read(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.prepTime ?? "")));
 
     cookTimeController = updateTextController(
         cookTimeController,
-        ref.read(recipeEditControllerProvider(widget.recipeId)
+        ref.read(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.cookTime ?? "")));
 
     sourceNameController = updateTextController(
         sourceNameController,
-        ref.read(recipeEditControllerProvider(widget.recipeId)
+        ref.read(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.sourceName ?? "")));
 
     sourcePageController = updateTextController(
         sourcePageController,
-        ref.read(recipeEditControllerProvider(widget.recipeId)
+        ref.read(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.sourcePage ?? "")));
 
     sourceUrlController = updateTextController(
         sourceUrlController,
-        ref.read(recipeEditControllerProvider(widget.recipeId)
+        ref.read(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.sourceUrl ?? "")));
   }
 
@@ -585,47 +602,56 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
 
     titleController = updateTextController(
         titleController,
-        ref.watch(recipeEditControllerProvider(widget.recipeId)
+        ref.watch(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.title ?? "")));
 
     subtitleController = updateTextController(
         subtitleController,
-        ref.watch(recipeEditControllerProvider(widget.recipeId)
+        ref.watch(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.subtitle ?? "")));
 
     commentController = updateTextController(
         commentController,
-        ref.watch(recipeEditControllerProvider(widget.recipeId)
+        ref.watch(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.ownerComment ?? "")));
 
     servingsController = updateTextController(
         servingsController,
-        ref.watch(recipeEditControllerProvider(widget.recipeId)
+        ref.watch(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.servings ?? "")));
 
     prepTimeController = updateTextController(
         prepTimeController,
-        ref.watch(recipeEditControllerProvider(widget.recipeId)
+        ref.watch(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.prepTime ?? "")));
 
     cookTimeController = updateTextController(
         cookTimeController,
-        ref.watch(recipeEditControllerProvider(widget.recipeId)
+        ref.watch(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.cookTime ?? "")));
 
     sourceNameController = updateTextController(
         sourceNameController,
-        ref.watch(recipeEditControllerProvider(widget.recipeId)
+        ref.watch(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.sourceName ?? "")));
 
     sourcePageController = updateTextController(
         sourcePageController,
-        ref.watch(recipeEditControllerProvider(widget.recipeId)
+        ref.watch(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.sourcePage ?? "")));
 
     sourceUrlController = updateTextController(
         sourceUrlController,
-        ref.watch(recipeEditControllerProvider(widget.recipeId)
+        ref.watch(recipeEditControllerProvider(widget.recipeId,
+                draftId: widget.draftId)
             .select((s) => s.value?.sourceUrl ?? "")));
 
     return Column(
