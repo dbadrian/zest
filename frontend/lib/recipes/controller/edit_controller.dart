@@ -206,7 +206,10 @@ class RecipeEditController extends _$RecipeEditController {
   }
 
   @override
-  FutureOr<RecipeEditState> build(String? recipeId, {int? draftId}) async {
+  FutureOr<RecipeEditState> build(String? recipeId,
+      {required int? draftId}) async {
+    debugPrint("Building recipe for editor $recipeId $draftId");
+
     // TODO: The download of recipe categories could happen once during bootup
     // of the app and then stored in a "knowledge provider"
     state = const AsyncValue.loading();
@@ -246,7 +249,7 @@ class RecipeEditController extends _$RecipeEditController {
           openServerNotAvailableDialog();
         }
         // return nothing but we will return the empty state below
-        log("some other unahdled error occured...");
+        log("some other unhandled error occured...");
       }
       if (recipeValue.hasValue) {
         final s = rebuildStateFromRecipeImpl(recipeValue.value!).copyWith(
@@ -266,8 +269,8 @@ class RecipeEditController extends _$RecipeEditController {
         final s =
             draftState.copyWith(validRecipeCategoryChoices: validCategories);
         pushState(s);
-        state = AsyncValue.data(s);
         ref.watch(recipeEditorHistoryControllerProvider.notifier).reset();
+        state = AsyncValue.data(s);
         return s;
       }
     }
@@ -427,18 +430,22 @@ class RecipeEditController extends _$RecipeEditController {
   }
 
   void updateTitle(String title) {
+    debugPrint("updateTitle $title");
     pushAndUpdateState(state.value!.copyWith(title: title));
   }
 
   void updateSubtitle(String subtitle) {
+    debugPrint("updateSubtitle $subtitle");
     pushAndUpdateState(state.value!.copyWith(subtitle: subtitle));
   }
 
   void updatePrivate(bool private) {
+    debugPrint("updatePrivate $private");
     pushAndUpdateState(state.value!.copyWith(private: private));
   }
 
   void updateOwnerComment(String ownerComment) {
+    debugPrint("updateOwnerComment $ownerComment");
     pushAndUpdateState(state.value!.copyWith(ownerComment: ownerComment));
   }
 
@@ -785,7 +792,7 @@ class RecipeEditController extends _$RecipeEditController {
       where: 'id = ?',
       whereArgs: [state.value!.pk],
     );
-    print(
+    debugPrint(
         "Deleted recipe draft [$state.value!.pk] in database as! (nd: $numDeleted)");
   }
 
@@ -797,7 +804,7 @@ class RecipeEditController extends _$RecipeEditController {
     if (ret.isEmpty) {
       return null;
     }
-
+    debugPrint("Loaded Recipe DRAFT ${ret[0]}");
     return RecipeEditState.fromDBMap(ret[0]);
   }
 
