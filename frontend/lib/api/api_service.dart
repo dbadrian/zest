@@ -42,7 +42,7 @@ class APIService {
     final SettingsState settings = ref.read(settingsProvider);
 
     final queryParameters = {
-      'lang': language ?? settings.language,
+      'lang': language ?? settings.current.language,
       if (lcFilter != null) 'lc_filter': lcFilter.join(','),
       if (search != null && search.isNotEmpty) 'search': search,
       if (user != null) "user": user,
@@ -72,7 +72,7 @@ class APIService {
     final SettingsState settings = ref.read(settingsProvider);
 
     final queryParameters = {
-      'lang': language ?? settings.language,
+      'lang': language ?? settings.current.language,
       if (servings != null) 'servings': servings,
       if (lcFilter != null) 'lc_filter': lcFilter.join(','),
       if (toMetric != null && toMetric) 'to_metric': "",
@@ -91,7 +91,7 @@ class APIService {
     final SettingsState settings = ref.read(settingsProvider);
 
     final queryParameters = {
-      'lang': lang ?? settings.language,
+      'lang': lang ?? settings.current.language,
     };
 
     final url =
@@ -162,7 +162,7 @@ class APIService {
     final SettingsState settings = ref.read(settingsProvider);
 
     final queryParameters = {
-      'lang': language ?? settings.language,
+      'lang': language ?? settings.current.language,
       if (pageSize != null) 'page_size': pageSize.toString(),
     };
 
@@ -234,7 +234,7 @@ class APIService {
     final SettingsState settings = ref.read(settingsProvider);
 
     final queryParameters = {
-      'lang': language ?? settings.language,
+      'lang': language ?? settings.current.language,
       if (search != null && search.isNotEmpty) 'search': search,
       if (pageSize != null) 'page_size': pageSize.toString(),
     };
@@ -261,7 +261,7 @@ class APIService {
     final SettingsState settings = ref.read(settingsProvider);
 
     final queryParameters = {
-      'lang': language ?? settings.language,
+      'lang': language ?? settings.current.language,
       if (search != null && search.isNotEmpty) 'search': search,
       if (pageSize != null) 'page_size': pageSize.toString(),
       if (pks != null) 'pks': pks.join(','),
@@ -279,7 +279,7 @@ class APIService {
     final SettingsState settings = ref.read(settingsProvider);
 
     final queryParameters = {
-      'lang': language ?? settings.language,
+      'lang': language ?? settings.current.language,
     };
     final url =
         getAPIUrl(settings, "/foods/", queryParameters: queryParameters);
@@ -299,7 +299,7 @@ class APIService {
     final SettingsState settings = ref.read(settingsProvider);
 
     final queryParameters = {
-      'lang': language ?? settings.language,
+      'lang': language ?? settings.current.language,
       if (search != null && search.isNotEmpty) 'search': search,
       if (pageSize != null) 'page_size': pageSize.toString(),
       if (pks != null) 'pks': pks.join(','),
@@ -319,7 +319,7 @@ class APIService {
     final SettingsState settings = ref.read(settingsProvider);
 
     final queryParameters = {
-      'lang': language ?? settings.language,
+      'lang': language ?? settings.current.language,
     };
 
     final url = getAPIUrl(settings, "/foods/$foodId/",
@@ -388,7 +388,7 @@ class APIService {
     final SettingsState settings = ref.read(settingsProvider);
 
     final queryParameters = {
-      'lang': language ?? settings.language,
+      'lang': language ?? settings.current.language,
       if (search != null && search.isNotEmpty) 'search': search,
       if (pageSize != null) 'page_size': pageSize.toString(),
     };
@@ -403,7 +403,7 @@ class APIService {
   Future<Tag> createTag(String tagJson, {String? language}) async {
     final SettingsState settings = ref.read(settingsProvider);
     final queryParameters = {
-      'lang': language ?? settings.language,
+      'lang': language ?? settings.current.language,
     };
 
     final url = getAPIUrl(settings, "/tags/", queryParameters: queryParameters);

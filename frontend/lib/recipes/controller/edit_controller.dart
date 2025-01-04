@@ -233,7 +233,8 @@ class RecipeEditController extends _$RecipeEditController {
       // set state to loading only for the initial page build
       // afterwards we want silent updates?
       state = const AsyncValue.loading();
-      final language = ref.watch(settingsProvider.select((v) => v.language));
+      final language =
+          ref.watch(settingsProvider.select((v) => v.current.language));
       final recipeValue = await AsyncValue.guard(() =>
           ref.read(apiServiceProvider).getRecipe(recipeId, language: language));
       if (recipeValue.hasError) {
@@ -282,7 +283,7 @@ class RecipeEditController extends _$RecipeEditController {
       recipeId: "",
       dateCreated: DateTime.now(),
       owner: "",
-      language: ref.read(settingsProvider).language,
+      language: ref.read(settingsProvider).current.language,
       title: "",
       private: false,
       ownerComment: "",

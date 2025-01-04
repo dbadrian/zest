@@ -566,7 +566,7 @@ TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient,
     String recipeId, bool isMarked, Function() markCallback) {
   final amount = ingredient.getAmount();
   final unit = ingredient.getUnitAbbreviation(
-      matchLanguage: ref.read(settingsProvider).language);
+      matchLanguage: ref.read(settingsProvider).current.language);
   final food = ingredient.food;
   final details = ingredient.details;
 
@@ -612,7 +612,8 @@ TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient,
                 onConfirm: (String value) async {
                   final translatedName = TranslatedField(values: [
                     TranslatedValue(
-                        value: value, lang: ref.read(settingsProvider).language)
+                        value: value,
+                        lang: ref.read(settingsProvider).current.language)
                   ]);
                   final translatedFood = food.copyWith(name: translatedName);
                   final json = translatedFood.toJson(); // toJsonExplicit();

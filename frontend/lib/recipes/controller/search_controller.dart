@@ -43,12 +43,13 @@ class RecipeSearchFilterSettings extends _$RecipeSearchFilterSettings {
     // Default: we only show the current user language, unless user
     // specified to always show all languages
     final showAllLanguages =
-        ref.watch(settingsProvider.select((s) => s.searchAllLanguages));
+        ref.watch(settingsProvider.select((s) => s.current.searchAllLanguages));
     Set<String> lcFilter = {};
     if (showAllLanguages) {
       lcFilter.addAll(AVAILABLE_LANGUAGES.keys);
     } else {
-      lcFilter.add(ref.watch(settingsProvider.select((s) => s.language)));
+      lcFilter
+          .add(ref.watch(settingsProvider.select((s) => s.current.language)));
     }
     return FilterSettingsState(
       lcFilter: lcFilter,
@@ -81,7 +82,9 @@ class RecipeSearchFilterSettings extends _$RecipeSearchFilterSettings {
     } else {
       state = state.copyWith(
         showAllLanguages: false,
-        lcFilter: {ref.watch(settingsProvider.select((s) => s.language))},
+        lcFilter: {
+          ref.watch(settingsProvider.select((s) => s.current.language))
+        },
       );
     }
   }

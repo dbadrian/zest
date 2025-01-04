@@ -97,8 +97,8 @@ class ZestApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(getRouterProvider);
 
-    final Color themeBaseColor = ref
-        .watch(settingsProvider.select((settings) => settings.themeBaseColor));
+    final Color themeBaseColor = ref.watch(
+        settingsProvider.select((settings) => settings.dirty.themeBaseColor));
 
     final lightTheme_ = lightTheme.copyWith(
         colorScheme: ColorScheme.fromSeed(seedColor: themeBaseColor));
@@ -106,7 +106,7 @@ class ZestApp extends ConsumerWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: themeBaseColor));
 
     final useDarkTheme = ref.watch(settingsProvider.select((settings) {
-      return settings.useDarkTheme;
+      return settings.dirty.useDarkTheme;
     }));
 
     return MaterialApp.router(

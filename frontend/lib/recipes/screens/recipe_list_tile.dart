@@ -50,7 +50,7 @@ class RecipeListTile extends ConsumerWidget {
 
       trailing: (language != null &&
               language!.isNotEmpty &&
-              language != ref.watch(settingsProvider).language)
+              language != ref.watch(settingsProvider).current.language)
           ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               CountryFlag.fromLanguageCode(
                 language!,
