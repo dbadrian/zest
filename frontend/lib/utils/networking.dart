@@ -228,6 +228,32 @@ void openServerNotAvailableDialog({void Function()? onPressed}) {
   );
 }
 
+Future<http.Response> postWithRedirects(
+  InterceptedClient client,
+  Uri uri, {
+  Object? body,
+  Map<String, String>? headers,
+  int maxRedirects = 5,
+}) async {
+  var currentResponse =
+      await postWithRedirects(client, uri, headers: headers, body: body);
+
+  int redirectCount = 0;
+  while ((currentResponse.statusCode == 301 ||
+          currentResponse.statusCode == 302) &&
+      currentResponse.headers.containsKey('location') &&
+      redirectCount < maxRedirects) {
+    final redirectUrl = currentResponse.headers['location'];
+    if (redirectUrl == null) break;
+
+    uri = Uri.parse(redirectUrl);
+    currentResponse =
+        await postWithRedirects(client, uri, headers: headers, body: body);
+    redirectCount++;
+  }
+
+  return currentResponse;
+}
 // // abstract class Response<T> {}
 
 // // class Success<T> extends Response<T> {

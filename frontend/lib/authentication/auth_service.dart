@@ -246,7 +246,8 @@ class AuthenticationService extends _$AuthenticationService {
     final url = getAPIUrl(settings, '/auth/login/');
     state = const AsyncLoading();
     try {
-      final response = await _client.post(
+      final response = await postWithRedirects(
+        _client,
         url,
         body: jsonEncode({'username': username, 'password': password}),
       );
@@ -267,7 +268,7 @@ class AuthenticationService extends _$AuthenticationService {
         return true;
       } else {
         // TODO: better handling
-        throw "unexpected statusCode";
+        throw "unexpected statusCode: ${response.statusCode}";
       }
     } on SocketException catch (e, stackTrace) {
       state = AsyncError(
@@ -317,7 +318,7 @@ class AuthenticationService extends _$AuthenticationService {
 
     final SettingsState settings = ref.read(settingsProvider);
     final url = getAPIUrl(settings, '/auth/token/refresh/');
-    final response = await _client.post(url,
+    final response = await postWithRedirects(_client, url,
         body: jsonEncode({'refresh': token_.refreshToken}));
 
     if (response.statusCode == 200) {

@@ -99,7 +99,8 @@ class APIService {
 
     try {
       final ret = await genericResponseHandler(
-        requestCallback: () async => client.post(url, body: recipe),
+        requestCallback: () async =>
+            postWithRedirects(client, url, body: recipe),
         create: (json) => Recipe.fromJson(json),
       );
       return getRecipe(ret.recipeId);
@@ -188,7 +189,7 @@ class APIService {
     );
     try {
       final ret = await genericResponseHandler(
-        requestCallback: () async => client.post(url),
+        requestCallback: () async => postWithRedirects(client, url),
         create: (json) => RecipeFavorite.fromJson(json),
       );
       return ret;
@@ -284,7 +285,8 @@ class APIService {
     final url =
         getAPIUrl(settings, "/foods/", queryParameters: queryParameters);
     return genericResponseHandler(
-      requestCallback: () async => client.post(url, body: foodJson),
+      requestCallback: () async =>
+          postWithRedirects(client, url, body: foodJson),
       create: (json) => Food.fromJson(json),
     );
   }
@@ -408,7 +410,8 @@ class APIService {
 
     final url = getAPIUrl(settings, "/tags/", queryParameters: queryParameters);
     return genericResponseHandler(
-      requestCallback: () async => client.post(url, body: tagJson),
+      requestCallback: () async =>
+          postWithRedirects(client, url, body: tagJson),
       create: (json) => Tag.fromJson(json),
     );
   }

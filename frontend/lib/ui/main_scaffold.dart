@@ -48,8 +48,40 @@ class MainScaffold extends ConsumerWidget {
       body: child,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
-        title: backendStatus.value ?? false
-            ? Container()
+        title: backendStatus.valueOrNull?.isOnline ?? false
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (backendStatus.valueOrNull?.redirects ?? false)
+                    (Platform.isLinux ||
+                            Platform.isWindows ||
+                            Platform.isWindows)
+                        ? Tooltip(
+                            message: "API Redirects to HTTPS. Please Correct!",
+                            child: Icon(
+                              Icons.warning_rounded,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onInverseSurface,
+                            ),
+                          )
+                        : Row(children: [
+                            Icon(
+                              Icons.warning_rounded,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onInverseSurface,
+                            ),
+                            const SizedBox(width: 5),
+                            Text("Redirects to HTTPS",
+                                style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onInverseSurface,
+                                    fontWeight: FontWeight.w600)),
+                          ]),
+                ],
+              )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -71,7 +103,7 @@ class MainScaffold extends ConsumerWidget {
             IconButton(
               icon: const Icon(
                   key: Key("appbar_addrecipe_icon"), Icons.add_card_rounded),
-              onPressed: (backendStatus.value ?? false)
+              onPressed: (backendStatus.valueOrNull?.isOnline ?? false)
                   ? () {
                       context.goNamed(RecipeEditPage.routeNameCreate);
                     }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -12,20 +13,32 @@ class ApiStatus extends _$ApiStatus {
   Timer? _timer;
 
   @override
-  Future<bool> build() async {
+  Future<({bool isOnline, bool redirects})> build() async {
     startChecking(const Duration(seconds: 5));
     return await _checkBackendStatus();
   }
 
-  Future<bool> _checkBackendStatus() async {
+  Future<({bool isOnline, bool redirects})> _checkBackendStatus() async {
     final SettingsState settings = ref.read(settingsProvider);
 
     try {
       final response =
           await http.get(getAPIUrl(settings, "/info", withPostSlash: false));
-      return response.statusCode == 200; // Online if status is 200
+      // return response.statusCode == 200; // Online if status is 200
+      final isOnline = response.statusCode == 200 || response.statusCode == 201;
+      var redirects = false;
+      if (isOnline) {
+        final response2 =
+            await http.post(getAPIUrl(settings, "/info", withPostSlash: false));
+        if ((response2.statusCode == 301 || response2.statusCode == 302) &&
+            response2.headers['location']?.startsWith('https://') == true) {
+          redirects = true; // Redirects to HTTPS
+        }
+      }
+      debugPrint("isOnline: $isOnline, redirects: $redirects");
+      return (isOnline: isOnline, redirects: redirects);
     } catch (_) {
-      return false; // Offline in case of errors
+      return (isOnline: false, redirects: false); // Offline in case of errors
     }
   }
 
@@ -45,7 +58,8 @@ class ApiStatus extends _$ApiStatus {
   }
 
   Future<void> updateStatus(bool isOnline) async {
-    state = AsyncValue.data(isOnline);
+    state = AsyncValue.data(
+        (isOnline: isOnline, redirects: state.valueOrNull?.redirects ?? false));
   }
 }
 
