@@ -243,6 +243,24 @@ class APIFieldWidget extends HookConsumerWidget {
     apiUrlCtrl.selection = TextSelection.fromPosition(TextPosition(
         offset: min(apiUrlCtrl.text.length, cacheSelection.baseOffset)));
 
+    final isValidURL = Uri.tryParse(apiUrlCtrl.text)?.hasAbsolutePath ?? false;
+    var showErrorText = false;
+    var errorText = "";
+    if (ref.watch(settingsProvider.select((s) => s.dirty.apiUrlDirty))) {
+      showErrorText = true;
+      if (errorText.isNotEmpty) {
+        errorText += "\n";
+      }
+      errorText = "The API URL is changed, if saved you will be logged out.";
+    }
+    if (!isValidURL) {
+      showErrorText = true;
+      if (errorText.isNotEmpty) {
+        errorText += "\n";
+      }
+      errorText += "Invalid URL!";
+    }
+
     return ListTile(
       leading: const Icon(Icons.connect_without_contact),
       title: const Text("API"),
@@ -259,10 +277,7 @@ class APIFieldWidget extends HookConsumerWidget {
                 decoration: InputDecoration(
                   // border: OutlineInputBorder(),
                   hintText: 'https://your-domain.com/api/v1',
-                  errorText: ref.watch(
-                          settingsProvider.select((s) => s.dirty.apiUrlDirty))
-                      ? "The API URL is changed, if saved you will be logged out"
-                      : null,
+                  errorText: showErrorText ? errorText : null,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -305,7 +320,7 @@ Widget buildScreenButtons(context, ref) {
     children: [
       OutlinedButton(
         onPressed: () async {
-          settings.discardSettings();
+          settings.discardChanges();
           GoRouter.of(context).pop();
         },
         child: const Text("Back"),
