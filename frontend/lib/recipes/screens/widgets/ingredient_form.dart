@@ -770,7 +770,7 @@ class FoodCreationTile extends ConsumerWidget {
       title: Text("Add food '${foodController.text}'"),
       onTap: () async {
         final currentLanguage =
-            ref.watch(settingsProvider.select((s) => s.language));
+            ref.watch(settingsProvider.select((s) => s.current.language));
         foodCreationDialog(
                 initialLanguage: currentLanguage,
                 initialValue: foodController.text,

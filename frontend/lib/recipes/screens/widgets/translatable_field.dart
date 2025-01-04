@@ -113,7 +113,7 @@ class _TranslatableFieldState extends ConsumerState<TranslatableField> {
 
   bool canBeTranslated() {
     final settings = ref.read(settingsProvider);
-    return settings.language != widget.field.activeLanguage();
+    return settings.current.language != widget.field.activeLanguage();
   }
 
   Widget _buildTranslationDialog(
@@ -126,8 +126,8 @@ class _TranslatableFieldState extends ConsumerState<TranslatableField> {
             child: TextFormField(
               controller: controller,
               decoration: InputDecoration(
-                labelText:
-                    AVAILABLE_LANGUAGES[ref.read(settingsProvider).language],
+                labelText: AVAILABLE_LANGUAGES[
+                    ref.read(settingsProvider).current.language],
                 // suffixText: "optional",
                 // border: const OutlineInputBorder(),
               ),

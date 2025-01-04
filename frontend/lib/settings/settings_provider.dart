@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:zest/authentication/auth_service.dart';
+import 'package:zest/ui/login_screen.dart';
 
 import '../config/constants.dart';
 import '../config/zest_api.dart';
@@ -24,8 +27,8 @@ const _showAdvancedSettingsKey = 'settings_show_advanced_settings';
 const _baseColor = Color.fromARGB(255, 7, 228, 255);
 
 @freezed
-class SettingsState with _$SettingsState {
-  factory SettingsState({
+class SettingsStateData with _$SettingsStateData {
+  const factory SettingsStateData({
     // Language: UI and Content
     // TODO Default language should be infered based on system language
     @Default(DEFAULT_LANGUAGE) String language,
@@ -38,9 +41,18 @@ class SettingsState with _$SettingsState {
 
     // API Related
     @Default(DEFAULT_API_URL) apiUrl,
+    @Default(false) bool apiUrlDirty,
 
     // Advanced Settings
     @Default(false) bool showAdvancedSettings,
+  }) = _SettingsStateData;
+}
+
+@freezed
+class SettingsState with _$SettingsState {
+  factory SettingsState({
+    @Default(SettingsStateData()) SettingsStateData current,
+    @Default(SettingsStateData()) SettingsStateData dirty,
   }) = _SettingsState;
 }
 
@@ -52,31 +64,31 @@ class Settings extends _$Settings {
   }
 
   void setUseDarkTheme(bool useDarkTheme) {
-    state = state.copyWith(useDarkTheme: useDarkTheme);
+    state = state.copyWith.dirty(useDarkTheme: useDarkTheme);
   }
 
   void setPickerColor(Color pickerColor) {
-    state = state.copyWith(pickerColor: pickerColor);
+    state = state.copyWith.dirty(pickerColor: pickerColor);
   }
 
   void setThemeColor(Color themeBaseColor) {
-    state = state.copyWith(themeBaseColor: themeBaseColor);
+    state = state.copyWith.dirty(themeBaseColor: themeBaseColor);
   }
 
   void setLanguage(String language) {
-    state = state.copyWith(language: language);
+    state = state.copyWith.dirty(language: language);
   }
 
   void setSearchAllLanguages(bool searchAllLanguages) {
-    state = state.copyWith(searchAllLanguages: searchAllLanguages);
+    state = state.copyWith.dirty(searchAllLanguages: searchAllLanguages);
   }
 
   void setApiUrl(String apiUrl) {
-    state = state.copyWith(apiUrl: apiUrl);
+    state = state.copyWith.dirty(apiUrl: apiUrl, apiUrlDirty: true);
   }
 
   void setShowAdvancedSettings(bool showAdvancedSettings) {
-    state = state.copyWith(showAdvancedSettings: showAdvancedSettings);
+    state = state.copyWith.dirty(showAdvancedSettings: showAdvancedSettings);
   }
 
   SettingsState loadSettings() {
@@ -92,7 +104,9 @@ class Settings extends _$Settings {
     final showAdvancedSettings =
         prefs.getBool(_showAdvancedSettingsKey) ?? false;
     final apiUrl = prefs.getString(apiUrlKey) ?? DEFAULT_API_URL;
-    return SettingsState(
+    final apiUrlDirty = false;
+
+    final gt = SettingsStateData(
       useDarkTheme: useDarkTheme,
       pickerColor: Color(pickerColor),
       themeBaseColor: Color(themeBaseColor),
@@ -100,32 +114,39 @@ class Settings extends _$Settings {
       searchAllLanguages: searchAllLanguages,
       showAdvancedSettings: showAdvancedSettings,
       apiUrl: apiUrl,
+      apiUrlDirty: apiUrlDirty,
     );
+
+    return SettingsState(current: gt, dirty: gt);
   }
 
   // Load settings from the sharedPrefs
-  void discardSettings() {
+  void discardChanges() {
     state = loadSettings();
   }
 
   // Load settings from the sharedPrefs
   void restoreDefaultSettings() {
-    state = SettingsState(showAdvancedSettings: state.showAdvancedSettings);
+    final gt = SettingsStateData(
+        showAdvancedSettings: state.dirty.showAdvancedSettings);
+    state = SettingsState(current: gt, dirty: gt);
   }
 
   // Write them to the sharedPrefs
-  void persistSettings() {
+  void persistSettings() async {
     // saveSettings(ref, state);
     final prefs = ref.read(sharedPreferencesProvider);
     // Theme
-    prefs.setBool(_themeUseDarkThemeKey, state.useDarkTheme);
-    prefs.setInt(_themeColorPickerKey, state.pickerColor.value);
-    prefs.setInt(_themeBaseColorKey, state.themeBaseColor.value);
+    prefs.setBool(_themeUseDarkThemeKey, state.dirty.useDarkTheme);
+    prefs.setInt(_themeColorPickerKey, state.dirty.pickerColor.value);
+    prefs.setInt(_themeBaseColorKey, state.dirty.themeBaseColor.value);
     // Language
-    prefs.setString(_languageKey, state.language);
-    prefs.setBool(_searchAllLanguagesKey, state.searchAllLanguages);
+    prefs.setString(_languageKey, state.dirty.language);
+    prefs.setBool(_searchAllLanguagesKey, state.dirty.searchAllLanguages);
     // Advanced
-    prefs.setBool(_showAdvancedSettingsKey, state.showAdvancedSettings);
-    prefs.setString(apiUrlKey, state.apiUrl);
+    prefs.setBool(_showAdvancedSettingsKey, state.dirty.showAdvancedSettings);
+    prefs.setString(apiUrlKey, state.dirty.apiUrl);
+
+    state = state.copyWith(current: state.dirty);
   }
 }

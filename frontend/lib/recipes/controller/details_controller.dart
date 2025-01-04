@@ -19,7 +19,7 @@ class RecipeDetailsController extends _$RecipeDetailsController {
     // afterwards we want silent updates?
     state = const AsyncValue.loading();
 
-    String language = ref.watch(settingsProvider).language;
+    String language = ref.watch(settingsProvider).current.language;
     final recipeValue =
         await AsyncValue.guard(() => _loadRecipe(language: language));
     if (recipeValue.hasError) {

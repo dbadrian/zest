@@ -1,8 +1,13 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:zest/authentication/auth_service.dart';
+import 'package:zest/recipes/screens/recipe_edit.dart';
+import 'package:zest/ui/login_screen.dart';
 
 import '../config/constants.dart';
 import '../ui/widgets/divider_text.dart';
@@ -78,7 +83,7 @@ Widget buildThemeBaseColorOption(ref, context) {
               content: SingleChildScrollView(
                 child: ColorPicker(
                   pickerColor: ref.watch(settingsProvider
-                      .select((settings) => settings.themeBaseColor)),
+                      .select((settings) => settings.dirty.themeBaseColor)),
                   onColorChanged: (color) {
                     // pickerColor = color;
                     settings.setPickerColor(color);
@@ -90,7 +95,7 @@ Widget buildThemeBaseColorOption(ref, context) {
                   child: const Text('Got it'),
                   onPressed: () {
                     settings.setThemeColor(ref.watch(settingsProvider
-                        .select((settings) => settings.pickerColor)));
+                        .select((settings) => settings.dirty.pickerColor)));
                     Navigator.of(context).pop();
                   },
                 ),
@@ -106,8 +111,8 @@ Widget buildThemeBaseColorOption(ref, context) {
 
 Widget buildThemeOption(ref) {
   final settings = ref.read(settingsProvider.notifier);
-  final useDarkTheme =
-      ref.watch(settingsProvider.select((settings) => settings.useDarkTheme));
+  final useDarkTheme = ref.watch(
+      settingsProvider.select((settings) => settings.dirty.useDarkTheme));
   return SwitchListTile(
       secondary: const Icon(Icons.palette),
       title: const Text("Use Dark Theme"),
@@ -148,7 +153,7 @@ Widget buildThemeOption(ref) {
 Widget buildSearchLanguageIndicator(ref) {
   final settings = ref.read(settingsProvider.notifier);
   final bool searchAllLanguages = ref.watch(
-      settingsProvider.select((settings) => settings.searchAllLanguages));
+      settingsProvider.select((settings) => settings.dirty.searchAllLanguages));
   return SwitchListTile(
     value: searchAllLanguages,
     onChanged: (bool value) {
@@ -164,7 +169,7 @@ Widget buildSearchLanguageIndicator(ref) {
 Widget buildLanguageSelector(ref) {
   final settings = ref.read(settingsProvider.notifier);
   final String language =
-      ref.watch(settingsProvider.select((settings) => settings.language));
+      ref.watch(settingsProvider.select((settings) => settings.dirty.language));
   return ListTile(
     leading: const Icon(Icons.description_outlined),
     title: const Text("Display Language"),
@@ -193,8 +198,8 @@ Widget buildLanguageSelector(ref) {
 
 Widget buildShowAdvancedSettingsCheckbox(ref) {
   final settings = ref.read(settingsProvider.notifier);
-  final bool showAdvancedSettings = ref.watch(
-      settingsProvider.select((settings) => settings.showAdvancedSettings));
+  final bool showAdvancedSettings = ref.watch(settingsProvider
+      .select((settings) => settings.dirty.showAdvancedSettings));
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
@@ -225,20 +230,25 @@ class APIFieldWidget extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider.notifier);
-    final apiUrl = ref.watch(settingsProvider.select((s) => s.apiUrl));
+    final apiUrl = ref.watch(settingsProvider.select((s) => s.dirty.apiUrl));
     final TextEditingController apiUrlCtrl = useTextEditingController();
+
+    final double screenWidth = MediaQuery.of(context).size.width;
 
     // The following updates the text-editing controller with the current value
     // but it will also reset the cursor position to the end of the text
     // hence we need to cache the position -> seleciton
-    final cachePosition = apiUrlCtrl.selection;
+    final cacheSelection = apiUrlCtrl.selection;
     apiUrlCtrl.text = apiUrl; // to refresh the text on changes
-    apiUrlCtrl.selection = cachePosition;
+    apiUrlCtrl.selection = TextSelection.fromPosition(TextPosition(
+        offset: min(apiUrlCtrl.text.length, cacheSelection.baseOffset)));
+
     return ListTile(
       leading: const Icon(Icons.connect_without_contact),
       title: const Text("API"),
       trailing: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 40, maxWidth: 250),
+        constraints:
+            BoxConstraints(minWidth: 40, maxWidth: max(250, screenWidth * 0.5)),
         child: Row(
           children: [
             Expanded(
@@ -246,9 +256,13 @@ class APIFieldWidget extends HookConsumerWidget {
                 controller: apiUrlCtrl,
                 onChanged: ((value) => settings.setApiUrl(value)),
                 // controller: ref.apiAddressCtrl,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   // border: OutlineInputBorder(),
-                  hintText: 'http://your-domain.com/api/v1',
+                  hintText: 'https://your-domain.com/api/v1',
+                  errorText: ref.watch(
+                          settingsProvider.select((s) => s.dirty.apiUrlDirty))
+                      ? "The API URL is changed, if saved you will be logged out"
+                      : null,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -269,8 +283,8 @@ Widget _buildAdvancedSettingsImpl(ref) {
 }
 
 Widget buildAdvancedSettings(ref) {
-  final bool showAdvancedSettings = ref.watch(
-      settingsProvider.select((settings) => settings.showAdvancedSettings));
+  final bool showAdvancedSettings = ref.watch(settingsProvider
+      .select((settings) => settings.dirty.showAdvancedSettings));
   return Column(
     children: [
       if (showAdvancedSettings)
@@ -313,6 +327,20 @@ Widget buildScreenButtons(context, ref) {
       const SizedBox(
         width: 25,
       ),
+      OutlinedButton(
+        onPressed: settings.discardChanges,
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: Theme.of(ref).colorScheme.error),
+          // backgroundColor: Theme.of(ref).colorScheme.onErrorContainer,
+        ),
+        child: Text(
+          "Discard Changes",
+          style: TextStyle(color: Theme.of(context).colorScheme.error),
+        ),
+      ),
+      const SizedBox(
+        width: 25,
+      ),
       ElevatedButton(
         onPressed: () {
           settings.persistSettings();
@@ -320,7 +348,14 @@ Widget buildScreenButtons(context, ref) {
           // however, this will require more logic to force a reload of data,
           // such as recipes which might require a refresh due to language changes.
           // GoRouter.of(context).goNamed(HomePage.routeName);
-          GoRouter.of(context).pop();
+
+          if (ref.read(settingsProvider.select((s) => s.dirty.apiUrlDirty))) {
+            ref
+                .read(authenticationServiceProvider.notifier)
+                .logout()
+                .whenComplete(
+                    () => GoRouter.of(context).go(LoginPage.routeLocation));
+          }
         },
         child: const Text("Save"),
       ),
