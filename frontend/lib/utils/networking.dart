@@ -235,14 +235,14 @@ Future<http.Response> postWithRedirects(
   Map<String, String>? headers,
   int maxRedirects = 5,
 }) async {
-  var currentResponse =
-      await postWithRedirects(client, uri, headers: headers, body: body);
+  var currentResponse = await client.post(uri, headers: headers, body: body);
 
   int redirectCount = 0;
   while ((currentResponse.statusCode == 301 ||
           currentResponse.statusCode == 302) &&
       currentResponse.headers.containsKey('location') &&
       redirectCount < maxRedirects) {
+    debugPrint("Redirecting to: ${currentResponse.headers['location']}");
     final redirectUrl = currentResponse.headers['location'];
     if (redirectUrl == null) break;
 
