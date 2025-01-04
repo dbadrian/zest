@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+# check for latest version of Zest
+tmpfolder=$(mktemp -d)
+# makepkg install it
+pushd $tmpfolder
+echo "Created temp folder $(pwd)"
+FILE=$(curl -s https://api.github.com/repos/dbadrian/zest/releases/latest  | jq -r '.assets[] | select(.name | match (".pkg.tar.zst")) | .browser_download_url')
+# echo "Downloading $FILE"
+wget $FILE
+sudo pacman -U zest*.pkg.tar.zst
+popd
+rm -r $tmpfolder
+
