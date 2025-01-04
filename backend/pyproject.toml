@@ -3,7 +3,6 @@ name = "zest"
 version = "0.1.28"
 description = ""
 authors = ["David B. Adrian <dawidh.adrian@googlemail.com>"]
-package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
