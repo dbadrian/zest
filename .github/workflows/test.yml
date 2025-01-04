@@ -27,12 +27,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}} # Only required for Organizations, not personal accounts.
   
-  build-docker:
+  build-backend-docker:
     uses: dbadrian/zest/.github/workflows/build-docker.yaml@main
 
   test-backend:
     runs-on: ubuntu-latest
-    needs: [build-docker]
+    needs: [build-backend-docker]
     env:
       DJANGO_SETTINGS_MODULE: zest.settings.dev
       DJANGO_SECRET_KEY: "JASIDJ*@ioda89dY2hdaiophd80a23p06i%8-4ods3"
@@ -83,7 +83,6 @@ jobs:
 
   prepare-frontend-environment:
     runs-on: ubuntu-latest
-    needs: [build-docker]
     defaults:
       run:
         working-directory: frontend
@@ -169,7 +168,7 @@ jobs:
 
   test-frontend:
     runs-on: ubuntu-latest
-    needs: [prepare-frontend-environment]
+    needs: [build-backend-docker, prepare-frontend-environment]
     env:
       DJANGO_SETTINGS_MODULE: zest.settings.dev
       DJANGO_SECRET_KEY: "JASIDJ*@ioda89dY2hdaiophd80a23p06i%8-4ods3"
