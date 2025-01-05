@@ -121,7 +121,7 @@ def run_in_venv(venv_path, cmd, module: bool = True, cwd=None):
 
 def setup_virtual_python_environment(tmp_dir):
     venv = create_venv(tmp_dir, BUILD_VENV)
-    install_pip_packages(venv, ["poetry", "shiv"])
+    install_pip_packages(venv, ["poetry", "poetry-plugin-export", "shiv"])
     return venv
 
 
