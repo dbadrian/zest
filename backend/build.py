@@ -121,7 +121,7 @@ def run_in_venv(venv_path, cmd, module: bool = True, cwd=None):
 
 def setup_virtual_python_environment(tmp_dir):
     venv = create_venv(tmp_dir, BUILD_VENV)
-    install_pip_packages(venv, ["poetry", "poetry-plugin-export", "shiv"])
+    install_pip_packages(venv, ["poetry>=2.0.0", "poetry-plugin-export", "shiv"])
     return venv
 
 
@@ -211,7 +211,7 @@ def build_package(args, tmp_dir):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Zest')
     parser.add_argument("--python", type=Path, help="Path to python executable of desired version.", required=True)
-    parser.add_argument("--output-path", type=Path, help="Output path")
+    parser.add_argument("--output-path", type=Path, help="Output path", required=True)
     parser.add_argument('--verbose', '-v', action='store_true', help="Enable debug output")
 
     version_parser = parser.add_mutually_exclusive_group(required=True)
