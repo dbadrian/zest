@@ -46,6 +46,8 @@ class RecipeDraftSearchController extends _$RecipeDraftSearchController {
   }
 
   RecipeEditState? getById(int id) {
+    // ensure we get the latest stage
+    reload();
     if (state.hasValue) {
       return state.value!.recipeDraftList[id];
     }
