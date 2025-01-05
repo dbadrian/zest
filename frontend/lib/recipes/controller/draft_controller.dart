@@ -15,7 +15,7 @@ class RecipeDraftSearchState with _$RecipeDraftSearchState {
   }) = _RecipeDraftSearchState;
 }
 
-@riverpod
+@Riverpod()
 class RecipeDraftSearchController extends _$RecipeDraftSearchController {
   @override
   Future<RecipeDraftSearchState> build() async {

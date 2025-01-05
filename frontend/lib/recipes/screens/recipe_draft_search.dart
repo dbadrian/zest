@@ -101,6 +101,7 @@ class RecipeDraftPageState<T> extends ConsumerState<RecipeDraftPage<T>> {
                 difficulty: item.value.difficulty,
                 isAlt: index.isOdd,
                 isHighlighted: false,
+                language: item.value.lang,
                 onDelete: () {
                   ref
                       .read(recipeDraftSearchControllerProvider.notifier)

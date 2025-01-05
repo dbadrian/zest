@@ -265,6 +265,10 @@ class RecipeEditController extends _$RecipeEditController {
       final draftState = ref
           .read(recipeDraftSearchControllerProvider.notifier)
           .getById(draftId);
+      // this keeps it alive...lets dispose
+      ref.onDispose(() async {
+        ref.read(recipeDraftSearchControllerProvider.notifier).reload();
+      });
       if (draftState != null) {
         final s =
             draftState.copyWith(validRecipeCategoryChoices: validCategories);
@@ -392,6 +396,16 @@ class RecipeEditController extends _$RecipeEditController {
     state = AsyncValue.data(rebuildStateFromRecipeImpl(recipe).copyWith(
       validRecipeCategoryChoices: state.value!.validRecipeCategoryChoices,
     ));
+  }
+
+  bool canStepBack() {
+    return ref.watch(recipeEditorHistoryControllerProvider.notifier).canPop();
+  }
+
+  bool canStepForward() {
+    return ref
+        .watch(recipeEditorHistoryControllerProvider.notifier)
+        .canForward();
   }
 
   void stepStateBack() {

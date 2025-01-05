@@ -98,6 +98,8 @@ class RecipeEditPage extends ConsumerWidget {
     // );
 
     // map all its states to widgets and return the result
+    // TODO: This is a bit of a mess, but it works for now
+    // shouldnt require future builder tho
     return FutureBuilder(
       future: recipeRemote,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -105,12 +107,11 @@ class RecipeEditPage extends ConsumerWidget {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasData) {
           // print("Building Recipe Edit Page: $recipeId, $draftId");
-          // final state = ref
-          //     .read(recipeEditControllerProvider(recipeId, draftId: draftId));
-          // if (snapshot.isLoading) {
-          //   return const Center(child: CircularProgressIndicator());
-          // }
-          debugPrint("returning");
+          final state = ref
+              .read(recipeEditControllerProvider(recipeId, draftId: draftId));
+          if (state.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
           return LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
               if (constraints.maxWidth > 800) {

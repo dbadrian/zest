@@ -41,25 +41,40 @@ class RecipeListTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
       key: const Key("recipeListTile"),
-      // trailing: onDelete != null
-      //     ? IconButton(
-      //         icon: const Icon(Icons.delete_forever),
-      //         onPressed: onDelete,
-      //       )
-      //     : null,
+      // trailing: ,
 
-      trailing: (language != null &&
-              language!.isNotEmpty &&
-              language != ref.watch(settingsProvider).current.language)
-          ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              CountryFlag.fromLanguageCode(
-                language!,
-                height: 20,
-                width: 30,
-                shape: const RoundedRectangle(6),
-              )
-            ])
-          : null,
+      trailing: SizedBox(
+        width: 100,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            if (language != null &&
+                language!.isNotEmpty &&
+                language != ref.watch(settingsProvider).current.language)
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CountryFlag.fromLanguageCode(
+                    language!,
+                    height: 20,
+                    width: 30,
+                    shape: const RoundedRectangle(6),
+                  )
+                ],
+              ),
+            SizedBox(
+              width: 10,
+            ),
+            if (onDelete != null)
+              IconButton(
+                key: const Key("deleteIcon"),
+                icon: const Icon(Icons.delete),
+                onPressed: onDelete,
+                // make it lightlight shaded
+              ),
+          ],
+        ),
+      ),
       visualDensity: const VisualDensity(horizontal: 0, vertical: -4),
       title: Row(children: [
         Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -97,7 +112,7 @@ class RecipeListTile extends ConsumerWidget {
       tileColor: isAlt
           ? Theme.of(context).colorScheme.surfaceDim
           : Theme.of(context).colorScheme.surfaceContainerHigh,
-      hoverColor: Theme.of(context).colorScheme.tertiary,
+      hoverColor: Theme.of(context).colorScheme.onPrimary,
       // te : Theme.of(context).colorScheme.onPrimary,
       textColor: isAlt
           ? Theme.of(context).colorScheme.onSurface
