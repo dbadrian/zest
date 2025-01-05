@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "zest"
-version = "0.1.31"
+version = "0.1.32"
 description = ""
 authors = ["David B. Adrian <dawidh.adrian@googlemail.com>"]
 
