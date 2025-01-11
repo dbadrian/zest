@@ -116,7 +116,7 @@ def run_in_venv(venv_path, cmd, module: bool = True, cwd=None):
     ret = run_call(" ".join(call), cwd=cwd, shell=True)
     ret.check_returncode()
 
-    return ret.stdout.decode("utf-8")
+    return ret.stdout.decode("utf-8") + ret.stderr.decode("utf-8")
 
 
 def setup_virtual_python_environment(tmp_dir):
