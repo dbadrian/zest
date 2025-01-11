@@ -20,11 +20,12 @@ cd ~/zest
 ls -t zest-v*.pyz | tail -n +3 | xargs -r -d '\n' rm --
 
 echo 'Looking for running server and restarting'
-tmux has-session -t "zest-live" 2>/dev/null
-
-if [ $? != 0 ]; then
-  echo "Tmux running...killing session"
-  tmux kill-session -t "zest-live"
+tmux has-session -t zest-live 2>/dev/null
+if [ $? == 0 ]; then
+        echo " # Killing Zest Backend"
+    tmux list-panes -t zest-live -s -F "#{pane_pid} #{pane_current_command}" | grep -v tmux | awk '{print $1}' | xargs kill -9
+else
+    echo " # Zest Backend is not running"
 fi
 pkill zest # for good measure
 sleep 2
