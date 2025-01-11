@@ -120,7 +120,7 @@ def run_in_venv(venv_path, cmd, module: bool = True, cwd=None, silent=False):
         # print(f"STDOUT: {ret.stdout.decode("utf-8")}")
     except subprocess.CalledProcessError as e:
         logger.error(f"Error running command: {e}")
-        print(f"\nSTDERR: {ret.stderr.decode("utf-8")}")
+        print(f"\nSTDERR: {ret.stderr.decode('utf-8')}")
         raise e
 
 
