@@ -27,7 +27,6 @@ if [ $? == 0 ]; then
 else
     echo " # Zest Backend is not running"
 fi
-pkill zest # for good measure
-sleep 2
-tmux new-session -s "zest-live" -d "${ZEST_DEPLOYMENT_DIR}/zest/zest --env ${ENV_PATH} production"
+sleep 3
+tmux new-session -s "zest-live" -d "${ZEST_DEPLOYMENT_DIR}/zest --env ${ENV_PATH} production"
 
