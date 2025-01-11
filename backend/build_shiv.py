@@ -87,7 +87,7 @@ def install_pip_packages(venv_path: Path,
                          packages: List[str] = None,
                          requirements_txt: Path = None,
                          target: str = None,
-                         silent=True):
+                         silent=False):
 
     p_python = str(venv_path.joinpath("bin", "python"))
     cmd = [p_python, "-m", "pip", "install"]
@@ -105,7 +105,7 @@ def install_pip_packages(venv_path: Path,
     subprocess.check_call(cmd, stdout=open(os.devnull, 'wb') if silent else None)
 
 
-def run_in_venv(venv_path, cmd, module: bool = True, cwd=None):
+def run_in_venv(venv_path, cmd, module: bool = True, cwd=None, silent=False):
     if isinstance(cmd, str):
         cmd = cmd.split(" ")
     p_python = str(venv_path.joinpath("bin", "python"))
@@ -113,10 +113,15 @@ def run_in_venv(venv_path, cmd, module: bool = True, cwd=None):
     if module:
         call += ["-m"]
     call += cmd
-    ret = run_call(" ".join(call), cwd=cwd, shell=True)
-    ret.check_returncode()
 
-    return ret.stdout.decode("utf-8") + ret.stderr.decode("utf-8")
+    ret = run_call(" ".join(call), cwd=cwd, shell=True)
+    try:    
+        ret.check_returncode()
+        # print(f"STDOUT: {ret.stdout.decode("utf-8")}")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error running command: {e}")
+        print(f"\nSTDERR: {ret.stderr.decode("utf-8")}")
+        raise e
 
 
 def setup_virtual_python_environment(tmp_dir):

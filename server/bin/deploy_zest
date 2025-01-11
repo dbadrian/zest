@@ -6,7 +6,7 @@ ENV_PATH=${ZEST_DEPLOYMENT_DIR}/env.json
 mkdir -p ${ZEST_DEPLOYMENT_DIR}
 cd ~/zest-git/backend
 git pull
-${PYTHON} build.py --python ${PYTHON} --release --output-path $ZEST_DEPLOYMENT_DIR
+${PYTHON} build_shiv.py --python ${PYTHON} --release --output-path $ZEST_DEPLOYMENT_DIR
 cd ~/zest
 ln -sf $(ls -td zest-*.pyz | head -1) zest
 
