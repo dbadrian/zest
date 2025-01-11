@@ -28,5 +28,6 @@ else
     echo " # Zest Backend is not running"
 fi
 sleep 3
+echo " # Starting Zest Backend"
 tmux new-session -s "zest-live" -d "${ZEST_DEPLOYMENT_DIR}/zest --env ${ENV_PATH} production"
 
