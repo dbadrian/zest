@@ -22,7 +22,7 @@ jobs:
           packageName: com.dbadrian.zest
           releaseFiles: builds/app-release-signed.aab
           track: closed
-          status: draft
+          status: completed
           # status: completed
           changesNotSentForReview: false
           # inAppUpdatePriority: 2
