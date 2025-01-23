@@ -40,10 +40,10 @@ shiv = "^1.0.8"
 coverage = "^7.6"
 virtualenv = "^20.28.0"
 black = "^24.10.0"
-pre-commit = "^4.0.1"
+pre-commit = "^4.1.0"
 nplusone = "^1.0.0"
 pandas = "^2.2.3"
-faker = "^33.1.0"
+faker = "^34.0.2"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.3.4"
