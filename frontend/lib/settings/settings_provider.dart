@@ -15,7 +15,8 @@ part 'settings_provider.g.dart';
 // Keys for basic settings
 const _languageKey = 'settings_language';
 const _searchAllLanguagesKey = 'settings_search_all_languages_key';
-const apiUrlKey = 'settings_api_url';
+const _apiUrlKey = 'settings_api_url';
+const _chatGPTAPIKey = 'settings_chat_gpt_key';
 
 const _themeUseDarkThemeKey = 'settings_useDarkTheme';
 const _themeBaseColorKey = 'settings_themeBaseColor';
@@ -42,6 +43,7 @@ class SettingsStateData with _$SettingsStateData {
     // API Related
     @Default(DEFAULT_API_URL) apiUrl,
     @Default(false) bool apiUrlDirty,
+    @Default("") chatGPTKey,
 
     // Advanced Settings
     @Default(false) bool showAdvancedSettings,
@@ -87,6 +89,10 @@ class Settings extends _$Settings {
     state = state.copyWith.dirty(apiUrl: apiUrl, apiUrlDirty: true);
   }
 
+  void setChatGPTAPIKey(String chatGPTKey) {
+    state = state.copyWith.dirty(chatGPTKey: chatGPTKey);
+  }
+
   void setShowAdvancedSettings(bool showAdvancedSettings) {
     state = state.copyWith.dirty(showAdvancedSettings: showAdvancedSettings);
   }
@@ -103,8 +109,10 @@ class Settings extends _$Settings {
     // Advanced
     final showAdvancedSettings =
         prefs.getBool(_showAdvancedSettingsKey) ?? false;
-    final apiUrl = prefs.getString(apiUrlKey) ?? DEFAULT_API_URL;
+    final apiUrl = prefs.getString(_apiUrlKey) ?? DEFAULT_API_URL;
     final apiUrlDirty = false;
+
+    final chatGPTKey = prefs.getString(_chatGPTAPIKey) ?? "";
 
     final gt = SettingsStateData(
       useDarkTheme: useDarkTheme,
@@ -115,6 +123,7 @@ class Settings extends _$Settings {
       showAdvancedSettings: showAdvancedSettings,
       apiUrl: apiUrl,
       apiUrlDirty: apiUrlDirty,
+      chatGPTKey: chatGPTKey,
     );
 
     return SettingsState(current: gt, dirty: gt);
@@ -145,7 +154,9 @@ class Settings extends _$Settings {
     prefs.setBool(_searchAllLanguagesKey, state.dirty.searchAllLanguages);
     // Advanced
     prefs.setBool(_showAdvancedSettingsKey, state.dirty.showAdvancedSettings);
-    prefs.setString(apiUrlKey, state.dirty.apiUrl);
+    prefs.setString(_apiUrlKey, state.dirty.apiUrl);
+
+    prefs.setString(_chatGPTAPIKey, state.dirty.chatGPTKey);
 
     state = state.copyWith(current: state.dirty);
   }
