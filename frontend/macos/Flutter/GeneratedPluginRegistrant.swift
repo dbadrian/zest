@@ -6,6 +6,7 @@ import FlutterMacOS
 import Foundation
 
 import downloadsfolder
+import file_picker
 import flutter_secure_storage_macos
 import package_info_plus
 import path_provider_foundation
@@ -18,6 +19,7 @@ import window_manager
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   DownloadsfolderPlugin.register(with: registry.registrar(forPlugin: "DownloadsfolderPlugin"))
+  FilePickerPlugin.register(with: registry.registrar(forPlugin: "FilePickerPlugin"))
   FlutterSecureStoragePlugin.register(with: registry.registrar(forPlugin: "FlutterSecureStoragePlugin"))
   FPPPackageInfoPlusPlugin.register(with: registry.registrar(forPlugin: "FPPPackageInfoPlusPlugin"))
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))

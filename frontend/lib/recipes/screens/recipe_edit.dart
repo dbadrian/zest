@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:country_flags/country_flags.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -10,6 +12,7 @@ import 'package:form_builder_extra_fields/form_builder_extra_fields.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:zest/chatgpt/api.dart';
 import 'package:zest/config/constants.dart';
 
 import 'package:zest/recipes/controller/edit_controller.dart';
@@ -285,7 +288,66 @@ class RecipeEditWideWidget extends HookConsumerWidget {
                           }
                         },
                       ),
-                    )
+                    ),
+                  if (recipeId == null)
+                    IconButton(
+                        onPressed: () async {
+                          FilePickerResult? result =
+                              await FilePicker.platform.pickFiles(
+                            type: FileType.custom,
+                            allowedExtensions: ['pdf'],
+                          );
+
+                          if (result == null ||
+                              result.files.single.path == null) {
+                            return;
+                          }
+
+                          // File file = File(
+                          //     "/home/dbadrian/Downloads/Pasta alla Norma_sizilianisch-1.pdf"); //result.files.single.path!);
+                          // // debugPrint(result.files.single.path!);
+
+                          final pdfText = await ref
+                              .read(chatGPTApiServiceProvider)
+                              .getPDFtext(File(result.files.single.path!));
+                          debugPrint(pdfText);
+
+                          final assistantId = await ref
+                              .read(chatGPTApiServiceProvider)
+                              .createAssistant();
+                          debugPrint(assistantId);
+
+                          if (assistantId == null) {
+                            return;
+                          }
+
+                          // final uploadedFileId = await ref
+                          //     .read(chatGPTApiServiceProvider)
+                          //     .uploadPDF(file);
+                          // if (uploadedFileId == null) {
+                          //   return;
+                          // }
+
+                          // Upload the PDF to OpenAI
+                          final ret = await ref
+                              .read(chatGPTApiServiceProvider)
+                              .analyzeRecipePDF(pdfText, assistantId);
+                          debugPrint(ret);
+
+                          if (ret == null) {
+                            return;
+                          }
+
+                          final json = jsonDecode(
+                              ret); // Attempt to decode the JSON string
+                          // debugPrint(json);
+                          ref
+                              .read(recipeEditControllerProvider(recipeId,
+                                      draftId: draftId)
+                                  .notifier)
+                              .fillRecipeFromJSON(json);
+                        },
+                        icon: Icon(Icons.file_upload))
                   // TextButton(
                   //   child: Text("ADD FROM JSON"),
                   //   onPressed: () {},
