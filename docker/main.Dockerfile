@@ -33,7 +33,7 @@ RUN apk add --no-cache \
     && poetry config installer.max-workers 10 \
     && poetry config virtualenvs.create false \
     && poetry install --no-interaction --without dev,docs \
-    && poetry cache clear --all . \
+    && poetry cache clear --no-interaction --all . \
     # create relevant folders 
     && mkdir /run/postgresql && chown postgres:postgres /run/postgresql/ \
     && addgroup -g $GID zest \
