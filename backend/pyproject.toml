@@ -48,7 +48,7 @@ faker = "^37.4.0"
 [tool.poetry.group.test.dependencies]
 pytest = "^8.4.0"
 pytest-django = "^4.11.1"
-pytest-cov = "^6.2.0"
+pytest-cov = "^6.2.1"
 
 [tool.poetry.group.docs]
 optional = true
