@@ -34,7 +34,7 @@ psycopg = {extras = ["binary"], version = "^3.2.9"}
 yapf = "^0.43.0"
 mypy = "^1.16"
 flake8 = "^7.2.0"
-django-stubs = "^5.2.0"
+django-stubs = "^5.2.1"
 coloredlogs = "^15.0.1"
 shiv = "^1.0.8"
 coverage = "^7.9"
@@ -46,9 +46,9 @@ pandas = "^2.3.0"
 faker = "^37.4.0"
 
 [tool.poetry.group.test.dependencies]
-pytest = "^8.4.0"
+pytest = "^8.4.1"
 pytest-django = "^4.11.1"
-pytest-cov = "^6.2.0"
+pytest-cov = "^6.2.1"
 
 [tool.poetry.group.docs]
 optional = true
