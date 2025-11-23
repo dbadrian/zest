@@ -239,7 +239,7 @@ jobs:
       - name: Tests
         run: |
           task docker-start
-          flutter test --coverage
+          flutter test --coverage --concurrency 1
 
       - name: Generate Coverage
         run: |
