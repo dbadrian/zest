@@ -1,7 +1,7 @@
 [tool.poetry]
 package-mode = false
 name = "zest"
-version = "0.1.39"
+version = "0.1.40"
 description = ""
 authors = ["David B. Adrian <dawidh.adrian@googlemail.com>"]
 
