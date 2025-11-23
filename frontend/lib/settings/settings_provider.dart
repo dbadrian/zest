@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:zest/authentication/auth_service.dart';
-import 'package:zest/ui/login_screen.dart';
 
 import '../config/constants.dart';
 import '../config/zest_api.dart';
