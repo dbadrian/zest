@@ -64,6 +64,8 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.24
   downloadsfolder: ^1.1.0
   country_flags: ^3.0.0
+
+  syncfusion_flutter_pdf:
   
 dev_dependencies:
 
@@ -86,6 +88,9 @@ dev_dependencies:
     sdk: flutter
   test: ^1.25.8
 
+
+dependency_overrides:
+  analyzer_plugin: ^0.13.1 # https://stackoverflow.com/questions/79642891/i-am-trying-to-use-riverpod-generator-but-getting-all-kinds-of-dependency-issues
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
