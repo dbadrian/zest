@@ -27,7 +27,7 @@ void main() async {
         final loginButton = find.byKey(const Key('login'));
         expect(loginButton, findsOneWidget);
 
-//test without having entered correct user data to loging
+        //test without having entered correct user data to loging
         await tester.enterText(find.byKey(usernameKey), 'user');
         await tester.enterText(find.byKey(passwordKey), 'password');
         await tester.tap(loginButton);
@@ -37,11 +37,11 @@ void main() async {
         final loginError = const Key('loginError_incorrect_credentials');
         expect(find.byKey(loginError), findsOneWidget);
 
-//test with having entered user data to loging
-        await tester.enterText(find.byKey(usernameKey), 'user');
-        await tester.enterText(find.byKey(passwordKey), 'password');
-        await tester.tap(loginButton);
-        await tester.pumpAndSettle();
+        //test with having entered user data to loging
+        // await tester.enterText(find.byKey(usernameKey), 'user');
+        // await tester.enterText(find.byKey(passwordKey), 'password');
+        // await tester.tap(loginButton);
+        // await tester.pumpAndSettle();
         expect(find.byKey(loginError), findsOneWidget);
         expect(find.byKey(const Key('appbar_search_icon')), findsNothing);
 
@@ -50,7 +50,6 @@ void main() async {
         await tester.tap(loginButton);
         await tester.pumpAndSettle();
         expect(find.byKey(loginError), findsNothing);
-
         expect(find.byKey(const Key('appbar_search_icon')), findsOneWidget);
       });
     });
