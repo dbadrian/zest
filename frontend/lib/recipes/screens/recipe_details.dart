@@ -773,6 +773,31 @@ class IngredientGroupsWidget extends StatelessWidget {
   }
 }
 
+Widget buildInstructionLineWidget(
+    BuildContext ctx, int step, String instruction,
+    {bool isMarked = false}) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        "${step.toString().padLeft(2, "  ")} | ",
+        style: Theme.of(ctx).textTheme.titleMedium!.copyWith(
+              color: Theme.of(ctx).colorScheme.secondary,
+              fontWeight: isMarked ? FontWeight.bold : FontWeight.normal,
+            ),
+      ),
+      Expanded(
+        child: Text(
+          instruction,
+          style: TextStyle(
+            fontWeight: isMarked ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      )
+    ],
+  );
+}
+
 class InstructionWidget extends StatelessWidget {
   const InstructionWidget(
       {super.key,
@@ -789,28 +814,9 @@ class InstructionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: markCallback,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "${step.toString().padLeft(2, "  ")} | ",
-            style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontWeight: isMarked ? FontWeight.bold : FontWeight.normal,
-                ),
-          ),
-          Expanded(
-            child: Text(
-              instruction.text,
-              style: TextStyle(
-                fontWeight: isMarked ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          )
-        ],
-      ),
-    );
+        onTap: markCallback,
+        child: buildInstructionLineWidget(context, step, instruction.text,
+            isMarked: isMarked));
   }
 }
 

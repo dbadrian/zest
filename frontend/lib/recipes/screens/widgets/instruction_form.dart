@@ -1,66 +1,115 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:zest/recipes/screens/recipe_details.dart';
 import 'package:zest/recipes/screens/recipe_edit.dart';
 import 'package:zest/utils/form_validators.dart';
 
 import '../../controller/edit_controller.dart';
 
-class InstructionGroups extends ConsumerWidget {
+class InstructionGroups extends ConsumerStatefulWidget {
   const InstructionGroups({super.key, this.recipeId, this.draftId});
-
+  @override
+  ConsumerState<InstructionGroups> createState() => _InstructionGroupsState();
   final String? recipeId;
   final int? draftId;
+}
+
+// We subclass ConsumerState instead of State
+class _InstructionGroupsState extends ConsumerState<InstructionGroups> {
+  bool _previewInstructions = false;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     // debugPrint("Building all instruction groups...");
     final instructionGroupsState = ref.watch(
-        recipeEditControllerProvider(recipeId, draftId: draftId)
+        recipeEditControllerProvider(widget.recipeId, draftId: widget.draftId)
             .select((s) => s.value!.instructionGroups));
     final controller = ref.read(
-        recipeEditControllerProvider(recipeId, draftId: draftId).notifier);
-
-    // Initialise a scroll controller.
-    final ScrollController _scrollController = ScrollController();
+        recipeEditControllerProvider(widget.recipeId, draftId: widget.draftId)
+            .notifier);
 
     return Column(children: [
-      ReorderableListView(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        buildDefaultDragHandles: false, // disable due to desktop/web
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        // proxyDecorator: proxyDecorator,
-        children: [
-          ...instructionGroupsState!.asMap().entries.map((e) {
-            return Row(
-              key: Key(e.key.toString()),
-              children: <Widget>[
-                Expanded(
-                  child: NamedInstructionGroup(
+      _previewInstructions
+          ? Padding(
+              padding: const EdgeInsets.only(left: 15, top: 10, right: 10),
+              child: Column(
+                children: [
+                  // Kinda a duplicate implementation, but okay for now maybe?
+                  ...instructionGroupsState!.asMap().entries.map((eGrp) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          eGrp.value.name,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge!
+                              .copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                        ),
+                        ...eGrp.value.instructions.asMap().entries.map((e) {
+                          return Padding(
+                            padding: const EdgeInsets.only(left: 10, bottom: 8),
+                            child: buildInstructionLineWidget(
+                                context, e.key, e.value),
+                          );
+                        })
+                      ],
+                    );
+                  })
+                ],
+              ),
+            )
+          : ReorderableListView(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              buildDefaultDragHandles: false, // disable due to desktop/web
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              // proxyDecorator: proxyDecorator,
+              children: [
+                ...instructionGroupsState!.asMap().entries.map((e) {
+                  return Row(
                     key: Key(e.key.toString()),
-                    recipeId: recipeId,
-                    draftId: draftId,
-                    groupId: e.key,
-                  ),
-                ),
-                if (instructionGroupsState.length > 1)
-                  ReorderableDragStartListener(
-                    index: e.key,
-                    child: const Icon(Icons.drag_handle_rounded),
-                  ),
+                    children: <Widget>[
+                      Expanded(
+                        child: NamedInstructionGroup(
+                          key: Key(e.key.toString()),
+                          recipeId: widget.recipeId,
+                          draftId: widget.draftId,
+                          groupId: e.key,
+                        ),
+                      ),
+                      if (instructionGroupsState.length > 1)
+                        ReorderableDragStartListener(
+                          index: e.key,
+                          child: const Icon(Icons.drag_handle_rounded),
+                        ),
+                    ],
+                  );
+                })
               ],
-            );
-          })
+              onReorder: (oldIndex, newIndex) {
+                controller.moveInstructionGroup(oldIndex, newIndex);
+              },
+            ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TextButton(
+            onPressed: () => controller.addInstructionGroup(),
+            child: const Text('Add Instruction Group'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _previewInstructions = !_previewInstructions;
+              });
+            },
+            child: Text(_previewInstructions ? "Edit" : 'Show Preview'),
+          ),
         ],
-        onReorder: (oldIndex, newIndex) {
-          controller.moveInstructionGroup(oldIndex, newIndex);
-        },
-      ),
-      TextButton(
-        onPressed: () => controller.addInstructionGroup(),
-        child: const Text('Add Instruction Group'),
-      ),
+      )
     ]);
   }
 }
