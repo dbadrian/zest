@@ -550,6 +550,19 @@ class RecipeEditController extends _$RecipeEditController {
     pushAndUpdateState(state.value!.copyWith(instructionGroups: newGroups));
   }
 
+  void updateInstructionV2(int groupId, String update) {
+    /// This version of updateInstruction assumes a single TextEditController
+    /// or field is used to represent multiple instructions.
+    /// A double new-line '\n\n' implies that a new instruction follows.
+    final newGroups = [...state.value!.instructionGroups!];
+    final instructions =
+        update.split("\n\n"); //.where((e) => e.trim()).toList();
+    //print(instructions);
+    newGroups[groupId] =
+        newGroups[groupId].copyWith(instructions: instructions);
+    pushAndUpdateState(state.value!.copyWith(instructionGroups: newGroups));
+  }
+
   void addInstruction(int groupId) {
     final newGroups = [...state.value!.instructionGroups!];
     newGroups[groupId] = newGroups[groupId].add();
@@ -717,8 +730,12 @@ class RecipeEditController extends _$RecipeEditController {
     final instructionGroups = state.value!.instructionGroups!
         .map((e) => InstructionGroup(
             name: e.name,
-            instructions:
-                e.instructions.map((text) => Instruction(text: text)).toList()))
+            instructions: e.instructions
+                .where(
+                  (e) => e.trim().isNotEmpty,
+                )
+                .map((text) => Instruction(text: text))
+                .toList()))
         .toList();
 
     // manually push all tags that might not have been create on remote yet!
