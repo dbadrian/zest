@@ -78,7 +78,7 @@ tasks:
       - find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
 
   backend-django-softreset:
-    deps: [stop, backend-django-clean, backend-django-migrate backend-install-fixtures]
+    deps: [docker-start, backend-django-clean, backend-django-makemigrations, backend-django-migrate, backend-install-fixtures]
 
   backend-django-logs:
     cmds:
@@ -86,9 +86,9 @@ tasks:
 
   backend-django-clean:
     cmds:
-      - docker compose start db
-      - ddocker compose exec backend psql -h localhost -U zest -d zest -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'
-      - docker compose stop
+      # - docker compose start postgres
+      - docker compose exec backend psql -h localhost -U zest -d zest -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'
+      # - docker compose stop
 
   backend-cli:
     cmds:
