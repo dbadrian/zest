@@ -80,11 +80,19 @@ class _InstructionGroupsState extends ConsumerState<InstructionGroups> {
                           groupId: e.key,
                         ),
                       ),
-                      if (instructionGroupsState.length > 1)
-                        ReorderableDragStartListener(
-                          index: e.key,
-                          child: const Icon(Icons.drag_handle_rounded),
-                        ),
+                      Column(
+                        children: [
+                          IconButton(
+                              onPressed: (() =>
+                                  controller.deleteInstructionGroup(e.key)),
+                              icon: Icon(Icons.delete_forever)),
+                          if (instructionGroupsState.length > 1)
+                            ReorderableDragStartListener(
+                              index: e.key,
+                              child: const Icon(Icons.drag_handle_rounded),
+                            ),
+                        ],
+                      )
                     ],
                   );
                 })
@@ -96,17 +104,19 @@ class _InstructionGroupsState extends ConsumerState<InstructionGroups> {
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          TextButton(
-            onPressed: () => controller.addInstructionGroup(),
-            child: const Text('Add Instruction Group'),
-          ),
+          if (!_previewInstructions)
+            TextButton(
+              onPressed: () => controller.addInstructionGroup(),
+              child: const Text('Add Instruction Group'),
+            ),
           TextButton(
             onPressed: () {
               setState(() {
                 _previewInstructions = !_previewInstructions;
               });
             },
-            child: Text(_previewInstructions ? "Edit" : 'Show Preview'),
+            child: Text(
+                _previewInstructions ? "Edit Instructions" : 'Show Preview'),
           ),
         ],
       )
@@ -175,66 +185,73 @@ class _NamedInstructionGroupState extends ConsumerState<NamedInstructionGroup> {
         updateTextController(instructionEditController, joinedInstructions);
 
     return Padding(
-      padding: const EdgeInsets.only(
-        left: 0,
-        top: 5,
-        right: 0,
-        bottom: 5,
-      ),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Row(
-          children: [
-            Expanded(
+        padding: const EdgeInsets.only(
+          left: 0,
+          top: 5,
+          right: 0,
+          bottom: 5,
+        ),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(
+              width: 1,
+            ),
+            borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(3),
+                topRight: Radius.circular(3),
+                bottomLeft: Radius.circular(3),
+                bottomRight: Radius.circular(3)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withValues(alpha: 0.5),
+                spreadRadius: 5,
+                blurRadius: 7,
+                offset: const Offset(0, 1), // changes position of shadow
+              ),
+            ],
+          ),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            TextFormField(
+                controller: nameCtrl,
+                maxLines: null,
+                validator: emptyValidator,
+                decoration: const InputDecoration(
+                  isDense: false,
+                  prefixText: "  ",
+                  hintText: "Title of Instruction Group",
+                  border: UnderlineInputBorder(),
+                  // isDense: true,
+                ),
+                onChanged: (newValue) {
+                  recipeEditctrl.updateInstructionGroupName(
+                      widget.groupId, newValue);
+                }),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 20,
+                top: 5,
+                right: 0,
+                bottom: 5,
+              ),
               child: TextFormField(
-                  controller: nameCtrl,
-                  maxLines: null,
-                  validator: emptyValidator,
-                  decoration: const InputDecoration(
-                    isDense: true,
-                    prefixText: "  ",
-                    hintText: "Title of Instruction Group",
-                    border: UnderlineInputBorder(),
-                    // isDense: true,
-                  ),
-                  onChanged: (newValue) {
-                    recipeEditctrl.updateInstructionGroupName(
-                        widget.groupId, newValue);
-                  }),
+                controller: instructionEditController,
+                focusNode: instructionFocusNode,
+                validator: emptyValidator,
+                onChanged: (newValue) => recipeEditctrl.updateInstructionV2(
+                    widget.groupId, newValue),
+                onSaved: (newValue) => recipeEditctrl.updateInstructionV2(
+                    widget.groupId, newValue ?? ""),
+                maxLines: null,
+                decoration: InputDecoration(
+                  hintText: "Insert some instructional text...",
+                  border: const UnderlineInputBorder(),
+                  isDense: false, // Added this
+                  contentPadding: const EdgeInsets.all(4), // Added this
+                ),
+              ),
             ),
-            IconButton(
-                onPressed: (() =>
-                    recipeEditctrl.deleteInstructionGroup(widget.groupId)),
-                icon: Icon(Icons.delete_forever))
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.only(
-            left: 20,
-            top: 5,
-            right: 0,
-            bottom: 5,
-          ),
-          child: TextFormField(
-            controller: instructionEditController,
-            focusNode: instructionFocusNode,
-            validator: emptyValidator,
-            onChanged: (newValue) =>
-                recipeEditctrl.updateInstructionV2(widget.groupId, newValue),
-            onSaved: (newValue) => recipeEditctrl.updateInstructionV2(
-                widget.groupId, newValue ?? ""),
-            maxLines: null,
-            decoration: InputDecoration(
-              // prefixText: "${e.key + 1}. ",
-              // // suffixIcon:
-              // //     : null,
-              hintText: "Insert some instructional text...",
-              border: const UnderlineInputBorder(),
-              isDense: true, // Added this
-              contentPadding: const EdgeInsets.all(4), // Added this
-            ),
-          ),
-        ),
-      ]),
-    );
+          ]),
+        ));
   }
 }

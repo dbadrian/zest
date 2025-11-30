@@ -1215,10 +1215,10 @@ class _NamedIngredientGroupState extends ConsumerState<NamedIngredientGroup> {
               width: 1,
             ),
             borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(8),
-                topRight: Radius.circular(8),
-                bottomLeft: Radius.circular(8),
-                bottomRight: Radius.circular(8)),
+                topLeft: Radius.circular(3),
+                topRight: Radius.circular(3),
+                bottomLeft: Radius.circular(3),
+                bottomRight: Radius.circular(3)),
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withOpacity(0.5),
@@ -1251,21 +1251,6 @@ class _NamedIngredientGroupState extends ConsumerState<NamedIngredientGroup> {
                 // proxyDecorator: proxyDecorator,
                 children: <Widget>[
                   ...ctrls.asMap().entries.map((e) {
-                    // // ctrls.add(TextEditingController(text: e.value));
-                    // final ing = e.value;
-                    // ctrls.add(
-                    //   IngredientTextControllers(
-                    //       amount: ing.amountMin,
-                    //       amountMax: ing.amountMax,
-                    //       food: ing.food,
-                    //       selectedFood: ing.selectedFood,
-                    //       unit: ing.unit,
-                    //       selectedUnit: ing.selectedUnit,
-                    //       details: ing.details),
-                    // );
-                    // if (focusNodes.length <= e.key) {
-                    //   focusNodes.add(FocusNode());
-                    // }
                     return Column(
                       key: Key(e.key.toString()),
                       mainAxisSize: MainAxisSize.min,
@@ -1335,7 +1320,7 @@ class _NamedIngredientGroupState extends ConsumerState<NamedIngredientGroup> {
                                 )
                               : null,
                         ),
-                        const Divider(),
+                        // const Divider(),
                       ],
                     );
                   }),

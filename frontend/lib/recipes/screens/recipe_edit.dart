@@ -521,6 +521,8 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
 
   final controllers = Map<String, Pair<TextEditingController, Function>>;
 
+  bool collapseRecipeSourceWidgets = true;
+
   @override
   void initState() {
     super.initState();
@@ -982,55 +984,69 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
         ),
         const SizedBox(height: 30),
-        const DividerText(
-            textStyle: TextStyle(fontWeight: FontWeight.w600),
-            text: "Recipe Source"),
-        const SizedBox(height: 12),
-        TextFormField(
-          key: const Key("recipeSourceNameField"),
-          controller: sourceNameController,
-          decoration: const InputDecoration(
-            labelText: 'Source Name',
-            hintText: "optional",
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-          ),
-          onChanged: (s) => controller.updateSourceName(s),
+        InkWell(
+          onTap: () {
+            setState(() {
+              collapseRecipeSourceWidgets = !collapseRecipeSourceWidgets;
+            });
+          },
+          child: DividerText(
+              textStyle: TextStyle(fontWeight: FontWeight.w600),
+              text: collapseRecipeSourceWidgets
+                  ? "Recipe Source (click to show) ↓"
+                  : "Recipe Source (click to hide) ↑"),
         ),
-        const SizedBox(height: 12),
-        TextFormField(
-          key: const Key("recipeSourcePageField"),
-          controller: sourcePageController,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          validator: ((value) => chainValidators(value, [
-                ((value) =>
-                    minValueValidator(value, minValue: 0, forceInt: true)),
-                ((value) =>
-                    maxValueValidator(value, maxValue: 32767, forceInt: true)),
-              ])),
-          decoration: const InputDecoration(
-            labelText: 'Source Page',
-            hintText: "optional",
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-          ),
-          onChanged: (s) => controller.updateSourcePage(s),
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-        ),
-        const SizedBox(height: 12),
-        TextFormField(
-          key: const Key("recipeSourceUrlField"),
-          controller: sourceUrlController,
-          validator: urlValidator,
-          decoration: const InputDecoration(
-            labelText: 'Source Url',
-            hintText: "optional",
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-          ),
-          onChanged: (s) => controller.updateSourceUrl(s),
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          inputFormatters: [
-            LengthLimitingTextInputFormatter(255),
-          ],
-        ),
+        if (!collapseRecipeSourceWidgets)
+          Column(
+            children: [
+              const SizedBox(height: 12),
+              TextFormField(
+                key: const Key("recipeSourceNameField"),
+                controller: sourceNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Source Name',
+                  hintText: "optional",
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                ),
+                onChanged: (s) => controller.updateSourceName(s),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                key: const Key("recipeSourcePageField"),
+                controller: sourcePageController,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                validator: ((value) => chainValidators(value, [
+                      ((value) => minValueValidator(value,
+                          minValue: 0, forceInt: true)),
+                      ((value) => maxValueValidator(value,
+                          maxValue: 32767, forceInt: true)),
+                    ])),
+                decoration: const InputDecoration(
+                  labelText: 'Source Page',
+                  hintText: "optional",
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                ),
+                onChanged: (s) => controller.updateSourcePage(s),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                key: const Key("recipeSourceUrlField"),
+                controller: sourceUrlController,
+                validator: urlValidator,
+                decoration: const InputDecoration(
+                  labelText: 'Source Url',
+                  hintText: "optional",
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                ),
+                onChanged: (s) => controller.updateSourceUrl(s),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(255),
+                ],
+              ),
+            ],
+          )
       ],
     );
   }

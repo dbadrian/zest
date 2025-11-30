@@ -1,16 +1,14 @@
 import 'dart:math';
 
-import 'package:downloadsfolder/downloadsfolder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:zest/api/api_status_provider.dart';
 import 'package:zest/authentication/auth_service.dart';
-import 'package:zest/recipes/screens/recipe_edit.dart';
 import 'package:zest/ui/login_screen.dart';
-import 'package:zest/utils/networking.dart';
 
 import '../config/constants.dart';
 import '../ui/widgets/divider_text.dart';
@@ -267,7 +265,7 @@ class APIFieldWidget extends HookConsumerWidget {
     // use apiStatusProvider to check if the URL is valid
     final redirects = ref.watch(
         apiStatusProvider.select((s) => s.valueOrNull?.redirects ?? false));
-    print("$redirects redirect");
+    debugPrint("$redirects redirect");
     if (redirects) {
       showErrorText = true;
       if (errorText.isNotEmpty) {
