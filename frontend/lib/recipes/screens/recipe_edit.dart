@@ -521,7 +521,7 @@ class RecipeEditMetaFieldsState extends ConsumerState<RecipeEditMetaFields> {
 
   final controllers = Map<String, Pair<TextEditingController, Function>>;
 
-  bool collapseRecipeSourceWidgets = true;
+  bool collapseRecipeSourceWidgets = false;
 
   @override
   void initState() {
