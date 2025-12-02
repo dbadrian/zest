@@ -32,9 +32,9 @@ psycopg = {extras = ["binary"], version = "^3.2.13"}
 
 [tool.poetry.group.dev.dependencies]
 yapf = "^0.43.0"
-mypy = "^1.18"
+mypy = "^1.19"
 flake8 = "^7.3.0"
-django-stubs = "^5.2.7"
+django-stubs = "^5.2.8"
 coloredlogs = "^15.0.1"
 shiv = "^1.0.8"
 coverage = "^7.12"
