@@ -66,6 +66,7 @@ dependencies:
   country_flags: ^3.0.0
 
   syncfusion_flutter_pdf:
+  file_picker: ^10.3.7
   
 dev_dependencies:
 

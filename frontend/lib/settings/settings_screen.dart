@@ -306,6 +306,7 @@ Widget _buildAdvancedSettingsImpl(ref) {
   return const Column(
     children: [
       APIFieldWidget(),
+      GeminiAPIKeyField(),
     ],
   );
 }
@@ -389,4 +390,51 @@ Widget buildScreenButtons(context, ref) {
       ),
     ],
   );
+}
+
+class GeminiAPIKeyField extends HookConsumerWidget {
+  const GeminiAPIKeyField({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider.notifier);
+    final chatGPTKey =
+        ref.watch(settingsProvider.select((s) => s.dirty.geminiApiKey));
+    final TextEditingController chatGPTKeyCtrl = useTextEditingController();
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    // The following updates the text-editing controller with the current value
+    // but it will also reset the cursor position to the end of the text
+    // hence we need to cache the position -> seleciton
+    final cacheSelection = chatGPTKeyCtrl.selection;
+    chatGPTKeyCtrl.text = chatGPTKey; // to refresh the text on changes
+    chatGPTKeyCtrl.selection = TextSelection.fromPosition(TextPosition(
+        offset: min(chatGPTKeyCtrl.text.length, cacheSelection.baseOffset)));
+
+    return ListTile(
+      leading: const Icon(Icons.connect_without_contact),
+      title: const Text("Gemini API Key"),
+      trailing: ConstrainedBox(
+        constraints:
+            BoxConstraints(minWidth: 40, maxWidth: max(250, screenWidth * 0.5)),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: chatGPTKeyCtrl,
+                onChanged: ((value) => settings.setGeminiApiKey(value)),
+                // controller: ref.apiAddressCtrl,
+                decoration: InputDecoration(
+                  // border: OutlineInputBorder(),
+                  hintText: 'Gemini API Key',
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

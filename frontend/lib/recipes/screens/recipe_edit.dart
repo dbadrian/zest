@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:country_flags/country_flags.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -11,11 +13,13 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:zest/config/constants.dart';
+import 'package:zest/extra/gemini.dart';
 
 import 'package:zest/recipes/controller/edit_controller.dart';
 import 'package:zest/recipes/models/models.dart';
 import 'package:zest/recipes/screens/recipe_details.dart';
 import 'package:zest/recipes/screens/widgets/ingredient_form.dart';
+import 'package:zest/settings/settings_provider.dart';
 import 'package:zest/ui/widgets/divider_text.dart';
 import 'package:zest/ui/widgets/generics.dart';
 import 'package:zest/utils/form_validators.dart';
@@ -206,6 +210,8 @@ class RecipeEditWideWidget extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final recipeEditStateFormKey = formKey;
     final scrollController = useScrollController();
+    final settings = ref.read(settingsProvider.notifier);
+
     return CallbackShortcuts(
       bindings: {
         const SingleActivator(LogicalKeyboardKey.arrowDown, control: true): () {
@@ -266,32 +272,210 @@ class RecipeEditWideWidget extends HookConsumerWidget {
                             .stepStateForward();
                       },
                       icon: const Icon(Icons.arrow_forward)),
-                  if (recipeId == null)
-                    Expanded(
-                      child: TextFormField(
-                        onFieldSubmitted: (value) {
-                          try {
-                            final json = jsonDecode(
-                                value); // Attempt to decode the JSON string
-                            // debugPrint(json);
-                            ref
-                                .read(recipeEditControllerProvider(recipeId,
-                                        draftId: draftId)
-                                    .notifier)
-                                .fillRecipeFromJSON(json);
-                          } catch (e) {
-                            debugPrint(
-                                "Invalid JSON"); // If an exception is thrown, it's invalid JSON
+                  SizedBox(
+                    width: 10,
+                  ),
+                  if (recipeId == null && settings.geminiAvailable())
+                    // Image analysis with structured output
+                    ElevatedButton(
+                      onPressed: () async {
+                        // Pick image using file_picker package
+                        final result = await FilePicker.platform.pickFiles(
+                          type: FileType.image,
+                        );
+                        if (result != null) {
+                          await ref
+                              .read(geminiRequestProvider.notifier)
+                              .sendRequest(
+                                GeminiRequest(
+                                  prompt:
+                                      'Extract recipe information from this image',
+                                  images: [File(result.files.first.path!)],
+                                  schema: recipeSchema,
+                                ),
+                              );
+
+                          // Process the result
+                          final response =
+                              ref.read(geminiRequestProvider).asData?.value;
+                          if (response?.structuredData != null) {
+                            try {
+                              ref
+                                  .read(recipeEditControllerProvider(recipeId,
+                                          draftId: draftId)
+                                      .notifier)
+                                  .fillRecipeFromJSON(
+                                      response!.structuredData!);
+                            } catch (e) {
+                              debugPrint("Invalid JSON: $e");
+                            }
                           }
-                        },
+                        }
+                      },
+                      child: Text('Analyze Image'),
+                    ),
+                  // PDF analysis
+                  SizedBox(
+                    width: 10,
+                  ),
+                  if (recipeId == null && settings.geminiAvailable())
+                    // Image analysis with structured output
+                    ElevatedButton(
+                      onPressed: () async {
+                        final result = await FilePicker.platform.pickFiles(
+                          type: FileType.custom,
+                          allowedExtensions: ['pdf'],
+                        );
+                        if (result != null) {
+                          await ref
+                              .read(geminiRequestProvider.notifier)
+                              .sendRequest(
+                                GeminiRequest(
+                                  prompt:
+                                      'Extract recipe information from this PDF',
+                                  pdfs: [File(result.files.first.path!)],
+                                  schema: recipeSchema,
+                                ),
+                              );
+
+                          // Process the result
+                          final response =
+                              ref.read(geminiRequestProvider).asData?.value;
+                          if (response?.structuredData != null) {
+                            try {
+                              ref
+                                  .read(recipeEditControllerProvider(recipeId,
+                                          draftId: draftId)
+                                      .notifier)
+                                  .fillRecipeFromJSON(
+                                      response!.structuredData!);
+                            } catch (e) {
+                              debugPrint("Invalid JSON: $e");
+                            }
+                          }
+                        }
+                      },
+                      child: Text('Analyze PDF'),
+                    ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  if (recipeId == null && settings.geminiAvailable())
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Text("Analyze URL:"),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Expanded(
+                            // ← Add this
+                            child: TextFormField(
+                              validator: urlValidator,
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              onFieldSubmitted: (value) async {
+                                final error = urlValidator(value);
+                                if (error != null) {
+                                  // Show error to user
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(error)),
+                                  );
+                                  return; // Don't proceed
+                                }
+
+                                debugPrint("Got url $value");
+                                await ref
+                                    .read(geminiRequestProvider.notifier)
+                                    .sendRequest(
+                                      GeminiRequest(
+                                        prompt:
+                                            'Extract recipe information from this webpage. Extract intructions and ingredients and other information according to the schema.',
+                                        url: value,
+                                        schema: recipeSchema,
+                                      ),
+                                    );
+
+                                // Process the result
+                                final response = ref
+                                    .read(geminiRequestProvider)
+                                    .asData
+                                    ?.value;
+                                if (response?.structuredData != null) {
+                                  try {
+                                    ref
+                                        .read(recipeEditControllerProvider(
+                                                recipeId,
+                                                draftId: draftId)
+                                            .notifier)
+                                        .fillRecipeFromJSON(
+                                            response!.structuredData!);
+                                  } catch (e) {
+                                    debugPrint("Invalid JSON: $e");
+                                  }
+                                }
+
+                                // }
+                              },
+                              // ),
+                            ),
+                          ),
+                        ],
                       ),
-                    )
+                    ),
                   // TextButton(
                   //   child: Text("ADD FROM JSON"),
                   //   onPressed: () {},
                   // ),
                 ],
               ),
+              const DividerText(text: "Maybe image results"),
+              // requestState.when(
+              //   data: (response) {
+              //     if (response.text.isEmpty) {
+              //       return Center(child: Text('No results yet'));
+              //     }
+
+              //     Future.microtask(() {
+              //       try {
+              //         final json = response.structuredData;
+              //         ref
+              //             .read(recipeEditControllerProvider(recipeId,
+              //                     draftId: draftId)
+              //                 .notifier)
+              //             .fillRecipeFromJSON(json!);
+              //       } catch (e) {
+              //         debugPrint("Invalid JSON: $e");
+              //       }
+              //       response.text = "";
+              //     });
+
+              //     return SingleChildScrollView(
+              //       child: Column(
+              //         crossAxisAlignment: CrossAxisAlignment.start,
+              //         children: [
+              //           if (response.structuredData != null) ...[
+              //             Text('Structured Data:',
+              //                 style: TextStyle(fontWeight: FontWeight.bold)),
+              //             SizedBox(height: 8),
+              //             Text(JsonEncoder.withIndent('  ')
+              //                 .convert(response.structuredData)),
+              //           ] else ...[
+              //             Text('Response:',
+              //                 style: TextStyle(fontWeight: FontWeight.bold)),
+              //             SizedBox(height: 8),
+              //             Text(response.text),
+              //           ],
+              //         ],
+              //       ),
+              //     );
+              //   },
+              //   loading: () => Center(child: CircularProgressIndicator()),
+              //   error: (err, stack) => Center(
+              //     child:
+              //         Text('Error: $err', style: TextStyle(color: Colors.red)),
+              //   ),
+              // ),
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -451,9 +635,9 @@ class RecipeEditWideWidget extends HookConsumerWidget {
                         final rId = ref.read(recipeEditControllerProvider(
                                 recipeId,
                                 draftId: draftId)
-                            .select((v) => v.value!.recipe!.recipeId));
+                            .select((v) => v.value?.recipe?.recipeId));
 
-                        if (success) {
+                        if (success && rId != null) {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(

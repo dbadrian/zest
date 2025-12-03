@@ -13,8 +13,14 @@ class LoggingInterceptor extends InterceptorContract {
   @override
   Future<BaseResponse> interceptResponse(
       {required BaseResponse response}) async {
-    developer.log(response.toString(),
-        name: 'LoggingInterceptor.interceptResponse');
+    if (response is Response) {
+      developer.log('Status: ${response.statusCode}\nBody: ${response.body}',
+          name: 'LoggingInterceptor.interceptResponse');
+    } else if (response is StreamedResponse) {
+      developer.log(
+          'Status: ${response.statusCode}\nStreamed response (body not available)',
+          name: 'LoggingInterceptor.interceptResponse');
+    }
     return response;
   }
 }

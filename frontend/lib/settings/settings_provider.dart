@@ -13,6 +13,7 @@ part 'settings_provider.g.dart';
 const _languageKey = 'settings_language';
 const _searchAllLanguagesKey = 'settings_search_all_languages_key';
 const apiUrlKey = 'settings_api_url';
+const _geminiApiKeyKey = 'settings_gemini_api_key';
 
 const _themeUseDarkThemeKey = 'settings_useDarkTheme';
 const _themeBaseColorKey = 'settings_themeBaseColor';
@@ -39,6 +40,7 @@ class SettingsStateData with _$SettingsStateData {
     // API Related
     @Default(DEFAULT_API_URL) apiUrl,
     @Default(false) bool apiUrlDirty,
+    @Default("") geminiApiKey,
 
     // Advanced Settings
     @Default(false) bool showAdvancedSettings,
@@ -84,6 +86,10 @@ class Settings extends _$Settings {
     state = state.copyWith.dirty(apiUrl: apiUrl, apiUrlDirty: true);
   }
 
+  void setGeminiApiKey(String geminiApiKey) {
+    state = state.copyWith.dirty(geminiApiKey: geminiApiKey);
+  }
+
   void setShowAdvancedSettings(bool showAdvancedSettings) {
     state = state.copyWith.dirty(showAdvancedSettings: showAdvancedSettings);
   }
@@ -103,16 +109,18 @@ class Settings extends _$Settings {
     final apiUrl = prefs.getString(apiUrlKey) ?? DEFAULT_API_URL;
     final apiUrlDirty = false;
 
+    final geminiApiKey = prefs.getString(_geminiApiKeyKey) ?? "";
+
     final gt = SettingsStateData(
-      useDarkTheme: useDarkTheme,
-      pickerColor: Color(pickerColor),
-      themeBaseColor: Color(themeBaseColor),
-      language: language,
-      searchAllLanguages: searchAllLanguages,
-      showAdvancedSettings: showAdvancedSettings,
-      apiUrl: apiUrl,
-      apiUrlDirty: apiUrlDirty,
-    );
+        useDarkTheme: useDarkTheme,
+        pickerColor: Color(pickerColor),
+        themeBaseColor: Color(themeBaseColor),
+        language: language,
+        searchAllLanguages: searchAllLanguages,
+        showAdvancedSettings: showAdvancedSettings,
+        apiUrl: apiUrl,
+        apiUrlDirty: apiUrlDirty,
+        geminiApiKey: geminiApiKey);
 
     return SettingsState(current: gt, dirty: gt);
   }
@@ -129,6 +137,10 @@ class Settings extends _$Settings {
     state = SettingsState(current: gt, dirty: gt);
   }
 
+  bool geminiAvailable() {
+    return state.current.geminiApiKey != "";
+  }
+
   // Write them to the sharedPrefs
   void persistSettings() async {
     // saveSettings(ref, state);
@@ -143,6 +155,7 @@ class Settings extends _$Settings {
     // Advanced
     prefs.setBool(_showAdvancedSettingsKey, state.dirty.showAdvancedSettings);
     prefs.setString(apiUrlKey, state.dirty.apiUrl);
+    prefs.setString(_geminiApiKeyKey, state.dirty.geminiApiKey);
 
     state = state.copyWith(current: state.dirty);
   }
