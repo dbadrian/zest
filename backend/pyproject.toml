@@ -7,7 +7,7 @@ authors = ["David B. Adrian <dawidh.adrian@googlemail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-Django = "^5.2.8"
+Django = "^5.2.9"
 gunicorn = "^23.0.0"
 djangorestframework = "^3.16.1"
 django-cors-headers = "^4.9.0"
@@ -28,7 +28,7 @@ django-redis = "^6.0.0"
 tqdm = "^4.67.1"
 drf-serpy = "^0.5.0"
 serpy = "^0.3.1"
-psycopg = {extras = ["binary"], version = "^3.2.13"}
+psycopg = {extras = ["binary"], version = "^3.3.1"}
 
 [tool.poetry.group.dev.dependencies]
 yapf = "^0.43.0"
