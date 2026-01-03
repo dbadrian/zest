@@ -108,13 +108,28 @@ class RecipeEditPage extends ConsumerWidget {
       future: recipeRemote,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator());
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Crunching the bits!"),
+              ElementsVerticalSpace(),
+              const Center(child: CircularProgressIndicator()),
+            ],
+          );
         } else if (snapshot.hasData) {
           // print("Building Recipe Edit Page: $recipeId, $draftId");
           final state = ref
               .read(recipeEditControllerProvider(recipeId, draftId: draftId));
           if (state.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            // return const Center(child: CircularProgressIndicator());
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Crunching the bits!"),
+                ElementsVerticalSpace(),
+                const Center(child: CircularProgressIndicator()),
+              ],
+            );
           }
           return LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
@@ -136,9 +151,9 @@ class RecipeEditPage extends ConsumerWidget {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Preparing Recipe Editor... please wait a moment!"),
-              ElementsVerticalSpace(),
               const Center(child: CircularProgressIndicator()),
+              ElementsVerticalSpace(),
+              Text("Preparing Recipe Editor... please wait a moment!"),
             ],
           );
         }
@@ -284,32 +299,32 @@ class RecipeEditWideWidget extends HookConsumerWidget {
                           type: FileType.image,
                         );
                         if (result != null) {
-                          await ref
-                              .read(geminiRequestProvider.notifier)
-                              .sendRequest(
-                                GeminiRequest(
-                                  prompt:
-                                      'Extract recipe information from this image',
-                                  images: [File(result.files.first.path!)],
-                                  schema: recipeSchema,
-                                ),
-                              );
+                          // await ref
+                          //     .read(geminiRequestProvider.notifier)
+                          //     .sendRequest(
+                          //       GeminiRequest(
+                          //         prompt:
+                          //             'Extract recipe information from this image',
+                          //         images: [File(result.files.first.path!)],
+                          //         schema: recipeSchema,
+                          //       ),
+                          //     );
 
-                          // Process the result
-                          final response =
-                              ref.read(geminiRequestProvider).asData?.value;
-                          if (response?.structuredData != null) {
-                            try {
-                              ref
-                                  .read(recipeEditControllerProvider(recipeId,
-                                          draftId: draftId)
-                                      .notifier)
-                                  .fillRecipeFromJSON(
-                                      response!.structuredData!);
-                            } catch (e) {
-                              debugPrint("Invalid JSON: $e");
-                            }
-                          }
+                          // // Process the result
+                          // final response =
+                          //     ref.read(geminiRequestProvider).asData?.value;
+                          // if (response?.structuredData != null) {
+                          //   try {
+                          //     ref
+                          //         .read(recipeEditControllerProvider(recipeId,
+                          //                 draftId: draftId)
+                          //             .notifier)
+                          //         .fillRecipeFromJSON(
+                          //             response!.structuredData!);
+                          //   } catch (e) {
+                          //     debugPrint("Invalid JSON: $e");
+                          //   }
+                          // }
                         }
                       },
                       child: Text('Analyze Image'),
@@ -328,31 +343,11 @@ class RecipeEditWideWidget extends HookConsumerWidget {
                         );
                         if (result != null) {
                           await ref
-                              .read(geminiRequestProvider.notifier)
-                              .sendRequest(
-                                GeminiRequest(
-                                  prompt:
-                                      'Extract recipe information from this PDF',
-                                  pdfs: [File(result.files.first.path!)],
-                                  schema: recipeSchema,
-                                ),
-                              );
-
-                          // Process the result
-                          final response =
-                              ref.read(geminiRequestProvider).asData?.value;
-                          if (response?.structuredData != null) {
-                            try {
-                              ref
-                                  .read(recipeEditControllerProvider(recipeId,
-                                          draftId: draftId)
-                                      .notifier)
-                                  .fillRecipeFromJSON(
-                                      response!.structuredData!);
-                            } catch (e) {
-                              debugPrint("Invalid JSON: $e");
-                            }
-                          }
+                              .read(recipeEditControllerProvider(recipeId,
+                                      draftId: draftId)
+                                  .notifier)
+                              .makeGeminiRequest(
+                                  pdf: File(result.files.first.path!));
                         }
                       },
                       child: Text('Analyze PDF'),
@@ -388,7 +383,7 @@ class RecipeEditWideWidget extends HookConsumerWidget {
                                 await ref
                                     .read(geminiRequestProvider.notifier)
                                     .sendRequest(
-                                      GeminiRequest(
+                                      GeminiAnalysisRequest(
                                         prompt:
                                             'Extract recipe information from this webpage. Extract intructions and ingredients and other information according to the schema.',
                                         url: value,

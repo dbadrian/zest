@@ -470,6 +470,13 @@ class IngredientsColumn extends HookConsumerWidget {
                       ),
                     ]),
               ),
+            IconButton(
+                onPressed: () async {
+                  notifier.translateRecipe();
+                },
+                icon: FaIcon(FontAwesomeIcons.octopusDeploy)),
+
+            // icon: Icon(Icons.translate)),
           ],
         ),
         IngredientGroupsWidget(
@@ -570,6 +577,12 @@ TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient,
   final food = ingredient.food;
   final details = ingredient.details;
 
+  final isTranslated = ref
+          .watch(recipeDetailsControllerProvider(recipeId))
+          .value
+          ?.isTranslation ??
+      false;
+
   return TableRow(
     children: <Widget>[
       TableCell(
@@ -603,33 +616,14 @@ TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient,
         child: Wrap(
           children: [
             Tooltip(
-              message: food.description?.value() ??
-                  "", // TODO : add tooltip based on food description
-              child: TranslatableField(
-                field: food.name,
-                textStyle: TextStyle(
-                    fontWeight: isMarked ? FontWeight.bold : FontWeight.normal),
-                onConfirm: (String value) async {
-                  final translatedName = TranslatedField(values: [
-                    TranslatedValue(
-                        value: value,
-                        lang: ref.read(settingsProvider).current.language)
-                  ]);
-                  final translatedFood = food.copyWith(name: translatedName);
-                  final json = translatedFood.toJson(); // toJsonExplicit();
-                  final foodJson = jsonEncode(json);
-                  // TODO: WE dont handle if the food translation already exists...
-                  final food_ = await ref
-                      .read(apiServiceProvider)
-                      .updateFood(translatedFood.id, foodJson);
-                  if (food_ != null) {
-                    final notifier = ref.read(
-                        recipeDetailsControllerProvider(recipeId).notifier);
-                    notifier.loadRecipe();
-                  }
-                },
-              ),
-            ),
+                message: food.description?.value() ??
+                    "", // TODO : add tooltip based on food description
+                child: Text(
+                  food.name.value(),
+                  style: TextStyle(
+                      fontWeight:
+                          isMarked ? FontWeight.bold : FontWeight.normal),
+                )),
             details != null
                 ? Padding(
                     padding: const EdgeInsets.only(left: 20),

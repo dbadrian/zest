@@ -21,25 +21,26 @@ class ApiStatus extends _$ApiStatus {
   Future<({bool isOnline, bool redirects})> _checkBackendStatus() async {
     final SettingsState settings = ref.read(settingsProvider);
 
-    try {
-      final response =
-          await http.get(getAPIUrl(settings, "/info", withPostSlash: false));
-      // return response.statusCode == 200; // Online if status is 200
-      final isOnline = response.statusCode == 200 || response.statusCode == 201;
-      var redirects = false;
-      if (isOnline) {
-        final response2 =
-            await http.post(getAPIUrl(settings, "/info", withPostSlash: false));
-        if ((response2.statusCode == 301 || response2.statusCode == 302) &&
-            response2.headers['location']?.startsWith('https://') == true) {
-          redirects = true; // Redirects to HTTPS
-        }
-      }
-      debugPrint("isOnline: $isOnline, redirects: $redirects");
-      return (isOnline: isOnline, redirects: redirects);
-    } catch (_) {
-      return (isOnline: false, redirects: false); // Offline in case of errors
-    }
+    return (isOnline: true, redirects: false);
+    // try {
+    //   final response =
+    //       await http.get(getAPIUrl(settings, "/info", withPostSlash: false));
+    //   // return response.statusCode == 200; // Online if status is 200
+    //   final isOnline = response.statusCode == 200 || response.statusCode == 201;
+    //   var redirects = false;
+    //   if (isOnline) {
+    //     final response2 =
+    //         await http.post(getAPIUrl(settings, "/info", withPostSlash: false));
+    //     if ((response2.statusCode == 301 || response2.statusCode == 302) &&
+    //         response2.headers['location']?.startsWith('https://') == true) {
+    //       redirects = true; // Redirects to HTTPS
+    //     }
+    //   }
+    //   debugPrint("isOnline: $isOnline, redirects: $redirects");
+    //   return (isOnline: isOnline, redirects: redirects);
+    // } catch (_) {
+    //   return (isOnline: false, redirects: false); // Offline in case of errors
+    // }
   }
 
   // Start periodic checks

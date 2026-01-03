@@ -33,16 +33,6 @@
         "model": "recipes.recipecategory",
         "pk": 4,
         "fields": {
-            "name_en": "Baked Good",
-            "name_de": "Backware",
-            "name_plural_en": "Baked goods",
-            "name_plural_de": "Backwaren"
-        }
-    },
-    {
-        "model": "recipes.recipecategory",
-        "pk": 4,
-        "fields": {
             "name_en": "Drink",
             "name_de": "Getränk",
             "name_plural_en": "Drinks",
@@ -107,6 +97,16 @@
             "name_de": "Snacks",
             "name_plural_en": "Snacks",
             "name_plural_de": "Snacks"
+        }
+    },
+    {
+        "model": "recipes.recipecategory",
+        "pk": 11,
+        "fields": {
+            "name_en": "Baked Good",
+            "name_de": "Backware",
+            "name_plural_en": "Baked goods",
+            "name_plural_de": "Backwaren"
         }
     },
     {

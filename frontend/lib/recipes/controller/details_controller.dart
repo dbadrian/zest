@@ -1,7 +1,15 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/api/api_service.dart';
+import 'package:zest/extra/gemini.dart';
+import 'package:zest/recipes/models/ingredient.dart';
+import 'package:zest/recipes/models/instruction.dart';
 import 'package:zest/recipes/models/recipe_favorite.dart';
 import 'package:zest/settings/settings_provider.dart';
+import 'package:zest/utils/utils.dart';
+
+import 'dart:collection';
 
 import '../../authentication/auth_service.dart';
 import '../../authentication/reauthentication_dialog.dart';
@@ -90,6 +98,90 @@ class RecipeDetailsController extends _$RecipeDetailsController {
       return false;
     }
     state = ret;
+    return true;
+  }
+
+  Future<bool> translateRecipe() async {
+    if (!state.hasValue) {
+      return false;
+    }
+
+    final oldState = state.value!;
+    state = AsyncValue.loading();
+
+    await ref.read(geminiRequestProvider.notifier).translateRecipe(
+          GeminiTranslateRequest(
+            recipeData: state.value!,
+            targetLanguage: "cz", // TODO: Hardcoded
+            schema: recipeTranslationSchema,
+          ),
+        );
+
+    final response = ref.read(geminiRequestProvider).asData?.value;
+    if (response?.structuredData != null) {
+      try {
+        final cleanedData = response!.structuredData!;
+        cleanedData.remove("categories");
+        // manually remove the categories
+        // TODO: Fix this, when the backend API is less shit
+
+        final newRecipeJson = mergeMaps(state.value!.toJson(), cleanedData);
+        final newRecipe = Recipe.fromJson(newRecipeJson);
+
+        // patch in categories from before...
+        final finalRecipe =
+            newRecipe.copyWith(categories: state.value!.categories);
+
+        state = AsyncValue.data(finalRecipe);
+        // state = AsyncValue.data(oldState);
+      } catch (e) {
+        debugPrint("Invalid JSON: $e");
+      }
+    } else {
+      debugPrint("Failed to translate recipe");
+      // TODO: SnackBar
+      state = AsyncValue.data(oldState);
+    }
+
+    // // Process the result
+    // final response = ref.read(geminiRequestProvider).asData?.value;
+    // if (response?.structuredData != null) {
+    //   try {
+    //     final instructionGroups =
+    //         (response?.structuredData?["instruction_groups"] as List<dynamic>)
+    //             .map((e) => InstructionGroup.fromJson(e))
+    //             .toList();
+    //     //      ??
+    //     // List<InstructionGroup>.empty();
+
+    //     if (response?.structuredData?.containsKey("ingredient_groups") !=
+    //         null) {
+    //       final translated_ingredients =
+    //           response!.structuredData!["ingredient_groups"];
+    //       final ingredientGroups =
+    //           state.value!.ingredientGroups.asMap().map((idx, value) {
+    //         value.copyWith(name: translated_ingredients[idx]["name"]);
+    //       });
+    //     }
+
+    //     final recipeCopy = state.value!.copyWith(
+    //         title: response?.structuredData?["title"] ?? state.value!.title,
+    //         subtitle:
+    //             response?.structuredData?["subtitle"] ?? state.value!.subtitle,
+    //         ownerComment: response?.structuredData?["owner_comment"] ??
+    //             state.value!.language,
+    //         language:
+    //             response?.structuredData?["language"] ?? state.value!.language,
+    //         isTranslation: true,
+    // //         instructionGroups: instructionGroups);
+    //     state = AsyncValue.data(recipeCopy);
+    //   } catch (e) {
+    //     debugPrint("Invalid JSON: $e");
+    //   }
+    // } else {
+    //   debugPrint("Failed to translate recipe");
+    // }
+
     return true;
   }
 

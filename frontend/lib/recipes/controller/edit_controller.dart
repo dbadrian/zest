@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +11,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:zest/api/api_service.dart';
 import 'package:zest/api/api_status_provider.dart';
+import 'package:zest/extra/gemini.dart';
 import 'package:zest/main.dart';
 import 'package:zest/recipes/controller/draft_controller.dart';
 import 'package:zest/recipes/screens/recipe_search.dart';
@@ -255,8 +258,8 @@ class RecipeEditController extends _$RecipeEditController {
         final s = rebuildStateFromRecipeImpl(recipeValue.value!).copyWith(
           validRecipeCategoryChoices: validCategories,
         );
-        pushState(s);
         ref.watch(recipeEditorHistoryControllerProvider.notifier).reset();
+        pushState(s);
         state = AsyncValue.data(s);
         return s;
       }
@@ -272,8 +275,8 @@ class RecipeEditController extends _$RecipeEditController {
       if (draftState != null) {
         final s =
             draftState.copyWith(validRecipeCategoryChoices: validCategories);
-        pushState(s);
         ref.watch(recipeEditorHistoryControllerProvider.notifier).reset();
+        pushState(s);
         state = AsyncValue.data(s);
         return s;
       }
@@ -305,8 +308,8 @@ class RecipeEditController extends _$RecipeEditController {
       validRecipeCategoryChoices: validCategories,
     );
 
-    pushState(s);
     ref.watch(recipeEditorHistoryControllerProvider.notifier).reset();
+    pushState(s);
     state = AsyncValue.data(s);
     return s;
 
@@ -837,6 +840,55 @@ class RecipeEditController extends _$RecipeEditController {
     }
     debugPrint("Loaded Recipe DRAFT ${ret[0]}");
     return RecipeEditState.fromDBMap(ret[0]);
+  }
+
+  Future<void> makeGeminiRequest({String? url, File? pdf, File? img}) async {
+    pushAndUpdateState(state.value!.copyWith(recipe: null));
+
+    debugPrint("sending to gemini");
+    if (url != null) {
+      await ref.read(geminiRequestProvider.notifier).sendRequest(
+            GeminiAnalysisRequest(
+              prompt:
+                  'Extract recipe information from this webpage. Extract intructions and ingredients and other information according to the schema.',
+              url: url,
+              schema: recipeSchema,
+            ),
+          );
+    }
+
+    if (pdf != null) {
+      await ref.read(geminiRequestProvider.notifier).sendRequest(
+            GeminiAnalysisRequest(
+              prompt: 'Extract recipe information from this PDF',
+              pdfs: [pdf],
+              schema: recipeSchema,
+            ),
+          );
+    }
+
+    if (img != null) {
+      await ref.read(geminiRequestProvider.notifier).sendRequest(
+            GeminiAnalysisRequest(
+              prompt: 'Extract recipe information from this image',
+              images: [img],
+              schema: recipeSchema,
+            ),
+          );
+    }
+
+    // Process the result
+    final response = ref.read(geminiRequestProvider).asData?.value;
+    if (response?.structuredData != null) {
+      try {
+        ref
+            .read(recipeEditControllerProvider(recipeId, draftId: draftId)
+                .notifier)
+            .fillRecipeFromJSON(response!.structuredData!);
+      } catch (e) {
+        debugPrint("Invalid JSON: $e");
+      }
+    }
   }
 
   void fillRecipeFromJSON(Map<String, dynamic> json) async {
