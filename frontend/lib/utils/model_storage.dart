@@ -85,6 +85,7 @@ abstract class SecureModelStorage<T> extends ModelStorage<T> {
   /// https://github.com/mogol/flutter_secure_storage/issues/487#issuecomment-1346244368
   AndroidOptions _getAndroidOptions() => const AndroidOptions(
         encryptedSharedPreferences: true,
+        // todo biometric!!
       );
 
   @override

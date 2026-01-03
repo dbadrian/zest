@@ -4,14 +4,17 @@ part 'user.freezed.dart';
 part 'user.g.dart';
 
 @freezed
-// @JsonSerializable(explicitToJson: true)
 class User with _$User {
   factory User({
-    @JsonKey(name: 'pk') required String id,
+    required String id,
     required String username,
     required String email,
-    @JsonKey(name: 'first_name') required String firstName,
-    @JsonKey(name: 'last_name') required String lastName,
+    @JsonKey(name: 'full_name') required String fullName,
+    @JsonKey(name: 'auth_provider') required String authProvider,
+    @JsonKey(name: 'email_verified') required bool emailVerified,
+    @JsonKey(name: 'is_active') required String isActive,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'last_login') required DateTime lastLogin,
   }) = _User;
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

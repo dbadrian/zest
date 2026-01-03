@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'interceptor.dart';
 import 'api_response.dart';
 import 'api_exception.dart';
+
+part 'http_client.g.dart';
 
 dynamic jsonDecodeResponse(http.Response data) {
   final contentType = data.headers["content-type"];
@@ -38,53 +41,57 @@ class ApiHttpClient {
   }
 
   Future<ApiResponse<T>> get<T>(
-    String path, {
+    String path,
+    T Function(Map<String, dynamic>) fromJson, {
     Map<String, String>? headers,
     Map<String, dynamic>? queryParams,
     Duration? timeout,
   }) async {
     return _request<T>(
-      method: 'GET',
-      path: path,
-      headers: headers,
-      queryParams: queryParams,
-      timeout: timeout,
-    );
+        method: 'GET',
+        path: path,
+        headers: headers,
+        queryParams: queryParams,
+        timeout: timeout,
+        fromJson: fromJson);
   }
 
   Future<ApiResponse<T>> post<T>(
-    String path, {
+    String path,
+    T Function(Map<String, dynamic>) fromJson, {
     Map<String, String>? headers,
     dynamic body,
     Duration? timeout,
   }) async {
     return _request<T>(
-      method: 'POST',
-      path: path,
-      headers: headers,
-      body: body,
-      timeout: timeout,
-    );
+        method: 'POST',
+        path: path,
+        headers: headers,
+        body: body,
+        timeout: timeout,
+        fromJson: fromJson);
   }
 
   Future<ApiResponse<T>> put<T>(
-    String path, {
+    String path,
+    T Function(Map<String, dynamic>) fromJson, {
     Map<String, String>? headers,
     dynamic body,
     Duration? timeout,
   }) async {
     return _request<T>(
-      method: 'PUT',
-      path: path,
-      headers: headers,
-      body: body,
-      timeout: timeout,
-    );
+        method: 'PUT',
+        path: path,
+        headers: headers,
+        body: body,
+        timeout: timeout,
+        fromJson: fromJson);
   }
 
   Future<ApiResponse<T>> _request<T>(
       {required String method,
       required String path,
+      required T Function(Map<String, dynamic>) fromJson,
       Map<String, String>? headers,
       Map<String, dynamic>? queryParams,
       dynamic body,
@@ -141,10 +148,9 @@ class ApiHttpClient {
       // Handle response
       if (processedResponse.statusCode >= 200 &&
           processedResponse.statusCode < 300) {
+        final decoded = jsonDecodeResponse(processedResponse);
         return ApiResponse.success(
-          data: processedResponse.body.isEmpty
-              ? null
-              : jsonDecodeResponse(processedResponse),
+          data: fromJson(decoded),
           statusCode: processedResponse.statusCode,
           headers: processedResponse.headers,
         );
@@ -165,6 +171,7 @@ class ApiHttpClient {
         return _request<T>(
             method: method,
             path: path,
+            fromJson: fromJson,
             headers: headers,
             queryParams: queryParams,
             body: body,
@@ -181,6 +188,7 @@ class ApiHttpClient {
         return _request<T>(
           method: method,
           path: path,
+          fromJson: fromJson,
           headers: headers,
           queryParams: queryParams,
           body: body,
@@ -241,3 +249,40 @@ class ApiHttpClient {
     _client.close();
   }
 }
+
+// @Riverpod(keepAlive: true)
+// ApiHttpClient apiClient(Ref ref) {
+//   const baseUrl = String.fromEnvironment(
+//     'API_BASE_URL',
+//     defaultValue: 'http://localhost:8000',
+//   );
+
+//   final client = ApiHttpClient(baseUrl: baseUrl);
+
+//   // // Add auth interceptor
+//   // client.addInterceptor(
+//   //   AuthInterceptor(
+//   //     getAccessToken: () async {
+//   //       final authState = ref.read(authStateProvider);
+//   //       return authState?.accessToken;
+//   //     },
+//   //     refreshToken: () async {
+//   //       await ref.read(authStateProvider.notifier).refreshToken();
+//   //     },
+//   //     onUnauthorized: () async {
+//   //       await ref.read(authStateProvider.notifier).logout();
+//   //     },
+//   //   ),
+//   // );
+
+//   // // Add logging in debug mode
+//   // client.addInterceptor(
+//   //   LoggingInterceptor(
+//   //     enabled: const bool.fromEnvironment('dart.vm.product') == false,
+//   //   ),
+//   // );
+
+//   ref.onDispose(() => client.dispose());
+
+//   return client;
+// }
