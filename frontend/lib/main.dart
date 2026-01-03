@@ -8,7 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:updat/utils/global_options.dart';
 import 'package:zest/config/constants.dart';
-import 'package:zest/recipes/screens/recipe_edit.dart';
+
 import 'package:zest/recipes/screens/recipe_search.dart';
 
 import 'package:path/path.dart';
@@ -137,7 +137,7 @@ class HomePage extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-              "Hello ${ref.watch(authenticationServiceProvider).value?.user?.firstName}"),
+              "Hello ${ref.watch(authenticationServiceProvider).value?.user?.fullName}"),
           if (authNotifier.isAuthenticated)
             Row(
               children: [
@@ -149,9 +149,9 @@ class HomePage extends ConsumerWidget {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    context.goNamed(
-                      RecipeEditPage.routeNameCreate,
-                    );
+                    // context.goNamed(
+                    //   RecipeEditPage.routeNameCreate,
+                    // );
                   },
                   child: const Text("Create New Recipe"),
                 ),

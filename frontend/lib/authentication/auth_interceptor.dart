@@ -1,35 +1,47 @@
-// class AuthenticationInterceptor extends InterceptorContract {
-//   final AuthenticationService _authService;
-//   AuthenticationInterceptor(this._authService);
+import 'package:http/http.dart' as http;
+import 'package:zest/core/network/api_exception.dart';
+import 'package:zest/core/network/interceptor.dart';
 
-//   @override
-//   Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
-//     final token = await _authService.getToken();
-//     if (token == null) throw AuthException();
+class AuthInterceptor extends Interceptor {
+  final Future<String?> Function() getAccessToken;
+  final Future<void> Function() refreshToken;
+  final Future<void> Function() onUnauthorized;
 
-//     final Map<String, String> headers = Map.from(request.headers);
-//     try {
-//       headers['Authorization'] = 'Bearer ${token.accessToken}';
-//     } catch (e) {
-//       developer.log(e.toString(),
-//           name: 'AuthenticationInterceptor.interceptRequest'); // TODO: handle?
-//     }
+  bool _isRefreshing = false;
 
-//     return request.copyWith(
-//       headers: headers,
-//     );
-//   }
+  AuthInterceptor({
+    required this.getAccessToken,
+    required this.refreshToken,
+    required this.onUnauthorized,
+  });
 
-//   @override
-//   Future<BaseResponse> interceptResponse(
-//       {required BaseResponse response}) async {
-//     if (response.statusCode == 401) {
-//       if (response is Response) {
-//         final json = jsonDecodeResponse(response);
-//         throw AuthException(message: json["messages"][0]["message"]);
-//       }
-//     }
+  @override
+  Future<http.Request> onRequest(http.Request request) async {
+    final token = await getAccessToken();
 
-//     return response;
-//   }
-// }
+    if (token != null && token.isNotEmpty) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+
+    return request;
+  }
+
+  @override
+  Future<void> onError(ApiException error) async {
+    // Handle unauthorized errors
+    if (error.type == ApiErrorType.unauthorized && !_isRefreshing) {
+      _isRefreshing = true;
+
+      try {
+        // Try to refresh the token
+        await refreshToken();
+        // Token refreshed successfully, the request will be retried
+      } catch (e) {
+        // Refresh failed, user needs to login again
+        await onUnauthorized();
+      } finally {
+        _isRefreshing = false;
+      }
+    }
+  }
+}

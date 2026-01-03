@@ -11,7 +11,7 @@ part 'food_list_response.g.dart';
 @freezed
 class FoodListResponse with _$FoodListResponse {
   factory FoodListResponse({
-    required PaginationResponse pagination,
+    required PaginationMeta pagination,
     required List<Food> foods,
   }) = _FoodListResponse;
 
@@ -21,21 +21,5 @@ class FoodListResponse with _$FoodListResponse {
   @override
   String toString() {
     return 'FoodListResponse{Lenght: ${foods.length}}';
-  }
-}
-
-@freezed
-class FoodSynonymsListResponse with _$FoodSynonymsListResponse {
-  factory FoodSynonymsListResponse({
-    required PaginationResponse pagination,
-    @JsonKey(name: 'food_synonyms') required List<FoodSynonym> foodSynonyms,
-  }) = _FoodSynonymsListResponse;
-
-  factory FoodSynonymsListResponse.fromJson(Map<String, dynamic> json) =>
-      _$FoodSynonymsListResponseFromJson(json);
-
-  @override
-  String toString() {
-    return 'FoodListResponse{Lenght: ${foodSynonyms.length}}';
   }
 }

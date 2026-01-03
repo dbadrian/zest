@@ -9,7 +9,6 @@ part 'unit_list_response.g.dart';
 @freezed
 class UnitListResponse with _$UnitListResponse {
   factory UnitListResponse({
-    required PaginationResponse pagination,
     required List<Unit> units,
   }) = _UnitListResponse;
 

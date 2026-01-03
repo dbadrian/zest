@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zest/authentication/auth_service.dart';
 import 'package:zest/config/zest_api.dart';
+import 'package:zest/core/network/api_exception.dart';
 import 'package:zest/settings/knowledge_provider.dart';
 import 'package:zest/ui/login_screen.dart';
 
@@ -139,19 +140,19 @@ class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
               if (index < recipes.length) {
                 final item = recipes[index];
                 return RecipeListTile(
-                  title: item.title,
-                  subtitle: item.subtitle,
-                  totalTime: item.totalTime,
-                  prepTime: item.prepTime,
-                  cookTime: item.cookTime,
-                  difficulty: item.difficulty,
+                  title: item.latestRevision.title,
+                  subtitle: item.latestRevision.subtitle,
+                  totalTime: 0,
+                  prepTime: item.latestRevision.prepTime,
+                  cookTime: item.latestRevision.cookTime,
+                  difficulty: item.latestRevision.difficulty,
                   language: item.language,
-                  isFavorite: item.isFavorite,
+                  // isFavorite: item.isFavorite,
                   onTap: () {
-                    context.goNamed(
-                      RecipeDetailsPage.routeName,
-                      pathParameters: {'id': item.recipeId.toString()},
-                    );
+                    // context.goNamed(
+                    //   RecipeDetailsPage.routeName,
+                    //   pathParameters: {'id': item.recipeId.toString()},
+                    // );
                   },
                   isAlt: index.isOdd,
                   isHighlighted: false,
@@ -174,7 +175,7 @@ class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
         );
       }
     }), error: ((error, stackTrace) {
-      if (error is AuthException) {
+      if (error is ApiException) {
         // Force push to the login page
         // Normally this shouldn't happen too often, thus that is perfectly
         // acceptable
@@ -191,8 +192,8 @@ class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final numResults = ref.watch(recipeSearchControllerProvider.select(
-        (state) => state.value?.recipeList?.pagination.totalResults ?? 0));
+    final numResults = ref.watch(recipeSearchControllerProvider
+        .select((state) => state.value?.recipeList?.pagination.total ?? 0));
     return Scaffold(
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
@@ -325,7 +326,7 @@ class FilterSettingsBottomWindow extends ConsumerWidget {
                     (e) => FormBuilderChipOption<int>(
                       value: e.key,
                       child: Text(
-                        e.value.name!.value(),
+                        e.value.name,
                       ),
                     ),
                   )

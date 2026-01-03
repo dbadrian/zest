@@ -2,13 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'interceptor.dart';
 import 'api_response.dart';
 import 'api_exception.dart';
 
-part 'http_client.g.dart';
+// part 'http_client.g.dart';
 
 dynamic jsonDecodeResponse(http.Response data) {
   final contentType = data.headers["content-type"];
@@ -46,6 +45,7 @@ class ApiHttpClient {
     Map<String, String>? headers,
     Map<String, dynamic>? queryParams,
     Duration? timeout,
+    bool encodeJson = true,
   }) async {
     return _request<T>(
         method: 'GET',
@@ -53,7 +53,8 @@ class ApiHttpClient {
         headers: headers,
         queryParams: queryParams,
         timeout: timeout,
-        fromJson: fromJson);
+        fromJson: fromJson,
+        encodeJson: encodeJson);
   }
 
   Future<ApiResponse<T>> post<T>(
@@ -62,6 +63,7 @@ class ApiHttpClient {
     Map<String, String>? headers,
     dynamic body,
     Duration? timeout,
+    bool encodeJson = true,
   }) async {
     return _request<T>(
         method: 'POST',
@@ -69,7 +71,8 @@ class ApiHttpClient {
         headers: headers,
         body: body,
         timeout: timeout,
-        fromJson: fromJson);
+        fromJson: fromJson,
+        encodeJson: encodeJson);
   }
 
   Future<ApiResponse<T>> put<T>(
@@ -78,6 +81,7 @@ class ApiHttpClient {
     Map<String, String>? headers,
     dynamic body,
     Duration? timeout,
+    bool encodeJson = true,
   }) async {
     return _request<T>(
         method: 'PUT',
@@ -85,7 +89,8 @@ class ApiHttpClient {
         headers: headers,
         body: body,
         timeout: timeout,
-        fromJson: fromJson);
+        fromJson: fromJson,
+        encodeJson: encodeJson);
   }
 
   Future<ApiResponse<T>> _request<T>(
@@ -98,7 +103,8 @@ class ApiHttpClient {
       Duration? timeout,
       int retryCount = 0,
       int maxRedirects = 5,
-      String? absoluteUrl}) async {
+      String? absoluteUrl,
+      bool encodeJson = true}) async {
     try {
       // Build URL
       Uri uri;
@@ -124,8 +130,12 @@ class ApiHttpClient {
         ...?headers,
       });
 
-      if (body != null) {
-        request.body = jsonEncode(body);
+      if (encodeJson) {
+        if (body != null) {
+          request.body = jsonEncode(body);
+        }
+      } else {
+        request.bodyFields = body;
       }
 
       // Run request interceptors

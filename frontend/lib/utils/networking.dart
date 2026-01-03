@@ -15,29 +15,29 @@ import 'package:zest/utils/interceptors.dart';
 
 import '../routing/app_router.dart';
 
-part 'networking.g.dart';
+// part 'networking.g.dart';
 
-@riverpod
-InterceptedClient httpJSONClient(HttpJSONClientRef ref,
-    {bool withAuthenticationInterceptor = false}) {
-  final client = InterceptedClient.build(
-    interceptors: [
-      JSONHeaderInterceptor(),
-      if (withAuthenticationInterceptor)
-        AuthenticationInterceptor(
-            ref.read(authenticationServiceProvider.notifier)),
-      if (kDebugMode) LoggingInterceptor(),
-      ResourceNotFoundInterceptor(),
-      BadRequestInterceptor()
-    ],
-    client: kIsWeb
-        ? null
-        : IOClient(
-            HttpClient()..connectionTimeout = const Duration(seconds: 1),
-          ),
-  );
-  return client;
-}
+// @riverpod
+// InterceptedClient httpJSONClient(HttpJSONClientRef ref,
+//     {bool withAuthenticationInterceptor = false}) {
+//   final client = InterceptedClient.build(
+//     interceptors: [
+//       JSONHeaderInterceptor(),
+//       if (withAuthenticationInterceptor)
+//         AuthenticationInterceptor(
+//             ref.read(authenticationServiceProvider.notifier)),
+//       if (kDebugMode) LoggingInterceptor(),
+//       ResourceNotFoundInterceptor(),
+//       BadRequestInterceptor()
+//     ],
+//     client: kIsWeb
+//         ? null
+//         : IOClient(
+//             HttpClient()..connectionTimeout = const Duration(seconds: 1),
+//           ),
+//   );
+//   return client;
+// }
 
 class InvalidJSONDataException implements Exception {
   final String? message;

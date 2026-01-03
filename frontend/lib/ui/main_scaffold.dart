@@ -7,17 +7,15 @@ import 'package:updat/updat.dart';
 import 'package:downloadsfolder/downloadsfolder.dart';
 import 'package:path/path.dart' as p;
 
-import 'package:zest/api/api_service.dart';
-import 'package:zest/api/api_status_provider.dart';
 import 'package:zest/main.dart';
-import 'package:zest/recipes/controller/search_controller.dart';
-import 'package:zest/recipes/screens/recipe_draft_search.dart';
-import 'package:zest/recipes/screens/recipe_edit.dart';
+
 import 'package:zest/settings/settings_screen.dart';
 import 'package:zest/ui/login_screen.dart';
 import 'package:zest/ui/widgets/generics.dart';
 import 'package:zest/utils/update.dart';
 
+import '../api/api_service.dart';
+import '../api/api_status_provider.dart';
 import '../authentication/auth_service.dart';
 import '../recipes/screens/recipe_search.dart';
 
@@ -105,7 +103,7 @@ class MainScaffold extends ConsumerWidget {
                   key: Key("appbar_addrecipe_icon"), Icons.add_card_rounded),
               onPressed: (backendStatus.valueOrNull?.isOnline ?? false)
                   ? () {
-                      context.goNamed(RecipeEditPage.routeNameCreate);
+                      // context.goNamed(RecipeEditPage.routeNameCreate);
                     }
                   : null,
             ),
@@ -113,7 +111,7 @@ class MainScaffold extends ConsumerWidget {
             IconButton(
               icon: const Icon(key: Key("appbar_search_icon"), Icons.search),
               onPressed: () {
-                ref.read(recipeSearchFilterSettingsProvider.notifier).reset();
+                // TODO: ref.read(recipeSearchFilterSettingsProvider.notifier).reset();
                 context.goNamed(RecipeSearchPage.routeName);
               },
             ),
@@ -148,7 +146,7 @@ class MainScaffold extends ConsumerWidget {
                   children: [
                     if (isAuthenticated)
                       UserAccountsDrawerHeader(
-                        accountName: Text(user?.firstName ?? ""),
+                        accountName: Text(user?.fullName ?? ""),
                         accountEmail: Text(user?.email ?? ""),
                         // onDetailsPressed: () => print("asdasds"),
                       ),
@@ -171,9 +169,9 @@ class MainScaffold extends ConsumerWidget {
                         title: const Text('Search'),
                         onTap: () {
                           Navigator.pop(context);
-                          ref
-                              .read(recipeSearchFilterSettingsProvider.notifier)
-                              .reset();
+                          // ref
+                          //     .read(recipeSearchFilterSettingsProvider.notifier)
+                          //     .reset();
                           context.goNamed(RecipeSearchPage.routeName);
                         },
                       ),
@@ -182,12 +180,12 @@ class MainScaffold extends ConsumerWidget {
                         title: const Text('Favorites'),
                         onTap: () {
                           Navigator.pop(context);
-                          ref
-                              .read(recipeSearchFilterSettingsProvider.notifier)
-                              .reset();
-                          ref
-                              .read(recipeSearchFilterSettingsProvider.notifier)
-                              .updateFavoritesOnly(true);
+                          // ref
+                          //     .read(recipeSearchFilterSettingsProvider.notifier)
+                          //     .reset();
+                          // ref
+                          //     .read(recipeSearchFilterSettingsProvider.notifier)
+                          //     .updateFavoritesOnly(true);
                           context.goNamed(RecipeSearchPage.routeName);
                         },
                       ),
@@ -196,7 +194,7 @@ class MainScaffold extends ConsumerWidget {
                         title: const Text('Add Recipe'),
                         onTap: () {
                           Navigator.pop(context);
-                          context.goNamed(RecipeEditPage.routeNameCreate);
+                          // context.goNamed(RecipeEditPage.routeNameCreate);
                         },
                       ),
                       ListTile(
@@ -204,7 +202,7 @@ class MainScaffold extends ConsumerWidget {
                         title: const Text('Drafts'),
                         onTap: () {
                           Navigator.pop(context);
-                          context.goNamed(RecipeDraftPage.routeName);
+                          // context.goNamed(RecipeDraftPage.routeName);
                         },
                       ),
                       const Divider(),

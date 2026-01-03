@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:http/http.dart' as http;
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:zest/recipes/models/recipe_favorite.dart';
+import 'package:zest/core/network/http_client.dart';
+import 'package:zest/core/providers/http_client_provider.dart';
 
 import 'package:zest/utils/networking.dart';
-
-import '../authentication/auth_service.dart';
 
 import '../recipes/models/models.dart';
 import '../settings/settings_provider.dart';
@@ -18,7 +18,7 @@ import 'responses/responses.dart';
 part 'api_service.g.dart';
 
 class APIService {
-  final InterceptedClient client;
+  final ApiHttpClient client;
   final Ref ref;
 
   APIService({required this.ref, required this.client});
@@ -55,13 +55,15 @@ class APIService {
       if (ordering != null) 'ordering': ordering.join(',')
     };
 
-    final url =
-        getAPIUrl(settings, "/recipes/", queryParameters: queryParameters);
+    final response = await client.get<RecipeListResponse>(
+        "/recipes", RecipeListResponse.fromJson,
+        queryParams: queryParameters);
 
-    return genericResponseHandler(
-      requestCallback: () async => client.get(url),
-      create: (json) => RecipeListResponse.fromJson(json),
-    );
+    if (response.isSuccess) {
+      return response.dataOrNull!;
+    } else {
+      throw response.errorOrNull!;
+    }
   }
 
   Future<Recipe> getRecipe(String recipeId,
@@ -77,14 +79,15 @@ class APIService {
       if (lcFilter != null) 'lc_filter': lcFilter.join(','),
       if (toMetric != null && toMetric) 'to_metric': "",
     };
+    final response = await client.get<Recipe>(
+        "/recipes/$recipeId", Recipe.fromJson,
+        queryParams: queryParameters);
 
-    final url = getAPIUrl(settings, "/recipes/$recipeId/",
-        queryParameters: queryParameters);
-
-    return genericResponseHandler(
-      requestCallback: () async => client.get(url),
-      create: (json) => Recipe.fromJson(json),
-    );
+    if (response.isSuccess) {
+      return response.dataOrNull!;
+    } else {
+      throw response.errorOrNull!;
+    }
   }
 
   Future<Recipe?> createRecipeRemote(String recipe, {String? lang}) async {
@@ -93,64 +96,76 @@ class APIService {
     final queryParameters = {
       'lang': lang ?? settings.current.language,
     };
+    return null;
+    // final url =
+    //     getAPIUrl(settings, "/recipes/", queryParameters: queryParameters);
 
-    final url =
-        getAPIUrl(settings, "/recipes/", queryParameters: queryParameters);
+    // try {
+    //   final ret = await genericResponseHandler(
+    //     requestCallback: () async =>
+    //         postWithRedirects(client, url, body: recipe),
+    //     create: (json) => Recipe.fromJson(json),
+    //   );
+    //   return getRecipe(ret.recipeId);
+    // } on AuthException {
+    //   throw AuthException(); // TODO: FIXME
+    //   // print("Auth Extension")
+    //   // return null;
+    //   // developer.log("Triggered an auth exception",
+    //   //     name: 'APIservice.createRecipeRemote');
+    //   // Get.offNamed(Get.currentRoute);
+    // } on ResourceNotFoundException {
+    //   return null; // TODO: Communicate actual problem!?
+    // } on BadRequestException {
+    //   return null; // TODO: Communicate actual problem!?
+    // }
 
-    try {
-      final ret = await genericResponseHandler(
-        requestCallback: () async =>
-            postWithRedirects(client, url, body: recipe),
-        create: (json) => Recipe.fromJson(json),
-      );
-      return getRecipe(ret.recipeId);
-    } on AuthException {
-      throw AuthException(); // TODO: FIXME
-      // print("Auth Extension")
-      // return null;
-      // developer.log("Triggered an auth exception",
-      //     name: 'APIservice.createRecipeRemote');
-      // Get.offNamed(Get.currentRoute);
-    } on ResourceNotFoundException {
-      return null; // TODO: Communicate actual problem!?
-    } on BadRequestException {
-      return null; // TODO: Communicate actual problem!?
-    }
+    // final response = await client.get<RecipeListResponse>(
+    //     "/recipes", RecipeListResponse.fromJson,
+    //     queryParams: queryParameters);
+
+    // if (response.isSuccess) {
+    //   return response.dataOrNull!;
+    // } else {
+    //   throw response.errorOrNull!;
+    // }
   }
 
   Future<Recipe?> updateRecipeRemote(String recipeId, String recipe) async {
     final SettingsState settings = ref.read(settingsProvider);
     final url = getAPIUrl(settings, "/recipes/$recipeId/");
-    try {
-      return genericResponseHandler(
-        requestCallback: () async => client.put(url, body: recipe),
-        create: (json) => Recipe.fromJson(json),
-      );
-      // return ret;
-    } on AuthException {
-      developer.log("Triggered an auth exception",
-          name: 'APIservice.updateRecipeRemote');
-      // Get.offNamed(Get.currentRoute);
-      throw AuthException();
-    } on ResourceNotFoundException catch (e) {
-      developer.log("ResourceNotFound: ${e.message}");
-      return null;
-    } on BadRequestException catch (e) {
-      developer.log("BadRequest: ${e.message}");
-      return null;
-    }
+    return null;
+    // try {
+    //   return genericResponseHandler(
+    //     requestCallback: () async => client.put(url, body: recipe),
+    //     create: (json) => Recipe.fromJson(json),
+    //   );
+    //   // return ret;
+    // } on AuthException {
+    //   developer.log("Triggered an auth exception",
+    //       name: 'APIservice.updateRecipeRemote');
+    //   // Get.offNamed(Get.currentRoute);
+    //   throw AuthException();
+    // } on ResourceNotFoundException catch (e) {
+    //   developer.log("ResourceNotFound: ${e.message}");
+    //   return null;
+    // } on BadRequestException catch (e) {
+    //   developer.log("BadRequest: ${e.message}");
+    //   return null;
+    // }
   }
 
   Future<bool> deleteRecipeRemote({required String recipeId}) async {
-    final SettingsState settings = ref.read(settingsProvider);
+    return true;
+    // final SettingsState settings = ref.read(settingsProvider);
 
-    final url = getAPIUrl(settings, "/recipes/$recipeId/");
-    try {
-      await client.delete(url);
-      return true;
-    } on AuthException {
-      return false;
-    }
+    // final url = getAPIUrl(settings, "/recipes/$recipeId/");
+    // try {
+    //   await client.delete(url);
+    //   return true;
+    // } on AuthException {
+    //   return false;
+    // }
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -160,69 +175,72 @@ class APIService {
     int? pageSize,
     String? language,
   }) async {
-    final SettingsState settings = ref.read(settingsProvider);
+    return [];
+    // final SettingsState settings = ref.read(settingsProvider);
 
-    final queryParameters = {
-      'lang': language ?? settings.current.language,
-      if (pageSize != null) 'page_size': pageSize.toString(),
-    };
+    // final queryParameters = {
+    //   'lang': language ?? settings.current.language,
+    //   if (pageSize != null) 'page_size': pageSize.toString(),
+    // };
 
-    final url = getAPIUrl(settings, "/recipe_categories/",
-        queryParameters: queryParameters);
+    // final url = getAPIUrl(settings, "/recipe_categories/",
+    //     queryParameters: queryParameters);
 
-    return genericResponseHandler(
-      requestCallback: () async => client.get(url),
-      create: (json) => RecipeCategoryListResponse.fromJson(json).categories,
-    );
+    // return genericResponseHandler(
+    //   requestCallback: () async => client.get(url),
+    //   create: (json) => RecipeCategoryListResponse.fromJson(json).categories,
+    // );
   }
 
   //////////////////////////////////////////////////////////////////////////////
   /// RECIPE CATEGORIES REQUESTS
   //////////////////////////////////////////////////////////////////////////////
-  Future<RecipeFavorite?> addRecipeToFavorites(
-      {required String recipeId}) async {
-    final SettingsState settings = ref.read(settingsProvider);
+  // Future<RecipeFavorite?> addRecipeToFavorites(
+  //     {required String recipeId}) async {
+  //   return null;
+  //   // final SettingsState settings = ref.read(settingsProvider);
 
-    final url = getAPIUrl(
-      settings,
-      "/recipes/$recipeId/add_to_favorites",
-    );
-    try {
-      final ret = await genericResponseHandler(
-        requestCallback: () async => postWithRedirects(client, url),
-        create: (json) => RecipeFavorite.fromJson(json),
-      );
-      return ret;
-    } on AuthException {
-      throw AuthException();
-    } on ResourceNotFoundException {
-      return null; // TODO: Communicate actual problem!?
-    } on BadRequestException {
-      return null; // TODO: Communicate actual problem!?
-    }
-  }
+  //   // final url = getAPIUrl(
+  //   //   settings,
+  //   //   "/recipes/$recipeId/add_to_favorites",
+  //   // );
+  //   // try {
+  //   //   final ret = await genericResponseHandler(
+  //   //     requestCallback: () async => postWithRedirects(client, url),
+  //   //     create: (json) => RecipeFavorite.fromJson(json),
+  //   //   );
+  //   //   return ret;
+  //   // } on AuthException {
+  //   //   throw AuthException();
+  //   // } on ResourceNotFoundException {
+  //   //   return null; // TODO: Communicate actual problem!?
+  //   // } on BadRequestException {
+  //   //   return null; // TODO: Communicate actual problem!?
+  //   // }
+  // }
 
-  Future<void> deleteRecipeFromFavorites({required String recipeId}) async {
-    final SettingsState settings = ref.read(settingsProvider);
+  // Future<void> deleteRecipeFromFavorites({required String recipeId}) async {
+  //   return;
+  //   // final SettingsState settings = ref.read(settingsProvider);
 
-    final url = getAPIUrl(
-      settings,
-      "/recipes/$recipeId/remove_from_favorites",
-    );
-    try {
-      final ret = await genericResponseHandler(
-        requestCallback: () async => client.delete(url),
-        create: (json) => null,
-      );
-      return ret;
-    } on AuthException {
-      throw AuthException();
-    } on ResourceNotFoundException {
-      return; // TODO: Communicate actual problem!?
-    } on BadRequestException {
-      return; // TODO: Communicate actual problem!?
-    }
-  }
+  //   // final url = getAPIUrl(
+  //   //   settings,
+  //   //   "/recipes/$recipeId/remove_from_favorites",
+  //   // );
+  //   // try {
+  //   //   final ret = await genericResponseHandler(
+  //   //     requestCallback: () async => client.delete(url),
+  //   //     create: (json) => null,
+  //   //   );
+  //   //   return ret;
+  //   // } on AuthException {
+  //   //   throw AuthException();
+  //   // } on ResourceNotFoundException {
+  //   //   return; // TODO: Communicate actual problem!?
+  //   // } on BadRequestException {
+  //   //   return; // TODO: Communicate actual problem!?
+  //   // }
+  // }
 
   //////////////////////////////////////////////////////////////////////////////
   /// UNIT REQUESTS
@@ -232,21 +250,22 @@ class APIService {
     String? search,
     String? language,
   }) async {
-    final SettingsState settings = ref.read(settingsProvider);
+    return [];
+    // final SettingsState settings = ref.read(settingsProvider);
 
-    final queryParameters = {
-      'lang': language ?? settings.current.language,
-      if (search != null && search.isNotEmpty) 'search': search,
-      if (pageSize != null) 'page_size': pageSize.toString(),
-    };
+    // final queryParameters = {
+    //   'lang': language ?? settings.current.language,
+    //   if (search != null && search.isNotEmpty) 'search': search,
+    //   if (pageSize != null) 'page_size': pageSize.toString(),
+    // };
 
-    final url =
-        getAPIUrl(settings, "/units/", queryParameters: queryParameters);
+    // final url =
+    //     getAPIUrl(settings, "/units/", queryParameters: queryParameters);
 
-    return genericResponseHandler(
-      requestCallback: () async => client.get(url),
-      create: (json) => UnitListResponse.fromJson(json).units,
-    );
+    // return genericResponseHandler(
+    //   requestCallback: () async => client.get(url),
+    //   create: (json) => UnitListResponse.fromJson(json).units,
+    // );
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -259,170 +278,56 @@ class APIService {
     String? language,
     List<String>? pks,
   }) async {
-    final SettingsState settings = ref.read(settingsProvider);
+    return [];
 
-    final queryParameters = {
-      'lang': language ?? settings.current.language,
-      if (search != null && search.isNotEmpty) 'search': search,
-      if (pageSize != null) 'page_size': pageSize.toString(),
-      if (pks != null) 'pks': pks.join(','),
-    };
+    // final SettingsState settings = ref.read(settingsProvider);
 
-    final url = getAPIUrl(settings, "/foods/", // ?similarity=0.5
-        queryParameters: queryParameters);
-    return genericResponseHandler(
-      requestCallback: () async => client.get(url),
-      create: (json) => FoodListResponse.fromJson(json).foods,
-    );
+    // final queryParameters = {
+    //   'lang': language ?? settings.current.language,
+    //   if (search != null && search.isNotEmpty) 'search': search,
+    //   if (pageSize != null) 'page_size': pageSize.toString(),
+    //   if (pks != null) 'pks': pks.join(','),
+    // };
+
+    // final url = getAPIUrl(settings, "/foods/", // ?similarity=0.5
+    //     queryParameters: queryParameters);
+    // return genericResponseHandler(
+    //   requestCallback: () async => client.get(url),
+    //   create: (json) => FoodListResponse.fromJson(json).foods,
+    // );
   }
 
-  Future<Food?> createFood(String foodJson, {String? language}) async {
-    final SettingsState settings = ref.read(settingsProvider);
+  // Future<FoodListResponse> getFoodsPagination({
+  //   int page = 1,
+  //   int? pageSize,
+  //   String? search,
+  //   String? language,
+  //   List<String>? pks,
+  // }) async {
+  //   return FoodListResponse.fromJson({});
+  //   // final SettingsState settings = ref.read(settingsProvider);
 
-    final queryParameters = {
-      'lang': language ?? settings.current.language,
-    };
-    final url =
-        getAPIUrl(settings, "/foods/", queryParameters: queryParameters);
-    return genericResponseHandler(
-      requestCallback: () async =>
-          postWithRedirects(client, url, body: foodJson),
-      create: (json) => Food.fromJson(json),
-    );
-  }
+  //   // final queryParameters = {
+  //   //   'lang': language ?? settings.current.language,
+  //   //   if (search != null && search.isNotEmpty) 'search': search,
+  //   //   if (pageSize != null) 'page_size': pageSize.toString(),
+  //   //   if (pks != null) 'pks': pks.join(','),
+  //   //   'page': page.toString()
+  //   // };
 
-  Future<FoodListResponse> getFoodsPagination({
-    int page = 1,
-    int? pageSize,
-    String? search,
-    String? language,
-    List<String>? pks,
-  }) async {
-    final SettingsState settings = ref.read(settingsProvider);
-
-    final queryParameters = {
-      'lang': language ?? settings.current.language,
-      if (search != null && search.isNotEmpty) 'search': search,
-      if (pageSize != null) 'page_size': pageSize.toString(),
-      if (pks != null) 'pks': pks.join(','),
-      'page': page.toString()
-    };
-
-    final url = getAPIUrl(settings, "/foods/", // ?similarity=0.5
-        queryParameters: queryParameters);
-    return genericResponseHandler(
-      requestCallback: () async => client.get(url),
-      create: (json) => FoodListResponse.fromJson(json),
-    );
-  }
-
-  Future<Food?> updateFood(String foodId, String foodJson,
-      {String? language}) async {
-    final SettingsState settings = ref.read(settingsProvider);
-
-    final queryParameters = {
-      'lang': language ?? settings.current.language,
-    };
-
-    final url = getAPIUrl(settings, "/foods/$foodId/",
-        queryParameters: queryParameters);
-
-    return genericResponseHandler(
-      requestCallback: () async => client.put(url, body: foodJson),
-      create: (json) => Food.fromJson(json),
-    );
-  }
-
-  Future<List<FoodSynonym>> getFoodSynonyms({
-    int? pageSize,
-    String? search,
-    List<String>? lcFilter,
-  }) async {
-    final SettingsState settings = ref.read(settingsProvider);
-
-    final queryParameters = {
-      if (lcFilter != null) 'lc_filter': lcFilter.join(','),
-      if (search != null && search.isNotEmpty) 'search': search,
-      if (pageSize != null) 'page_size': pageSize.toString(),
-    };
-
-    final url = getAPIUrl(settings, "/food_synonyms/",
-        queryParameters: queryParameters);
-
-    return genericResponseHandler(
-      requestCallback: () async => client.get(url),
-      create: (json) => FoodSynonymsListResponse.fromJson(json).foodSynonyms,
-    );
-  }
-
-  Future<FoodSynonymsListResponse> getFoodSynonymsPagination({
-    int page = 1,
-    int? pageSize,
-    String? search,
-    List<String>? lcFilter,
-  }) async {
-    final SettingsState settings = ref.read(settingsProvider);
-
-    final queryParameters = {
-      if (lcFilter != null) 'lc_filter': lcFilter.join(','),
-      if (search != null && search.isNotEmpty) 'search': search,
-      if (pageSize != null) 'page_size': pageSize.toString(),
-      "page": page.toString()
-    };
-
-    final url = getAPIUrl(settings, "/food_synonyms/",
-        queryParameters: queryParameters);
-
-    return genericResponseHandler(
-      requestCallback: () async => client.get(url),
-      create: (json) => FoodSynonymsListResponse.fromJson(json),
-    );
-  }
-
-  // //////////////////////////////////////////////////////////////////////////////
-  // /// TAG REQUESTS
-  // //////////////////////////////////////////////////////////////////////////////
-  Future<List<Tag>> getTags({
-    int? pageSize,
-    String? search,
-    String? language,
-  }) async {
-    final SettingsState settings = ref.read(settingsProvider);
-
-    final queryParameters = {
-      'lang': language ?? settings.current.language,
-      if (search != null && search.isNotEmpty) 'search': search,
-      if (pageSize != null) 'page_size': pageSize.toString(),
-    };
-
-    final url = getAPIUrl(settings, "/tags/", queryParameters: queryParameters);
-    return genericResponseHandler(
-      requestCallback: () async => client.get(url),
-      create: (json) => TagListResponse.fromJson(json).tags,
-    );
-  }
-
-  Future<Tag> createTag(String tagJson, {String? language}) async {
-    final SettingsState settings = ref.read(settingsProvider);
-    final queryParameters = {
-      'lang': language ?? settings.current.language,
-    };
-
-    final url = getAPIUrl(settings, "/tags/", queryParameters: queryParameters);
-    return genericResponseHandler(
-      requestCallback: () async =>
-          postWithRedirects(client, url, body: tagJson),
-      create: (json) => Tag.fromJson(json),
-    );
-  }
+  //   // final url = getAPIUrl(settings, "/foods/", // ?similarity=0.5
+  //   //     queryParameters: queryParameters);
+  //   // return genericResponseHandler(
+  //   //   requestCallback: () async => client.get(url),
+  //   //   create: (json) => FoodListResponse.fromJson(json),
+  //   // );
+  // }
 }
 
 @Riverpod(keepAlive: true)
 APIService apiService(Ref ref) => APIService(
       ref: ref,
-      client: ref.read(
-        httpJSONClientProvider(withAuthenticationInterceptor: true),
-      ),
+      client: ref.read(apiClientProvider),
     );
 
 // //////////////////////////////////////////////////////////////////////////////
@@ -430,7 +335,7 @@ APIService apiService(Ref ref) => APIService(
 // //////////////////////////////////////////////////////////////////////////////
 
 class GithubService {
-  final InterceptedClient client;
+  final Client client;
   final Ref ref;
 
   GithubService({required this.ref, required this.client});
@@ -458,16 +363,17 @@ class GithubService {
           return null;
         },
       );
-    } on AuthException {
-      developer.log("Triggered an auth exception",
-          name: 'APIservice.updateRecipeRemote');
-      // Get.offNamed(Get.currentRoute);
-      throw AuthException();
-    } on ResourceNotFoundException catch (e) {
-      developer.log("ResourceNotFound: ${e.message}");
-      return null;
-    } on BadRequestException catch (e) {
-      developer.log("BadRequest: ${e.message}");
+
+      // on AuthException {
+      //   developer.log("Triggered an auth exception",
+      //       name: 'APIservice.updateRecipeRemote');
+      //   // Get.offNamed(Get.currentRoute);
+      //   throw AuthException();
+      // } on ResourceNotFoundException catch (e) {
+      //   developer.log("ResourceNotFound: ${e.message}");
+      //   return null;
+    } on Exception {
+      // developer.log("BadRequest: ${e.message}");
       return null;
     }
   }
@@ -496,25 +402,15 @@ class GithubService {
           return null;
         },
       );
-    } on AuthException {
-      developer.log("Triggered an auth exception",
-          name: 'APIservice.updateRecipeRemote');
-      // Get.offNamed(Get.currentRoute);
-      throw AuthException();
-    } on ResourceNotFoundException catch (e) {
-      developer.log("ResourceNotFound: ${e.message}");
-      return null;
-    } on BadRequestException catch (e) {
-      developer.log("BadRequest: ${e.message}");
+    } on Exception {
+      // developer.log("BadRequest: ${e.message}");
       return null;
     }
   }
 }
 
 @Riverpod(keepAlive: true)
-GithubService githubService(GithubServiceRef ref) => GithubService(
+GithubService githubService(Ref ref) => GithubService(
       ref: ref,
-      client: ref.read(
-        httpJSONClientProvider(withAuthenticationInterceptor: false),
-      ),
+      client: http.Client(),
     );

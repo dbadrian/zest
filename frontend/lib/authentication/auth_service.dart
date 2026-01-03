@@ -9,6 +9,7 @@ import 'package:http_interceptor/http_interceptor.dart';
 import 'package:zest/api/api_utils.dart';
 import 'package:zest/core/network/api_exception.dart';
 import 'package:zest/core/network/http_client.dart';
+import 'package:zest/core/network/interceptors/logging_interceptor.dart';
 import 'package:zest/settings/settings_provider.dart';
 
 import 'package:zest/utils/model_storage.dart';
@@ -39,9 +40,10 @@ class AuthenticationService extends _$AuthenticationService {
 
   @override
   Future<AuthState?> build() async {
-    state = const AsyncLoading();
+    // state = const AsyncLoading();
     final settings = ref.read(settingsProvider);
     _client = ApiHttpClient(baseUrl: settings.current.apiUrl);
+    _client.addInterceptor(LoggingInterceptor(enabled: true));
 
     // Auto cancelation of requests
     ref.onDispose(() {
@@ -49,6 +51,7 @@ class AuthenticationService extends _$AuthenticationService {
     });
 
     // Look for token in storage (will refresh if necessary)
+
     final _state = await _authStorage.read();
     debugPrint(_state.toString());
 
@@ -71,30 +74,21 @@ class AuthenticationService extends _$AuthenticationService {
     }
   }
 
-  // /// Helper to check validity of token and attempts to refresh if necessary
-  // /// and possible
-  // Future<AuthState?> validateOrRefreshToken(AuthState? authState) async {
-  //   if (authState == null) {
-  //     debugPrint("No token found. Running logout routine");
-  //     // Not token store -> no longer authenticated with still
-  //     await logout();
-  //     return null;
-  //   } else if (!authState.isExpired) {
-  //     return authState;
-  //   } else {
-  //     debugPrint("Attemping to acquire new access tokeny");
-  //     final newAuthState = await tryRefreshAccessToken();
-  //     return newAuthState;
-  //   }
-  // }
-
   Future<bool> login(String username, String password) async {
     state = const AsyncLoading();
     await _authStorage.clear(); // clear if not already cleared
 
     final loginResponse = await _client.post<AuthResponse>(
         "/auth/login", AuthResponse.fromJson,
-        body: jsonEncode({'username': username, 'password': password}));
+        encodeJson: false,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: {
+          'username': username,
+          'password': password
+        });
+    // body: jsonEncode({'username': username, 'password': password}));
 
     // whatever is wrong...early abort
     if (loginResponse.isFailure) {
@@ -105,7 +99,7 @@ class AuthenticationService extends _$AuthenticationService {
     final _authState = loginResponse.dataOrNull!;
 
     // since it was a success, we can now query for the user credentials
-    final userResponse = await _client.post<User>("/auth/me", User.fromJson,
+    final userResponse = await _client.get<User>("/auth/me", User.fromJson,
         headers: {'Authorization': 'Bearer ${_authState.accessToken}'});
 
     if (userResponse.isFailure) {
@@ -132,7 +126,7 @@ class AuthenticationService extends _$AuthenticationService {
 
     final refreshResponse = await _client.post<AuthResponse>(
         "/auth/refresh", AuthResponse.fromJson,
-        body: jsonEncode({'refresh_token': oldState.refreshToken}));
+        body: {'refresh_token': oldState.refreshToken});
 
     // whatever is wrong...early abort
     if (refreshResponse.isFailure) {

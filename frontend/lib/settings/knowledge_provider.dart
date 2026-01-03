@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:zest/core/network/api_exception.dart';
 
 import '../api/api_service.dart';
 import '../authentication/auth_service.dart';
@@ -24,7 +25,7 @@ class Knowledge extends _$Knowledge {
     final categories = await AsyncValue.guard(() =>
         ref.read(apiServiceProvider).getRecipeCategories(pageSize: 10000));
     if (categories.hasError) {
-      if (categories.error is AuthException) {
+      if (categories.error is ApiException) {
         openReauthenticationDialog(
             // TODO: onconfirm
             );

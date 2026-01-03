@@ -97,6 +97,7 @@ abstract class SecureModelStorage<T> extends ModelStorage<T> {
         return fromJson(jsonDecode(jsonStr));
       } catch (e) {
         debugPrint("Failure decoding key (invalid Json): $key: $e -- $jsonStr");
+        await clear();
         return null;
       }
     } else {

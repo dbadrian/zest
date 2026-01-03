@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:zest/recipes/screens/recipe_details.dart';
-import 'package:zest/recipes/screens/recipe_draft_search.dart';
 import 'package:zest/recipes/screens/recipe_search.dart';
 
 import '../main.dart';
-import '../recipes/screens/recipe_edit.dart';
+
 import '../settings/settings_screen.dart';
 import '../ui/login_screen.dart';
 import '../ui/main_scaffold.dart';
@@ -23,7 +22,7 @@ final GlobalKey<NavigatorState> shellNavigatorKey =
 // final routerProvider = Provider.autoDispose<GoRouter>((ref) {
 
 @riverpod
-GoRouter getRouter(GetRouterRef ref) {
+GoRouter getRouter(Ref ref) {
   ref.watch(routerAuthNotifierProvider);
   final authNotifier = ref.read(routerAuthNotifierProvider.notifier);
 
@@ -71,29 +70,29 @@ GoRouter getRouter(GetRouterRef ref) {
               child: const SettingsPage(),
             ),
           ),
-          // Recipe related routes
-          GoRoute(
-            path: RecipeDraftPage.routeLocation,
-            name: RecipeDraftPage.routeName,
-            pageBuilder: (context, state) => NoTransitionPage(
-              key: state.pageKey,
-              child: const RecipeDraftPage(),
-            ),
-            routes: [
-              GoRoute(
-                name: RecipeEditPage.routeNameDraftEdit,
-                path: ':draftId',
-                pageBuilder: (context, state) {
-                  final draftId =
-                      int.tryParse(state.pathParameters['draftId'] ?? "");
-                  return MaterialPage(
-                    key: state.pageKey,
-                    child: RecipeEditPage(draftId: draftId),
-                  );
-                },
-              ),
-            ],
-          ),
+          // // Recipe related routes
+          // GoRoute(
+          //   path: RecipeDraftPage.routeLocation,
+          //   name: RecipeDraftPage.routeName,
+          //   pageBuilder: (context, state) => NoTransitionPage(
+          //     key: state.pageKey,
+          //     child: const RecipeDraftPage(),
+          //   ),
+          //   routes: [
+          //     GoRoute(
+          //       name: RecipeEditPage.routeNameDraftEdit,
+          //       path: ':draftId',
+          //       pageBuilder: (context, state) {
+          //         final draftId =
+          //             int.tryParse(state.pathParameters['draftId'] ?? "");
+          //         return MaterialPage(
+          //           key: state.pageKey,
+          //           child: RecipeEditPage(draftId: draftId),
+          //         );
+          //       },
+          //     ),
+          //   ],
+          // ),
           GoRoute(
             path: RecipeSearchPage.routeLocation,
             name: RecipeSearchPage.routeName,
@@ -102,40 +101,40 @@ GoRouter getRouter(GetRouterRef ref) {
               child: const RecipeSearchPage(),
             ),
             routes: [
-              GoRoute(
-                name: RecipeEditPage.routeNameCreate,
-                path: 'create',
-                pageBuilder: (context, state) {
-                  return MaterialPage(
-                    key: state.pageKey,
-                    child: const RecipeEditPage(recipeId: null),
-                  );
-                },
-              ),
-              GoRoute(
-                name: RecipeDetailsPage.routeName,
-                path: ':id',
-                pageBuilder: (context, state) {
-                  final recipeId = state.pathParameters['id']!;
-                  return MaterialPage(
-                    key: state.pageKey,
-                    child: RecipeDetailsPage(recipeId: recipeId),
-                  );
-                },
-                routes: [
-                  GoRoute(
-                    name: RecipeEditPage.routeNameEdit,
-                    path: 'edit',
-                    pageBuilder: (context, state) {
-                      final recipeId = state.pathParameters['id']!;
-                      return MaterialPage(
-                        key: state.pageKey,
-                        child: RecipeEditPage(recipeId: recipeId),
-                      );
-                    },
-                  ),
-                ],
-              ),
+              // GoRoute(
+              //   name: RecipeEditPage.routeNameCreate,
+              //   path: 'create',
+              //   pageBuilder: (context, state) {
+              //     return MaterialPage(
+              //       key: state.pageKey,
+              //       child: const RecipeEditPage(recipeId: null),
+              //     );
+              //   },
+              // ),
+              // GoRoute(
+              //   name: RecipeDetailsPage.routeName,
+              //   path: ':id',
+              //   pageBuilder: (context, state) {
+              //     final recipeId = state.pathParameters['id']!;
+              //     return MaterialPage(
+              //       key: state.pageKey,
+              //       child: RecipeDetailsPage(recipeId: recipeId),
+              //     );
+              //   },
+              //   routes: [
+              //     GoRoute(
+              //       name: RecipeEditPage.routeNameEdit,
+              //       path: 'edit',
+              //       pageBuilder: (context, state) {
+              //         final recipeId = state.pathParameters['id']!;
+              //         return MaterialPage(
+              //           key: state.pageKey,
+              //           child: RecipeEditPage(recipeId: recipeId),
+              //         );
+              //       },
+              //     ),
+              //   ],
+              // ),
             ],
           )
         ],

@@ -4,33 +4,30 @@ part 'pagination.freezed.dart';
 part 'pagination.g.dart';
 
 @freezed
-class PaginationResponse with _$PaginationResponse {
-  factory PaginationResponse({
+abstract class PaginationMeta with _$PaginationMeta {
+  const factory PaginationMeta({
+    required int total,
+    @JsonKey(name: 'total_pages') required int totalPages,
+    @JsonKey(name: 'current_page') required int currentPage,
+    @JsonKey(name: 'page_size') required int pageSize,
     String? next,
     String? previous,
-    @JsonKey(name: "total_results") required int totalResults,
-    @JsonKey(name: "total_pages") required int totalPages,
-    @JsonKey(name: "current_page") required int currentPage,
-  }) = _Pagination;
+  }) = _PaginationMeta;
 
-  factory PaginationResponse.fromJson(Map<String, dynamic> json) =>
-      _$PaginationResponseFromJson(json);
+  factory PaginationMeta.fromJson(Map<String, dynamic> json) =>
+      _$PaginationMetaFromJson(json);
 }
 
-class PaginationRequest {
-  PaginationRequest({required this.page, this.pageSize});
-  final int page;
-  final int? pageSize;
+@Freezed(fromJson: true, genericArgumentFactories: true)
+abstract class PaginatedResponse<T> with _$PaginatedResponse<T> {
+  const factory PaginatedResponse({
+    required PaginationMeta pagination,
+    required List<T> results,
+  }) = _PaginatedResponse<T>;
 
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is PaginationRequest &&
-        other.pageSize == pageSize &&
-        other.page == page;
-  }
-
-  @override
-  int get hashCode => pageSize.hashCode ^ page.hashCode;
+  factory PaginatedResponse.fromJson(
+    Map<String, dynamic> json,
+    T Function(Object?) fromJsonT,
+  ) =>
+      _$PaginatedResponseFromJson(json, fromJsonT);
 }

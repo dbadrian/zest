@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:zest/recipes/models/recipe.dart';
 
-import '../../recipes/models/recipe.dart';
 import 'pagination.dart';
 
 part 'recipe_list_response.freezed.dart';
@@ -9,7 +9,7 @@ part 'recipe_list_response.g.dart';
 @freezed
 class RecipeListResponse with _$RecipeListResponse {
   factory RecipeListResponse({
-    required PaginationResponse pagination,
+    required PaginationMeta pagination,
     required List<Recipe> recipes,
   }) = _RecipeListResponse;
 

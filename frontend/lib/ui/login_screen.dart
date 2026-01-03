@@ -29,7 +29,8 @@ class LoginPageState extends ConsumerState<LoginPage> {
     // TODO: implement initState
     super.initState();
     userCtrl.text =
-        ref.read(authenticationServiceProvider).value?.user?.username ?? '';
+        ref.read(authenticationServiceProvider).value?.user?.username ??
+            'admin@test.com';
 
     showPassword = false;
   }
@@ -47,12 +48,14 @@ class LoginPageState extends ConsumerState<LoginPage> {
 
     if (!state.isLoading) {
       userCtrl.text =
-          ref.watch(authenticationServiceProvider).value?.user?.username ?? '';
+          ref.watch(authenticationServiceProvider).value?.user?.username ??
+              'admin@test.com';
     }
 
     if (state.hasError) {
       passwordCtrl.clear();
     }
+    passwordCtrl.text = "changethis";
 
     return Stack(
       children: [
