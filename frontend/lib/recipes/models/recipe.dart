@@ -78,3 +78,25 @@ abstract class Recipe with _$Recipe {
 
   factory Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
 }
+
+@freezed
+abstract class RecipeListView with _$RecipeListView {
+  const factory RecipeListView({
+    required int id,
+    required String language,
+    @JsonKey(name: 'owner_id') required String ownerId,
+    @JsonKey(name: 'is_private') required bool isPrivate,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'updated_at') required DateTime updatedAt,
+    required String title,
+    required String? subtitle,
+    required int servings,
+    required int difficulty,
+    @JsonKey(name: 'owner_comment') required String? ownerComment,
+    @JsonKey(name: 'prep_time') required int? prepTime,
+    @JsonKey(name: 'cook_time') required int? cookTime,
+  }) = _RecipeListView;
+
+  factory RecipeListView.fromJson(Map<String, dynamic> json) =>
+      _$RecipeListViewFromJson(json);
+}

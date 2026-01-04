@@ -147,12 +147,12 @@ class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
               if (index < recipes.length) {
                 final item = recipes[index];
                 return RecipeListTile(
-                  title: item.latestRevision.title,
-                  subtitle: item.latestRevision.subtitle,
+                  title: item.title,
+                  subtitle: item.subtitle,
                   totalTime: 0,
-                  prepTime: item.latestRevision.prepTime,
-                  cookTime: item.latestRevision.cookTime,
-                  difficulty: item.latestRevision.difficulty,
+                  prepTime: item.prepTime,
+                  cookTime: item.cookTime,
+                  difficulty: item.difficulty,
                   language: item.language,
                   // isFavorite: item.isFavorite,
                   onTap: () {

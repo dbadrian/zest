@@ -7,9 +7,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:updat/utils/global_options.dart';
-import 'package:zest/config/constants.dart';
-import 'package:zest/core/cache/cache_providers.dart';
-import 'package:zest/core/cache/persistent_cache.dart';
 
 import 'package:zest/recipes/screens/recipe_search.dart';
 
@@ -194,7 +191,7 @@ class HomePage extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-              "Hello ${ref.watch(authenticationServiceProvider).value?.user?.username}"),
+              "Hello ${ref.watch(authenticationServiceProvider).value?.user.username}"),
           if (authNotifier.isAuthenticated)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

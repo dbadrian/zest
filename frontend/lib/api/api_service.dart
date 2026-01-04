@@ -46,7 +46,26 @@ class APIService {
     }
   }
 
-  Future<Recipe> getRecipeById(String recipeId) async {
+  Future<RecipeSearchListResponse> searchRecipes(String query,
+      {int page = 1, int? pageSize = 50}) async {
+    final queryParameters = {
+      "q": query,
+      "page": page.toString(),
+      if (pageSize != null) 'page_size': pageSize.toString(),
+    };
+
+    final response = await client.get<RecipeSearchListResponse>(
+        "/recipes/search", RecipeSearchListResponse.fromJson,
+        queryParams: queryParameters);
+
+    if (response.isSuccess) {
+      return response.dataOrNull!;
+    } else {
+      throw response.errorOrNull!;
+    }
+  }
+
+  Future<Recipe> getRecipeById(int recipeId) async {
     final SettingsState settings = ref.read(settingsProvider);
 
     final response =
@@ -94,8 +113,9 @@ class APIService {
     // }
   }
 
-  Future<bool> deleteRecipe({required String recipeId}) async {
-    return false;
+  Future<bool> deleteRecipeById(int recipeId) async {
+    final response = await client.delete<Null>("/recipes/$recipeId", null);
+    return response.isSuccess;
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -155,7 +175,7 @@ class APIService {
 @Riverpod(keepAlive: true)
 APIService apiService(Ref ref) => APIService(
       ref: ref,
-      client: ref.read(apiClientProvider),
+      client: ref.watch(apiClientProvider),
     );
 
 // //////////////////////////////////////////////////////////////////////////////

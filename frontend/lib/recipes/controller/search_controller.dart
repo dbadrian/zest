@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/config/constants.dart';
 import 'package:zest/config/zest_api.dart';
+import 'package:zest/recipes/recipe_repository.dart';
 import 'package:zest/settings/knowledge_provider.dart';
 import 'package:zest/settings/settings_provider.dart';
 
@@ -108,11 +109,11 @@ class RecipeSearchFilterSettings extends _$RecipeSearchFilterSettings {
 class RecipeSearchState with _$RecipeSearchState {
   const factory RecipeSearchState({
     @Default("") String currentQuery,
-    RecipeListResponse? recipeList,
+    RecipeSearchListResponse? recipeList,
   }) = _RecipeSearchState;
 }
 
-bool nextPageAvailable(RecipeListResponse? recipeList) {
+bool nextPageAvailable(RecipeSearchListResponse? recipeList) {
   if (recipeList != null) {
     final pagination = recipeList.pagination;
     return pagination.currentPage < pagination.totalPages;
@@ -141,10 +142,11 @@ class RecipeSearchController extends _$RecipeSearchController {
       {required String query,
       required int page,
       required FilterSettingsState filterSettings}) async {
-    final ret = await ref.read(apiServiceProvider).getRecipes(
+    final ret = await ref.read(recipeRepositoryProvider).searchRecipes(
+          query,
           // pagination related
-          page: page,
-          pageSize: filterSettings.pageSize,
+          // page: page,
+          // pageSize: filterSettings.pageSize,
           // query related
           // search: query,
           // favoritesOnly: filterSettings.favoritesOnly,

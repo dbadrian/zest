@@ -21,3 +21,19 @@ class RecipeListResponse with _$RecipeListResponse {
     return 'RecipeListResponse{Lenght: ${results.length}}';
   }
 }
+
+@freezed
+class RecipeSearchListResponse with _$RecipeSearchListResponse {
+  factory RecipeSearchListResponse({
+    required PaginationMeta pagination,
+    required List<RecipeListView> results,
+  }) = _RecipeSearchListResponse;
+
+  factory RecipeSearchListResponse.fromJson(Map<String, dynamic> json) =>
+      _$RecipeSearchListResponseFromJson(json);
+
+  @override
+  String toString() {
+    return 'RecipeSearchListResponse{Lenght: ${results.length}}';
+  }
+}

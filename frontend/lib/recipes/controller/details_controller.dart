@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/api/api_service.dart';
 import 'package:zest/core/network/api_exception.dart';
 import 'package:zest/extra/gemini.dart';
+import 'package:zest/recipes/recipe_repository.dart';
 import 'package:zest/settings/settings_provider.dart';
 import 'package:zest/utils/utils.dart';
 
@@ -20,7 +21,7 @@ part 'details_controller.g.dart';
 class RecipeDetailsController extends _$RecipeDetailsController {
   // you can add named or positional parameters to the build method
   @override
-  FutureOr<Recipe?> build(String recipeId) async {
+  FutureOr<Recipe?> build(int recipeId) async {
     // set state to loading only for the initial page build
     // afterwards we want silent updates?
     state = const AsyncValue.loading();
@@ -61,7 +62,7 @@ class RecipeDetailsController extends _$RecipeDetailsController {
   }
 
   Future<Recipe?> _loadRecipe() async {
-    return await ref.read(apiServiceProvider).getRecipeById(recipeId);
+    return await ref.read(recipeRepositoryProvider).getRecipeById(recipeId);
   }
 
   Future<bool> loadRecipe({String? servings}) async {
@@ -240,7 +241,7 @@ class RecipeDetailsController extends _$RecipeDetailsController {
   // }
 
   Future<bool> _deleteRecipe() async {
-    return await ref.read(apiServiceProvider).deleteRecipe(recipeId: recipeId);
+    return await ref.read(recipeRepositoryProvider).deleteRecipeById(recipeId);
   }
 
   Future<bool> deleteRecipe() async {

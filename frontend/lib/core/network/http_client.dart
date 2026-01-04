@@ -14,6 +14,10 @@ dynamic jsonDecodeResponse(http.Response data) {
   // debugPrint(utf8.decode(data.bodyBytes));
   // debugPrint(contentType);
 
+  if (data.bodyBytes.isEmpty) {
+    return null;
+  }
+
   if (contentType != null &&
       (contentType == "application/json" ||
           contentType == "application/json; charset=utf-8")) {
@@ -93,10 +97,28 @@ class ApiHttpClient {
         encodeJson: encodeJson);
   }
 
+  Future<ApiResponse<T>> delete<T>(
+    String path,
+    T Function(Map<String, dynamic>)? fromJson, {
+    Map<String, String>? headers,
+    dynamic body,
+    Duration? timeout,
+    bool encodeJson = true,
+  }) async {
+    return _request<T>(
+        method: 'DELETE',
+        path: path,
+        headers: headers,
+        body: body,
+        timeout: timeout,
+        fromJson: fromJson,
+        encodeJson: encodeJson);
+  }
+
   Future<ApiResponse<T>> _request<T>(
       {required String method,
       required String path,
-      required T Function(Map<String, dynamic>) fromJson,
+      required T Function(Map<String, dynamic>)? fromJson,
       Map<String, String>? headers,
       Map<String, dynamic>? queryParams,
       dynamic body,
@@ -160,7 +182,7 @@ class ApiHttpClient {
           processedResponse.statusCode < 300) {
         final decoded = jsonDecodeResponse(processedResponse);
         return ApiResponse.success(
-          data: fromJson(decoded),
+          data: fromJson != null ? fromJson(decoded) : decoded,
           statusCode: processedResponse.statusCode,
           headers: processedResponse.headers,
         );

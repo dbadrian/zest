@@ -17,7 +17,7 @@ class RecipeDetailsPage extends ConsumerWidget {
   static String get routeName => 'recipe';
 
   const RecipeDetailsPage({super.key, required this.recipeId});
-  final String recipeId;
+  final int recipeId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -78,7 +78,7 @@ class RecipeDetailsPage extends ConsumerWidget {
 class RecipeDetailsWideWidget extends ConsumerWidget {
   const RecipeDetailsWideWidget({super.key, required this.recipeId});
 
-  final String recipeId;
+  final int recipeId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -127,7 +127,7 @@ class RecipeDetailsWideWidget extends ConsumerWidget {
 class RecipeDetailsNarrowWidget extends ConsumerWidget {
   const RecipeDetailsNarrowWidget({super.key, required this.recipeId});
 
-  final String recipeId;
+  final int recipeId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -220,7 +220,7 @@ class TagWidget extends StatelessWidget {
 
 class RecipeMetaInfoColumn extends ConsumerWidget {
   const RecipeMetaInfoColumn({super.key, required this.recipeId});
-  final String recipeId;
+  final int recipeId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -353,7 +353,7 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
 
 class IngredientsColumn extends HookConsumerWidget {
   const IngredientsColumn({super.key, required this.recipeId});
-  final String recipeId;
+  final int recipeId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -554,8 +554,8 @@ class IngredientsColumn extends HookConsumerWidget {
 //   }
 // }
 
-TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient,
-    String recipeId, bool isMarked, Function() markCallback) {
+TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient, int recipeId,
+    bool isMarked, Function() markCallback) {
   final amount = "${ingredient.amountMin} ? ${ingredient.amountMax}";
 
   final unit = ingredient.unit.name;
@@ -654,7 +654,7 @@ TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient,
 class IngredientGroupWidget extends ConsumerStatefulWidget {
   const IngredientGroupWidget(
       {super.key, required this.recipeId, required this.group});
-  final String recipeId;
+  final int recipeId;
   final IngredientGroup group;
 
   @override
@@ -715,7 +715,7 @@ class IngredientGroupsWidget extends StatelessWidget {
 
   const IngredientGroupsWidget(
       {super.key, required this.groups, required this.recipeId});
-  final String recipeId;
+  final int recipeId;
 
   @override
   Widget build(BuildContext context) {
@@ -817,7 +817,7 @@ class _InstructionGroupWidgetState
                 ),
           ),
           ...widget.group.instructions
-              .split("/n/n")
+              .split("\n\n")
               .asMap()
               .entries
               .map((entry) {
@@ -871,7 +871,7 @@ class _InstructionGroupWidgetState
 
 class InstructionColumn extends ConsumerWidget {
   const InstructionColumn({super.key, required this.recipeId});
-  final String recipeId;
+  final int recipeId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -898,7 +898,7 @@ class InstructionColumn extends ConsumerWidget {
 class TitleWidget extends ConsumerWidget {
   const TitleWidget({super.key, required this.recipeId});
 
-  final String recipeId;
+  final int recipeId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

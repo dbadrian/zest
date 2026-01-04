@@ -114,7 +114,7 @@ GoRouter getRouter(Ref ref) {
                 name: RecipeDetailsPage.routeName,
                 path: ':id',
                 pageBuilder: (context, state) {
-                  final recipeId = state.pathParameters['id']!;
+                  final int recipeId = int.parse(state.pathParameters['id']!);
                   return MaterialPage(
                     key: state.pageKey,
                     child: RecipeDetailsPage(recipeId: recipeId),
@@ -149,7 +149,10 @@ GoRouter getRouter(Ref ref) {
       // if (authNotifier.isLoading) return null;
       //
 
-      // final isAuthed = authNotifier.isAuthenticated;
+      final authNotifier = ref.watch(authenticationServiceProvider.notifier);
+      final isAuthed = authNotifier.isAuthenticated;
+
+      debugPrint("User is currently authenticated: $isAuthed");
 
       return null;
 

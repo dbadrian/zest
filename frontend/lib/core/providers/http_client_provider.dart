@@ -10,7 +10,6 @@ part 'http_client_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 ApiHttpClient apiClient(Ref ref) {
-  // todo: read or watch?
   final String apiBaseUrl =
       ref.watch(settingsProvider.select((p) => p.current.apiUrl));
 
