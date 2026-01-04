@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'cache_entry.dart';
 
-const TABLES = ["units", "foods", "recipes"];
+const TABLES = ["units", "foods", "recipes_full", "recipe_list_items"];
 
 /// SQLite-based persistent cache
 class PersistentCache {
@@ -32,10 +34,10 @@ class PersistentCache {
 
   Future<void> _createDb(Database db, int version) async {
     // sort of auto generated tables for units, foods, recipes etc.
-
-    for (final tableName in TABLES) {
-      await db.execute('''
-        CREATE TABLE $tableName (
+    await db.transaction((txn) async {
+      for (final tableName in TABLES) {
+        await txn.execute('''
+        CREATE TABLE IF NOT EXISTS $tableName (
           key TEXT PRIMARY KEY,
           data TEXT NOT NULL,
           cached_at INTEGER NOT NULL,
@@ -43,20 +45,17 @@ class PersistentCache {
         )
       ''');
 
-      // Index for table-based queries
-      await db.execute('''
-        CREATE INDEX idx_table_name ON $tableName(table_name)
+        await txn.execute('''
+        CREATE INDEX IF NOT EXISTS idx_${tableName}_cached_at
+        ON $tableName(cached_at)
       ''');
 
-      // Index for expiry queries
-      await db.execute('''
-        CREATE INDEX idx_cached_at ON $tableName(cached_at)
+        await txn.execute('''
+        CREATE INDEX IF NOT EXISTS idx_${tableName}_item_timestamp
+        ON $tableName(item_timestamp)
       ''');
-
-      await db.execute('''
-        CREATE INDEX idx_item_timestamp ON $tableName(item_timestamp)
-      ''');
-    }
+      }
+    });
   }
 
   Future<void> _upgradeDb(Database db, int oldVersion, int newVersion) async {

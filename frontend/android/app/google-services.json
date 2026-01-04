@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "265172978302",
+    "project_id": "zest-ee85a",
+    "storage_bucket": "zest-ee85a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265172978302:android:acc532d450344ea760262f",
+        "android_client_info": {
+          "package_name": "com.dbadrian.zest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaGRaLtHj6eD6Ht2N1kd2LK1JtU5XcbWU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -10,16 +10,14 @@ part 'recipe_list_response.g.dart';
 class RecipeListResponse with _$RecipeListResponse {
   factory RecipeListResponse({
     required PaginationMeta pagination,
-    required List<Recipe> recipes,
+    required List<Recipe> results,
   }) = _RecipeListResponse;
 
   factory RecipeListResponse.fromJson(Map<String, dynamic> json) =>
       _$RecipeListResponseFromJson(json);
 
-  // Map<String, dynamic> toJson() => _$RecipeListResponseToJson(this);
-
   @override
   String toString() {
-    return 'RecipeListResponse{Lenght: ${recipes.length}}';
+    return 'RecipeListResponse{Lenght: ${results.length}}';
   }
 }

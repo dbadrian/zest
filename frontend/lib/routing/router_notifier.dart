@@ -12,14 +12,14 @@ class RouterAuthNotifier extends _$RouterAuthNotifier implements Listenable {
 
   @override
   void build() {
-    ref.listen(
-      authenticationServiceProvider.select((value) => value),
-      (_, next) {
-        if (next.isLoading) return;
-        // isAuthenticated = next.valueOrNull?.token != null;
-        _listener?.call();
-      },
-    );
+    // ref.listen(
+    //   authenticationServiceProvider.select((value) => value),
+    //   (_, next) {
+    //     if (next.isLoading) return;
+    //     // isAuthenticated = next.valueOrNull?.token != null;
+    //     _listener?.call();
+    //   },
+    // );
   }
 
   @override

@@ -3,7 +3,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/core/network/api_exception.dart';
 
 import '../api/api_service.dart';
-import '../authentication/auth_service.dart';
 import '../authentication/reauthentication_dialog.dart';
 import '../recipes/models/recipe_category.dart';
 import '../utils/networking.dart';
@@ -26,15 +25,17 @@ class Knowledge extends _$Knowledge {
         ref.read(apiServiceProvider).getRecipeCategories(pageSize: 10000));
     if (categories.hasError) {
       if (categories.error is ApiException) {
-        openReauthenticationDialog(
-            // TODO: onconfirm
-            );
+        // openReauthenticationDialog(
+        //     // TODO: onconfirm
+        //     );
       } else if (categories.error is ServerNotReachableException) {
         openServerNotAvailableDialog();
       }
     }
     // express the list as a map
-    final validCategories = {for (final e in categories.value!) e.id: e};
+    final validCategories = {
+      for (final e in categories.value!.results) e.id: e
+    };
     return KnowledgeState(
       validRecipeCategoryChoices: validCategories,
     );

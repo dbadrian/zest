@@ -12,7 +12,7 @@ part 'food_list_response.g.dart';
 class FoodListResponse with _$FoodListResponse {
   factory FoodListResponse({
     required PaginationMeta pagination,
-    required List<Food> foods,
+    required List<Food> results,
   }) = _FoodListResponse;
 
   factory FoodListResponse.fromJson(Map<String, dynamic> json) =>
@@ -20,6 +20,6 @@ class FoodListResponse with _$FoodListResponse {
 
   @override
   String toString() {
-    return 'FoodListResponse{Lenght: ${foods.length}}';
+    return 'FoodListResponse{Lenght: ${results.length}}';
   }
 }

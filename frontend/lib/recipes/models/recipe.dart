@@ -5,16 +5,59 @@ part 'recipe.freezed.dart';
 part 'recipe.g.dart';
 
 @freezed
+abstract class Ingredient with _$Ingredient {
+  const factory Ingredient({
+    required String food,
+    @JsonKey(name: 'amount_min') required double amountMin,
+    @JsonKey(name: 'amount_max') required double? amountMax,
+    required String? comment,
+    required Unit unit,
+  }) = _Ingredient;
+
+  factory Ingredient.fromJson(Map<String, dynamic> json) =>
+      _$IngredientFromJson(json);
+}
+
+@freezed
+abstract class IngredientGroup with _$IngredientGroup {
+  const factory IngredientGroup({
+    required String name,
+    required List<Ingredient> ingredients,
+  }) = _IngredientGroup;
+
+  factory IngredientGroup.fromJson(Map<String, dynamic> json) =>
+      _$IngredientGroupFromJson(json);
+}
+
+@freezed
+abstract class InstructionGroup with _$InstructionGroup {
+  const factory InstructionGroup({
+    required String name,
+    required String instructions,
+  }) = _InstructionGroup;
+
+  factory InstructionGroup.fromJson(Map<String, dynamic> json) =>
+      _$InstructionGroupFromJson(json);
+}
+
+@freezed
 abstract class RecipeRevision with _$RecipeRevision {
   const factory RecipeRevision({
     required String title,
     required String? subtitle,
     @JsonKey(name: 'owner_comment') required String? ownerComment,
     required int difficulty,
-    required int? servings,
+    required int servings,
     @JsonKey(name: 'prep_time') required int? prepTime,
     @JsonKey(name: 'cook_time') required int? cookTime,
+    @JsonKey(name: 'source_name') required String? sourceName,
+    @JsonKey(name: 'source_page') required String? sourcePage,
+    @JsonKey(name: 'source_url') required String? sourceUrl,
     required List<RecipeCategory> categories,
+    @JsonKey(name: 'instruction_groups')
+    required List<InstructionGroup> instructionGroups,
+    @JsonKey(name: 'ingredient_groups')
+    required List<IngredientGroup> ingredientGroups,
   }) = _RecipeRevision;
 
   factory RecipeRevision.fromJson(Map<String, dynamic> json) =>
@@ -26,6 +69,7 @@ abstract class Recipe with _$Recipe {
   const factory Recipe({
     required int id,
     required String language,
+    @JsonKey(name: 'owner_id') required String ownerId,
     @JsonKey(name: 'is_private') required bool isPrivate,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,

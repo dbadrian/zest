@@ -246,6 +246,21 @@ class MainScaffold extends ConsumerWidget {
                                   .go(LoginPage.routeLocation));
                         },
                       ),
+                    if (!isAuthenticated)
+                      ListTile(
+                        key: const Key('login'),
+                        leading: const Icon(Icons.logout),
+                        title: const Text(
+                          'Login',
+                          style: TextStyle(
+                              // color: Theme.of(context).colorScheme.error,
+                              fontWeight: FontWeight.w600),
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                          GoRouter.of(context).go(LoginPage.routeLocation);
+                        },
+                      ),
                     if (Platform.isWindows || Platform.isLinux)
                       UpdatWidget(
                         currentVersion: packageInfo

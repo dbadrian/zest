@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:zest/recipes/models/recipe.dart';
 
 part 'recipe_list_item.freezed.dart';
 part 'recipe_list_item.g.dart';
@@ -22,7 +23,7 @@ abstract class RecipeListItem with _$RecipeListItem {
       _$RecipeListItemFromJson(json);
 
   /// Extract list item from full recipe JSON
-  factory RecipeListItem.fromFullRecipe(Map<String, dynamic> json) {
+  factory RecipeListItem.fromRecipeJson(Map<String, dynamic> json) {
     final revision = json['latest_revision'] as Map<String, dynamic>;
     return RecipeListItem(
       id: json['id'] as int,
@@ -34,6 +35,22 @@ abstract class RecipeListItem with _$RecipeListItem {
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       isPrivate: json['is_private'] as bool,
+    );
+  }
+
+  factory RecipeListItem.fromRecipe(Recipe recipe) {
+    final revision = recipe.latestRevision;
+    return RecipeListItem(
+      id: recipe.id,
+      createdAt: recipe.createdAt,
+      updatedAt: recipe.updatedAt,
+      isPrivate: recipe.isPrivate,
+      // content
+      title: revision.title,
+      subtitle: revision.subtitle,
+      difficulty: revision.difficulty,
+      prepTime: revision.prepTime,
+      cookTime: revision.cookTime,
     );
   }
 }

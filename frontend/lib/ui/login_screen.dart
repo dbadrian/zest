@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zest/authentication/user.dart';
+import 'package:zest/main.dart';
 
 import 'package:zest/recipes/screens/recipe_search.dart';
 import 'package:zest/ui/widgets/generics.dart';
@@ -29,7 +30,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
     // TODO: implement initState
     super.initState();
     userCtrl.text =
-        ref.read(authenticationServiceProvider).value?.user?.username ??
+        ref.read(authenticationServiceProvider).value?.user.username ??
             'admin@test.com';
 
     showPassword = false;
@@ -59,7 +60,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
 
     return Stack(
       children: [
-        buildLoadingOverlay(context, state.isLoading || state.value == null),
+        buildLoadingOverlay(context, state.isLoading),
         Center(
           child: SizedBox(
             height: 280,
@@ -112,8 +113,9 @@ class LoginPageState extends ConsumerState<LoginPage> {
 
                         if (loggedIn) {
                           if (context.mounted) {
-                            GoRouter.of(context)
-                                .go(RecipeSearchPage.routeLocation);
+                            GoRouter.of(context).go(HomePage.routeLocation);
+                            // GoRouter.of(context)
+                            //     .go(RecipeSearchPage.routeLocation);
                           }
                         }
                         ;
@@ -148,25 +150,38 @@ class LoginPageState extends ConsumerState<LoginPage> {
                     ),
                   ),
                 const ElementsVerticalSpace(),
-                ElevatedButton(
-                  key: const Key('login'),
-                  onPressed: state.isLoading
-                      ? null
-                      // otherwise, get the notifier and sign in
-                      : () async {
-                          final loggedIn = await ref
-                              .read(authenticationServiceProvider.notifier)
-                              .login(userCtrl.text, passwordCtrl.text);
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      key: const Key('login'),
+                      onPressed: state.isLoading
+                          ? null
+                          // otherwise, get the notifier and sign in
+                          : () async {
+                              final loggedIn = await ref
+                                  .read(authenticationServiceProvider.notifier)
+                                  .login(userCtrl.text, passwordCtrl.text);
 
-                          if (loggedIn) {
-                            if (context.mounted) {
-                              GoRouter.of(context)
-                                  .go(RecipeSearchPage.routeLocation);
-                            }
-                          }
-                        },
-                  child: const Text('Sign In'),
-                ),
+                              if (loggedIn) {
+                                if (context.mounted) {
+                                  GoRouter.of(context)
+                                      .go(HomePage.routeLocation);
+                                }
+                              }
+                            },
+                      child: const Text('Sign In'),
+                    ),
+                    SizedBox(width: 10),
+                    ElevatedButton(
+                      key: const Key('continue_offline'),
+                      onPressed: () async {
+                        GoRouter.of(context).go(RecipeSearchPage.routeLocation);
+                      },
+                      child: const Text('Continue Offline'),
+                    ),
+                  ],
+                )
               ],
             ),
           ),

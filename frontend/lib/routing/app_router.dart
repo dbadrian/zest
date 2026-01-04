@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:zest/authentication/auth_service.dart';
+import 'package:zest/recipes/screens/recipe_details.dart';
 import 'package:zest/recipes/screens/recipe_search.dart';
 
 import '../main.dart';
@@ -10,7 +12,6 @@ import '../settings/settings_screen.dart';
 import '../ui/login_screen.dart';
 import '../ui/main_scaffold.dart';
 import '../ui/splash_screen.dart';
-import 'router_notifier.dart';
 
 part 'app_router.g.dart';
 
@@ -19,18 +20,16 @@ final GlobalKey<NavigatorState> rootNavigatorKey =
 final GlobalKey<NavigatorState> shellNavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'shell');
 
-// final routerProvider = Provider.autoDispose<GoRouter>((ref) {
-
 @riverpod
 GoRouter getRouter(Ref ref) {
-  ref.watch(routerAuthNotifierProvider);
-  final authNotifier = ref.read(routerAuthNotifierProvider.notifier);
+  // ref.watch(routerAuthNotifierProvider);
+  // final authNotifier = ref.watch(authenticationServiceProvider.notifier);
 
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     debugLogDiagnostics: true,
     initialLocation: LoginPage.routeLocation,
-    refreshListenable: authNotifier,
+    // refreshListenable: authNotifier,
     routes: [
       ShellRoute(
         navigatorKey: shellNavigatorKey,
@@ -111,30 +110,30 @@ GoRouter getRouter(Ref ref) {
               //     );
               //   },
               // ),
-              // GoRoute(
-              //   name: RecipeDetailsPage.routeName,
-              //   path: ':id',
-              //   pageBuilder: (context, state) {
-              //     final recipeId = state.pathParameters['id']!;
-              //     return MaterialPage(
-              //       key: state.pageKey,
-              //       child: RecipeDetailsPage(recipeId: recipeId),
-              //     );
-              //   },
-              //   routes: [
-              //     GoRoute(
-              //       name: RecipeEditPage.routeNameEdit,
-              //       path: 'edit',
-              //       pageBuilder: (context, state) {
-              //         final recipeId = state.pathParameters['id']!;
-              //         return MaterialPage(
-              //           key: state.pageKey,
-              //           child: RecipeEditPage(recipeId: recipeId),
-              //         );
-              //       },
-              //     ),
-              //   ],
-              // ),
+              GoRoute(
+                name: RecipeDetailsPage.routeName,
+                path: ':id',
+                pageBuilder: (context, state) {
+                  final recipeId = state.pathParameters['id']!;
+                  return MaterialPage(
+                    key: state.pageKey,
+                    child: RecipeDetailsPage(recipeId: recipeId),
+                  );
+                },
+                // routes: [
+                //   GoRoute(
+                //     name: RecipeEditPage.routeNameEdit,
+                //     path: 'edit',
+                //     pageBuilder: (context, state) {
+                //       final recipeId = state.pathParameters['id']!;
+                //       return MaterialPage(
+                //         key: state.pageKey,
+                //         child: RecipeEditPage(recipeId: recipeId),
+                //       );
+                //     },
+                //   ),
+                // ],
+              ),
             ],
           )
         ],
@@ -150,29 +149,31 @@ GoRouter getRouter(Ref ref) {
       // if (authNotifier.isLoading) return null;
       //
 
-      final isAuthed = authNotifier.isAuthenticated;
+      // final isAuthed = authNotifier.isAuthenticated;
 
-      // Special case for loading splash
-      final isSplash = state.uri.toString() == SplashPage.routeLocation;
-      if (isSplash) {
-        return isAuthed
-            ? RecipeSearchPage.routeLocation
-            : LoginPage.routeLocation;
-      }
-
-      // Opening login page but already logged in -> home page
-      final isLoggingIn = state.uri.toString() == LoginPage.routeLocation;
-      if (isLoggingIn) {
-        return isAuthed ? RecipeSearchPage.routeLocation : null;
-      }
-
-      final isWhitelisted = loginWhitelist.contains(state.uri.toString());
-      if (isAuthed || isWhitelisted) return null;
-
-      // if (!isAuthed) return LoginPage.routeLocation;
-      // if not authed and not whitelisted -> login page
-      //
       return null;
+
+      // // Special case for loading splash
+      // final isSplash = state.uri.toString() == SplashPage.routeLocation;
+      // if (isSplash) {
+      //   return isAuthed
+      //       ? RecipeSearchPage.routeLocation
+      //       : LoginPage.routeLocation;
+      // }
+
+      // // Opening login page but already logged in -> home page
+      // final isLoggingIn = state.uri.toString() == LoginPage.routeLocation;
+      // if (isLoggingIn) {
+      //   return isAuthed ? RecipeSearchPage.routeLocation : null;
+      // }
+
+      // final isWhitelisted = loginWhitelist.contains(state.uri.toString());
+      // if (isAuthed || isWhitelisted) return null;
+
+      // // if (!isAuthed) return LoginPage.routeLocation;
+      // // if not authed and not whitelisted -> login page
+      // //
+      // return null;
     },
     errorBuilder: (context, state) => Scaffold(
       body: Center(

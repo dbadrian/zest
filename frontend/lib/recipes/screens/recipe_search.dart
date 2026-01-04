@@ -26,14 +26,15 @@ class RecipeSearchPage<T> extends ConsumerStatefulWidget {
 class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
   final TextEditingController _queryTextController =
       TextEditingController(text: "");
-  final controller = ScrollController();
+  final _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     // controller that will be used to load the next page
-    controller.addListener(() async {
-      if (controller.offset == controller.position.maxScrollExtent) {
+    _scrollController.addListener(() async {
+      if (_scrollController.offset ==
+          _scrollController.position.maxScrollExtent) {
         // TODO: Invisible scroll as in old version
         ref.read(recipeSearchControllerProvider.notifier).loadNextRecipePage();
       }
@@ -43,9 +44,15 @@ class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
   @override
   void dispose() {
     _queryTextController.dispose();
-    controller.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
+
+  // void _onScroll() {
+  //   if (_isBottom) {
+  //     ref.read(recipesListProvider.notifier).loadMore();
+  //   }
+  // }
 
   Widget buildLeading() {
     // final NavigatorState? navigator = Navigator.maybeOf(context);
@@ -116,7 +123,7 @@ class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
         loading: (() {
       return const Center(child: CircularProgressIndicator());
     }), data: ((state) {
-      final recipes = state.recipeList?.recipes;
+      final recipes = state.recipeList?.results;
       if (recipes == null || recipes.isEmpty) {
         return const ListTile(
             leading: Icon(Icons.manage_search),
@@ -130,7 +137,7 @@ class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
           },
           child: ListView.builder(
             physics: const AlwaysScrollableScrollPhysics(),
-            controller: controller,
+            controller: _scrollController,
             // +1 for circular progress indicator but only if there are more pages to load
             //
             shrinkWrap: true,
@@ -149,10 +156,10 @@ class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
                   language: item.language,
                   // isFavorite: item.isFavorite,
                   onTap: () {
-                    // context.goNamed(
-                    //   RecipeDetailsPage.routeName,
-                    //   pathParameters: {'id': item.recipeId.toString()},
-                    // );
+                    context.goNamed(
+                      RecipeDetailsPage.routeName,
+                      pathParameters: {'id': item.id.toString()},
+                    );
                   },
                   isAlt: index.isOdd,
                   isHighlighted: false,

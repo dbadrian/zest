@@ -142,18 +142,19 @@ class RecipeSearchController extends _$RecipeSearchController {
       required int page,
       required FilterSettingsState filterSettings}) async {
     final ret = await ref.read(apiServiceProvider).getRecipes(
-        // pagination related
-        page: page,
-        pageSize: filterSettings.pageSize,
-        // query related
-        search: query,
-        favoritesOnly: filterSettings.favoritesOnly,
-        lcFilter: filterSettings.lcFilter.toList(),
-        categories: filterSettings.categories.map((e) => e.id).toList(),
-        searchFields: filterSettings.searchFields
-            .map<String>((e) => API_RECIPE_SEARCH_FIELDS[e]!.left)
-            .toList(),
-        user: filterSettings.filterOwner ? "owner" : null);
+          // pagination related
+          page: page,
+          pageSize: filterSettings.pageSize,
+          // query related
+          // search: query,
+          // favoritesOnly: filterSettings.favoritesOnly,
+          // lcFilter: filterSettings.lcFilter.toList(),
+          // categories: filterSettings.categories.map((e) => e.id).toList(),
+          // searchFields: filterSettings.searchFields
+          //     .map<String>((e) => API_RECIPE_SEARCH_FIELDS[e]!.left)
+          //     .toList(),
+          // user: filterSettings.filterOwner ? "owner" : null
+        );
     return RecipeSearchState(currentQuery: "", recipeList: ret);
   }
 
@@ -192,9 +193,9 @@ class RecipeSearchController extends _$RecipeSearchController {
         data: (data) {
           // We create a new state from the latest response as to have the updated pagination
           // but we genearte the complete list of results
-          final newRecipeList = ret.value!.recipeList!.copyWith(recipes: [
-            ...state.value!.recipeList!.recipes,
-            ...ret.value!.recipeList!.recipes
+          final newRecipeList = ret.value!.recipeList!.copyWith(results: [
+            ...state.value!.recipeList!.results,
+            ...ret.value!.recipeList!.results
           ]);
           state = AsyncData(state.value!.copyWith(recipeList: newRecipeList));
         },
