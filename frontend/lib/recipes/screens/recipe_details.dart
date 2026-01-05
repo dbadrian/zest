@@ -271,7 +271,7 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
                         color: Theme.of(context).colorScheme.primary,
                       )),
               ...List.generate(
-                  3 - recipe.latestRevision.difficulty!,
+                  5 - recipe.latestRevision.difficulty!,
                   (i) => Icon(
                         Icons.food_bank_outlined,
                         color: Theme.of(context).colorScheme.secondary,
@@ -920,20 +920,20 @@ class TitleWidget extends ConsumerWidget {
         ),
       ),
       // Text(recipe!.title, style: const TextStyle(fontSize: 20)))),
-      // (recipe.isFavorite!)
-      //     ? IconButton(
-      //         onPressed: ref
-      //             .read(recipeDetailsControllerProvider(recipeId).notifier)
-      //             .deleteFromFavorites,
-      //         icon: Icon(
-      //           Icons.favorite,
-      //           color: Theme.of(context).colorScheme.primary,
-      //         ))
-      //     : IconButton(
-      //         onPressed: ref
-      //             .read(recipeDetailsControllerProvider(recipeId).notifier)
-      //             .addToFavorites,
-      //         icon: const Icon(Icons.favorite_outline)),
+      (recipe.isFavorited!)
+          ? IconButton(
+              onPressed: ref
+                  .read(recipeDetailsControllerProvider(recipeId).notifier)
+                  .deleteFromFavorites,
+              icon: Icon(
+                Icons.favorite,
+                color: Theme.of(context).colorScheme.primary,
+              ))
+          : IconButton(
+              onPressed: ref
+                  .read(recipeDetailsControllerProvider(recipeId).notifier)
+                  .addToFavorites,
+              icon: const Icon(Icons.favorite_outline)),
       // if (ref
       //     .read(recipeDetailsControllerProvider(recipeId).notifier)
       //     .isEditable)

@@ -270,11 +270,11 @@ class ApiHttpClient {
       return uri;
     }
 
-    return uri.replace(
-      queryParameters: queryParams.map(
-        (key, value) => MapEntry(key, value.toString()),
-      ),
-    );
+    return uri.replace(queryParameters: queryParams
+        // .map(
+        //   (key, value) => MapEntry(key, value.toString()),
+        // ),
+        );
   }
 
   void dispose() {

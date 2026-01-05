@@ -5,7 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:zest/authentication/auth_service.dart';
 import 'package:zest/config/zest_api.dart';
 import 'package:zest/core/network/api_exception.dart';
-import 'package:zest/settings/knowledge_provider.dart';
+import 'package:zest/recipes/static_data_repository.dart';
+
 import 'package:zest/ui/login_screen.dart';
 
 import '../controller/search_controller.dart';
@@ -154,7 +155,8 @@ class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
                   cookTime: item.cookTime,
                   difficulty: item.difficulty,
                   language: item.language,
-                  // isFavorite: item.isFavorite,
+                  categories: item.categories,
+                  isFavorite: item.isFavorited,
                   onTap: () {
                     context.goNamed(
                       RecipeDetailsPage.routeName,
@@ -304,46 +306,62 @@ class FilterSettingsBottomWindow extends ConsumerWidget {
           ),
         ),
         const Divider(),
-        FormBuilderFilterChip(
-          name: "categories",
-          showCheckmark: false,
-          initialValue: ref
-              .watch(recipeSearchFilterSettingsProvider
-                  .select((s) => s.categories))
-              .map<int>((RecipeCategory e) => e.id)
-              .toList(),
-          spacing: 10,
-          alignment: WrapAlignment.center,
-          crossAxisAlignment: WrapCrossAlignment.end,
-          runSpacing: 10,
-          decoration: const InputDecoration(
-            // contentPadding: EdgeInsets.only(bottom: -5, top: 19),
-            // labelText: "What categories does this recipe belong to?",
-            isDense: false,
-            // enabledBorder: InputBorder.none,
-            border: OutlineInputBorder(borderSide: BorderSide.none),
-            // contentPadding: const EdgeInsets.fromLTRB(0, 0, 12, 24),
-          ),
-          selectedColor: Theme.of(context).colorScheme.secondaryContainer,
-          options: ref
-                  .watch(knowledgeProvider
-                      .select((s) => s.value?.validRecipeCategoryChoices))
-                  ?.entries
-                  .map(
-                    (e) => FormBuilderChipOption<int>(
-                      value: e.key,
-                      child: Text(
-                        e.value.name,
-                      ),
-                    ),
-                  )
-                  .toList() ??
-              List<FormBuilderChipOption<int>>.empty(),
-          // validator: emptyListValidator,
-          onChanged: ((c) => ref
-              .read(recipeSearchFilterSettingsProvider.notifier)
-              .updateCategories(c)),
-          autovalidateMode: AutovalidateMode.onUserInteraction,
+        SwitchListTile(
+          visualDensity: VisualDensity.compact,
+          value: settings.favoritesOnly,
+          onChanged: ((value) {
+            ref
+                .read(recipeSearchFilterSettingsProvider.notifier)
+                .updateFavoritesOnly(value);
+          }),
+          secondary: const Icon(Icons.favorite),
+          title: const Text('Favorites Only'),
+          subtitle: const Text('Only your favorites will be shown!'),
+        ),
+        const Divider(),
+        FutureBuilder(
+          future: ref.watch(staticRepositoryProvider).getCategories(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            }
+
+            return FormBuilderFilterChip(
+              name: "categories",
+              showCheckmark: false,
+              initialValue: ref.watch(recipeSearchFilterSettingsProvider
+                  .select((s) => s.categories)),
+              spacing: 10,
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.end,
+              runSpacing: 10,
+              decoration: const InputDecoration(
+                // contentPadding: EdgeInsets.only(bottom: -5, top: 19),
+                // labelText: "What categories does this recipe belong to?",
+                isDense: false,
+                // enabledBorder: InputBorder.none,
+                border: OutlineInputBorder(borderSide: BorderSide.none),
+                // contentPadding: const EdgeInsets.fromLTRB(0, 0, 12, 24),
+              ),
+              selectedColor: Theme.of(context).colorScheme.secondaryContainer,
+              options: snapshot.data!
+                      .map<FormBuilderChipOption<int>>(
+                        (RecipeCategory e) => FormBuilderChipOption<int>(
+                          value: e.id,
+                          child: Text(
+                            e.name,
+                          ),
+                        ),
+                      )
+                      .toList() ??
+                  List<FormBuilderChipOption<int>>.empty(),
+              // validator: emptyListValidator,
+              onChanged: ((c) => ref
+                  .read(recipeSearchFilterSettingsProvider.notifier)
+                  .updateCategories(c!)),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+            );
+          },
         ),
         const Divider(),
         SwitchListTile(
@@ -440,19 +458,6 @@ class FilterSettingsBottomWindow extends ConsumerWidget {
         //   subtitle: const Text(
         //       'Will search in all selected fields for matching terms; if none selected, will search in all fields.'),
         // ),
-        const Divider(),
-        SwitchListTile(
-          visualDensity: VisualDensity.compact,
-          value: settings.favoritesOnly,
-          onChanged: ((value) {
-            ref
-                .read(recipeSearchFilterSettingsProvider.notifier)
-                .updateFavoritesOnly(value);
-          }),
-          secondary: const Icon(Icons.favorite),
-          title: const Text('Favorites Only'),
-          subtitle: const Text('Only your favoriate recipes will be shown!'),
-        ),
       ],
     );
   }

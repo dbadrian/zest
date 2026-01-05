@@ -8,6 +8,7 @@ import 'package:downloadsfolder/downloadsfolder.dart';
 import 'package:path/path.dart' as p;
 
 import 'package:zest/main.dart';
+import 'package:zest/recipes/controller/search_controller.dart';
 
 import 'package:zest/settings/settings_screen.dart';
 import 'package:zest/ui/login_screen.dart';
@@ -112,6 +113,7 @@ class MainScaffold extends ConsumerWidget {
               icon: const Icon(key: Key("appbar_search_icon"), Icons.search),
               onPressed: () {
                 // TODO: ref.read(recipeSearchFilterSettingsProvider.notifier).reset();
+                ref.invalidate(recipeSearchControllerProvider);
                 context.goNamed(RecipeSearchPage.routeName);
               },
             ),
@@ -169,9 +171,8 @@ class MainScaffold extends ConsumerWidget {
                         title: const Text('Search'),
                         onTap: () {
                           Navigator.pop(context);
-                          // ref
-                          //     .read(recipeSearchFilterSettingsProvider.notifier)
-                          //     .reset();
+                          ref.invalidate(recipeSearchControllerProvider);
+
                           context.goNamed(RecipeSearchPage.routeName);
                         },
                       ),
@@ -186,6 +187,8 @@ class MainScaffold extends ConsumerWidget {
                           // ref
                           //     .read(recipeSearchFilterSettingsProvider.notifier)
                           //     .updateFavoritesOnly(true);
+                          ref.invalidate(recipeSearchControllerProvider);
+
                           context.goNamed(RecipeSearchPage.routeName);
                         },
                       ),
@@ -222,6 +225,7 @@ class MainScaffold extends ConsumerWidget {
                       title: const Text('Settings'),
                       onTap: () {
                         Navigator.pop(context);
+                        ref.invalidate(recipeSearchControllerProvider);
                         context.pushNamed(SettingsPage.routeName);
                       },
                     ),

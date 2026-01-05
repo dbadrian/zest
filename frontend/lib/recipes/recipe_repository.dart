@@ -50,8 +50,21 @@ class RecipeRepository {
     return await _client.deleteRecipeById(recipeId);
   }
 
-  Future<RecipeSearchListResponse> searchRecipes(String query) async {
-    return await _client.searchRecipes(query);
+  Future<Recipe?> addRecipeToFavorites(int recipeId) async {
+    return await _client.addRecipeToFavorites(recipeId);
+  }
+
+  Future<Recipe?> removeRecipeFromFavorites(int recipeId) async {
+    return await _client.removeRecipeFromFavorites(recipeId);
+  }
+
+  Future<RecipeSearchListResponse> searchRecipes(
+    String query, {
+    List<String>? languages,
+    List<String>? categories,
+  }) async {
+    return await _client.searchRecipes(query,
+        languages: languages, categories: categories);
   }
 }
 

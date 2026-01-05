@@ -15,6 +15,7 @@ class RecipeListTile extends ConsumerWidget {
     this.prepTime,
     this.difficulty,
     this.language,
+    this.categories,
     this.isFavorite,
     this.onTap,
     required this.isAlt,
@@ -30,6 +31,7 @@ class RecipeListTile extends ConsumerWidget {
   final int? difficulty;
   final bool? isFavorite;
   final String? language;
+  final List<String>? categories;
 
   final GestureTapCallback? onTap;
   final bool isAlt;
@@ -137,6 +139,9 @@ class RecipeListTile extends ConsumerWidget {
     }
     if (difficulty != null && difficulty! > 0) {
       meta.add("Difficulty: $difficulty / 3");
+    }
+    if (categories != null && categories!.isNotEmpty) {
+      meta.add(categories!.join(", "));
     }
 
     return meta.join(" | ");

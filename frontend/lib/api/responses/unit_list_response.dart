@@ -10,7 +10,7 @@ part 'unit_list_response.g.dart';
 class UnitListResponse with _$UnitListResponse {
   factory UnitListResponse({
     required PaginationMeta pagination,
-    required List<Unit> units,
+    required List<Unit> results,
   }) = _UnitListResponse;
 
   factory UnitListResponse.fromJson(Map<String, dynamic> json) =>
@@ -18,6 +18,6 @@ class UnitListResponse with _$UnitListResponse {
 
   @override
   String toString() {
-    return 'UnitListResponse{Lenght: ${units.length}}';
+    return 'UnitListResponse{Lenght: ${results.length}}';
   }
 }

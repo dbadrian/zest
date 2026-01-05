@@ -3,10 +3,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/config/constants.dart';
 import 'package:zest/config/zest_api.dart';
 import 'package:zest/recipes/recipe_repository.dart';
-import 'package:zest/settings/knowledge_provider.dart';
+import 'package:zest/recipes/static_data_repository.dart';
 import 'package:zest/settings/settings_provider.dart';
 
-import '../../api/api_service.dart';
 import '../../api/responses/recipe_list_response.dart';
 import '../models/recipe_category.dart';
 
@@ -28,7 +27,7 @@ class FilterSettingsState with _$FilterSettingsState {
     @Default(false) bool filterOwner,
     @Default(false) bool favoritesOnly,
     @Default([]) List<String> searchFields,
-    @Default([]) List<RecipeCategory> categories,
+    @Default([]) List<int> categories,
   }) = _FilterSettingsState;
 }
 
@@ -94,14 +93,8 @@ class RecipeSearchFilterSettings extends _$RecipeSearchFilterSettings {
     state = state.copyWith(favoritesOnly: favoritesOnly);
   }
 
-  void updateCategories(List<int>? categories) {
-    final newCategories = categories!
-        .map((e) =>
-            ref.watch(knowledgeProvider).value?.validRecipeCategoryChoices[e])
-        .where((element) => element != null)
-        .cast<RecipeCategory>()
-        .toList();
-    state = state.copyWith(categories: newCategories);
+  void updateCategories(List<int> categories) async {
+    state = state.copyWith(categories: categories);
   }
 }
 
@@ -142,16 +135,18 @@ class RecipeSearchController extends _$RecipeSearchController {
       {required String query,
       required int page,
       required FilterSettingsState filterSettings}) async {
+    final catmap = await ref.read(staticRepositoryProvider).getCategories();
+    final mapcat = catmap.asMap();
     final ret = await ref.read(recipeRepositoryProvider).searchRecipes(
           query,
           // pagination related
           // page: page,
           // pageSize: filterSettings.pageSize,
           // query related
-          // search: query,
           // favoritesOnly: filterSettings.favoritesOnly,
           // lcFilter: filterSettings.lcFilter.toList(),
-          // categories: filterSettings.categories.map((e) => e.id).toList(),
+          categories:
+              filterSettings.categories!.map((e) => mapcat[e]!.name).toList(),
           // searchFields: filterSettings.searchFields
           //     .map<String>((e) => API_RECIPE_SEARCH_FIELDS[e]!.left)
           //     .toList(),

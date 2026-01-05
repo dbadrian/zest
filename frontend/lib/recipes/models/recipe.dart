@@ -73,6 +73,7 @@ abstract class Recipe with _$Recipe {
     @JsonKey(name: 'is_private') required bool isPrivate,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
+    @JsonKey(name: 'is_favorited') required bool isFavorited,
     @JsonKey(name: 'latest_revision') required RecipeRevision latestRevision,
   }) = _Recipe;
 
@@ -92,9 +93,11 @@ abstract class RecipeListView with _$RecipeListView {
     required String? subtitle,
     required int servings,
     required int difficulty,
+    @JsonKey(name: 'is_favorited') required bool isFavorited,
     @JsonKey(name: 'owner_comment') required String? ownerComment,
     @JsonKey(name: 'prep_time') required int? prepTime,
     @JsonKey(name: 'cook_time') required int? cookTime,
+    required List<String> categories,
   }) = _RecipeListView;
 
   factory RecipeListView.fromJson(Map<String, dynamic> json) =>

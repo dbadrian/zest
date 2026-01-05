@@ -46,12 +46,20 @@ class APIService {
     }
   }
 
-  Future<RecipeSearchListResponse> searchRecipes(String query,
-      {int page = 1, int? pageSize = 50}) async {
+  Future<RecipeSearchListResponse> searchRecipes(
+    String query, {
+    int page = 1,
+    int? pageSize = 50,
+    List<String>? categories,
+    List<String>? languages,
+  }) async {
     final queryParameters = {
       "q": query,
       "page": page.toString(),
       if (pageSize != null) 'page_size': pageSize.toString(),
+      if (categories != null && categories.isNotEmpty)
+        'categories': categories!,
+      if (languages != null) 'languages': languages!,
     };
 
     final response = await client.get<RecipeSearchListResponse>(
@@ -116,6 +124,28 @@ class APIService {
   Future<bool> deleteRecipeById(int recipeId) async {
     final response = await client.delete<Null>("/recipes/$recipeId", null);
     return response.isSuccess;
+  }
+
+  Future<Recipe?> addRecipeToFavorites(int recipeId) async {
+    final response = await client.post<Recipe>(
+        "/recipes/$recipeId/favorites", Recipe.fromJson);
+
+    if (response.isSuccess) {
+      return response.dataOrNull!;
+    } else {
+      throw response.errorOrNull!;
+    }
+  }
+
+  Future<Recipe?> removeRecipeFromFavorites(int recipeId) async {
+    final response = await client.delete<Recipe>(
+        "/recipes/$recipeId/favorites", Recipe.fromJson);
+
+    if (response.isSuccess) {
+      return response.dataOrNull!;
+    } else {
+      throw response.errorOrNull!;
+    }
   }
 
   //////////////////////////////////////////////////////////////////////////////

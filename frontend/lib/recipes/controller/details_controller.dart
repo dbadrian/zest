@@ -180,65 +180,66 @@ class RecipeDetailsController extends _$RecipeDetailsController {
   //   return true;
   // }
 
-  // Future<RecipeFavorite?> _addRecipeToFavorite() async {
-  //   return await ref
-  //       .read(apiServiceProvider)
-  //       .addRecipeToFavorites(recipeId: recipeId);
-  // }
+  Future<Recipe?> _addRecipeToFavorite() async {
+    return await ref
+        .read(recipeRepositoryProvider)
+        .addRecipeToFavorites(recipeId);
+  }
 
-  // void addToFavorites() async {
-  //   final ret = await AsyncValue.guard(() => _addRecipeToFavorite());
+  void addToFavorites() async {
+    final ret = await AsyncValue.guard(() => _addRecipeToFavorite());
+    state = ret;
 
-  //   if (ret.hasError) {
-  //     if (ret.error is ApiException) {
-  //       openReauthenticationDialog(onConfirm: () => _addRecipeToFavorite());
-  //     } else if (ret.error is ServerNotReachableException) {
-  //       openServerNotAvailableDialog();
-  //     }
-  //   }
+    // if (ret.hasError) {
+    //   if (ret.error is ApiException) {
+    //     openReauthenticationDialog(onConfirm: () => _addRecipeToFavorite());
+    //   } else if (ret.error is ServerNotReachableException) {
+    //     openServerNotAvailableDialog();
+    //   }
+    // }
 
-  //   final servings_ = state.valueOrNull?.servings.toString();
-  //   final ret2 = await AsyncValue.guard(() => _loadRecipe(servings: servings_));
-  //   if (ret2.hasError) {
-  //     if (ret2.error is ApiException) {
-  //       openReauthenticationDialog(
-  //           onConfirm: () => loadRecipe(servings: servings_));
-  //     } else if (ret2.error is ServerNotReachableException) {
-  //       openServerNotAvailableDialog();
-  //     }
-  //   }
-  //   state = ret2;
-  // }
+    // final servings_ = state.valueOrNull?.servings.toString();
+    // final ret2 = await AsyncValue.guard(() => _loadRecipe(servings: servings_));
+    // if (ret2.hasError) {
+    //   if (ret2.error is ApiException) {
+    //     openReauthenticationDialog(
+    //         onConfirm: () => loadRecipe(servings: servings_));
+    //   } else if (ret2.error is ServerNotReachableException) {
+    //     openServerNotAvailableDialog();
+    //   }
+    // }
+    // state = ret2;
+  }
 
-  // Future<void> _deleteFromFavorites() async {
-  //   await ref
-  //       .read(apiServiceProvider)
-  //       .deleteRecipeFromFavorites(recipeId: recipeId);
-  // }
+  Future<Recipe?> _deleteFromFavorites() async {
+    return await ref
+        .read(recipeRepositoryProvider)
+        .removeRecipeFromFavorites(recipeId);
+  }
 
-  // void deleteFromFavorites() async {
-  //   final ret = await AsyncValue.guard(() => _deleteFromFavorites());
+  void deleteFromFavorites() async {
+    final ret = await AsyncValue.guard(() => _deleteFromFavorites());
+    state = ret;
+    // if (ret.hasError) {
+    //   if (ret.error is ApiException) {
+    //     openReauthenticationDialog(onConfirm: () => _deleteFromFavorites());
+    //   } else if (ret.error is ServerNotReachableException) {
+    //     openServerNotAvailableDialog();
+    //   }
+    // }
 
-  //   if (ret.hasError) {
-  //     if (ret.error is ApiException) {
-  //       openReauthenticationDialog(onConfirm: () => _deleteFromFavorites());
-  //     } else if (ret.error is ServerNotReachableException) {
-  //       openServerNotAvailableDialog();
-  //     }
-  //   }
-
-  //   final servings_ = state.valueOrNull?.servings.toString();
-  //   final ret2 = await AsyncValue.guard(() => _loadRecipe(servings: servings_));
-  //   if (ret2.hasError) {
-  //     if (ret2.error is ApiException) {
-  //       openReauthenticationDialog(
-  //           onConfirm: () => loadRecipe(servings: servings_));
-  //     } else if (ret2.error is ServerNotReachableException) {
-  //       openServerNotAvailableDialog();
-  //     }
-  //   }
-  //   state = ret2;
-  // }
+    // final servings_ = state.valueOrNull?.servings.toString();
+    // final ret2 = await AsyncValue.guard(() => _loadRecipe(servings: servings_));
+    // if (ret2.hasError) {
+    //   if (ret2.error is ApiException) {
+    //     openReauthenticationDialog(
+    //         onConfirm: () => loadRecipe(servings: servings_));
+    //   } else if (ret2.error is ServerNotReachableException) {
+    //     openServerNotAvailableDialog();
+    //   }
+    // }
+    // state = ret2;
+  }
 
   Future<bool> _deleteRecipe() async {
     return await ref.read(recipeRepositoryProvider).deleteRecipeById(recipeId);
