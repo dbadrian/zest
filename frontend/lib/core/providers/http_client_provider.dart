@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/authentication/auth_interceptor.dart';
@@ -25,6 +26,7 @@ ApiHttpClient apiClient(Ref ref) {
         await ref.read(authenticationServiceProvider.notifier).refreshToken();
       },
       onUnauthorized: () async {
+        debugPrint("onUnauthorized got called from AuthInterceptor");
         await ref.read(authenticationServiceProvider.notifier).logout();
       },
     ),

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:zest/core/network/api_exception.dart';
 import 'package:zest/core/network/interceptor.dart';
@@ -28,10 +29,11 @@ class AuthInterceptor extends Interceptor {
 
   @override
   Future<void> onError(ApiException error) async {
+    debugPrint("auth error.. $_isRefreshing");
     // Handle unauthorized errors
     if (error.type == ApiErrorType.unauthorized && !_isRefreshing) {
       _isRefreshing = true;
-
+      debugPrint("Trying to refresh");
       try {
         // Try to refresh the token
         await refreshToken();

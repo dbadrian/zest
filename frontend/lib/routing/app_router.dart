@@ -149,10 +149,10 @@ GoRouter getRouter(Ref ref) {
       // if (authNotifier.isLoading) return null;
       //
 
-      final authNotifier = ref.watch(authenticationServiceProvider.notifier);
-      final isAuthed = authNotifier.isAuthenticated;
+      // final authNotifier = ref.watch(authenticationServiceProvider.notifier);
+      // final isAuthed = authNotifier.isAuthenticated;
 
-      debugPrint("User is currently authenticated: $isAuthed");
+      // debugPrint("User is currently authenticated: $isAuthed");
 
       return null;
 

@@ -130,6 +130,7 @@ class AuthenticationService extends _$AuthenticationService {
 
     // whatever is wrong...early abort
     if (refreshResponse.isFailure) {
+      debugPrint(refreshResponse.errorOrNull.toString());
       await _authStorage.clear();
       state = AsyncError(refreshResponse.errorOrNull!, StackTrace.current);
       return false;
@@ -140,6 +141,7 @@ class AuthenticationService extends _$AuthenticationService {
         accessToken: _authState.accessToken,
         refreshToken: _authState.refreshToken,
         expiresAt: DateTime.now().add(Duration(seconds: _authState.expiresIn)));
+    debugPrint("Got a new state: $newState");
     await _authStorage.save(newState);
     state = AsyncData(newState);
     return true;

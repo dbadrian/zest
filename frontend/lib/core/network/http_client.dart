@@ -246,6 +246,20 @@ class ApiHttpClient {
         await interceptor.onError(e);
       }
 
+      if (e.isUnauthorized && retryCount == 0) {
+        // attempt a retry now that we might have refreshed the token
+        return _request<T>(
+          method: method,
+          path: path,
+          fromJson: fromJson,
+          headers: headers,
+          queryParams: queryParams,
+          body: body,
+          timeout: timeout,
+          retryCount: retryCount + 1, // max one
+        );
+      }
+
       return ApiResponse.failure(e);
     } catch (e) {
       // Network error (offline, DNS failure, etc.)
