@@ -181,6 +181,8 @@ class ApiHttpClient {
       if (processedResponse.statusCode >= 200 &&
           processedResponse.statusCode < 300) {
         final decoded = jsonDecodeResponse(processedResponse);
+
+        debugPrint(decoded.toString());
         return ApiResponse.success(
           data: fromJson != null ? fromJson(decoded) : decoded,
           statusCode: processedResponse.statusCode,

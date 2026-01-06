@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/authentication/auth_service.dart';
+import 'package:zest/recipes/screens/edit_new.dart';
 import 'package:zest/recipes/screens/recipe_details.dart';
 import 'package:zest/recipes/screens/recipe_search.dart';
 
@@ -100,16 +101,16 @@ GoRouter getRouter(Ref ref) {
               child: const RecipeSearchPage(),
             ),
             routes: [
-              // GoRoute(
-              //   name: RecipeEditPage.routeNameCreate,
-              //   path: 'create',
-              //   pageBuilder: (context, state) {
-              //     return MaterialPage(
-              //       key: state.pageKey,
-              //       child: const RecipeEditPage(recipeId: null),
-              //     );
-              //   },
-              // ),
+              GoRoute(
+                name: RecipeEditScreen.routeNameCreate,
+                path: 'create',
+                pageBuilder: (context, state) {
+                  return MaterialPage(
+                    key: state.pageKey,
+                    child: const RecipeEditScreen(recipeId: null),
+                  );
+                },
+              ),
               GoRoute(
                 name: RecipeDetailsPage.routeName,
                 path: ':id',
@@ -148,11 +149,6 @@ GoRouter getRouter(Ref ref) {
       // If our async state is loading, don't perform redirects, yet
       // if (authNotifier.isLoading) return null;
       //
-
-      // final authNotifier = ref.watch(authenticationServiceProvider.notifier);
-      // final isAuthed = authNotifier.isAuthenticated;
-
-      // debugPrint("User is currently authenticated: $isAuthed");
 
       return null;
 

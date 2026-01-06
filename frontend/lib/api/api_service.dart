@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:zest/api/responses/multilingual_data_response.dart';
 import 'package:zest/api/responses/recipe_category_list_response.dart';
 import 'package:zest/core/network/http_client.dart';
 import 'package:zest/core/providers/http_client_provider.dart';
@@ -185,6 +186,30 @@ class APIService {
     }
   }
 
+  Future<FoodSearchListResponse> searchFoods(
+    String query, {
+    int page = 1,
+    int? pageSize = 50,
+    List<String>? languages,
+  }) async {
+    final queryParameters = {
+      "q": query,
+      "page": page.toString(),
+      if (pageSize != null) 'page_size': pageSize.toString(),
+      if (languages != null && languages.isNotEmpty) 'languages': languages,
+    };
+
+    final response = await client.get<FoodSearchListResponse>(
+        "/recipes/foods/search", FoodSearchListResponse.fromJson,
+        queryParams: queryParameters);
+
+    if (response.isSuccess) {
+      return response.dataOrNull!;
+    } else {
+      throw response.errorOrNull!;
+    }
+  }
+
   Future<UnitListResponse> getRecipeUnits({int page = 1, int? pageSize}) async {
     final queryParameters = {
       "page": page.toString(),
@@ -193,6 +218,17 @@ class APIService {
     final response = await client.get<UnitListResponse>(
         "/recipes/units", UnitListResponse.fromJson,
         queryParams: queryParameters);
+
+    if (response.isSuccess) {
+      return response.dataOrNull!;
+    } else {
+      throw response.errorOrNull!;
+    }
+  }
+
+  Future<MultilingualData> getMultilingualData() async {
+    final response = await client.get<MultilingualData>(
+        "/recipes/multilingual", MultilingualData.fromJson);
 
     if (response.isSuccess) {
       return response.dataOrNull!;

@@ -65,7 +65,7 @@ dependencies:
   downloadsfolder: ^1.1.0
   country_flags: ^3.0.0
   json_annotation: ^4.9.0
-
+  fuzzywuzzy: ^1.2.0
   syncfusion_flutter_pdf:
   file_picker: ^10.3.7
   

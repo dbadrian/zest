@@ -15,7 +15,10 @@
 // import 'package:zest/extra/gemini.dart';
 // import 'package:zest/main.dart';
 // import 'package:zest/recipes/controller/draft_controller.dart';
+// import 'package:zest/recipes/models/recipe_draft.dart';
+// import 'package:zest/recipes/recipe_repository.dart';
 // import 'package:zest/recipes/screens/recipe_search.dart';
+// import 'package:zest/recipes/static_data_repository.dart';
 // import 'package:zest/settings/settings_provider.dart';
 // import 'package:zest/utils/utils.dart';
 
@@ -163,7 +166,6 @@
 //     @Default("") String subtitle,
 //     @Default(false) bool private,
 //     @Default("") String ownerComment,
-//     @Default([]) List<Tag> tags,
 //     @Default([]) List<RecipeCategory> categories,
 //     @Default(0) int difficulty,
 //     @Default("") String servings,
@@ -210,7 +212,7 @@
 //   }
 
 //   @override
-//   FutureOr<RecipeEditState> build(String? recipeId,
+//   FutureOr<RecipeEditState> build(int? recipeId,
 //       {required int? draftId}) async {
 //     debugPrint("Building recipe for editor $recipeId $draftId");
 
@@ -218,41 +220,16 @@
 //     // of the app and then stored in a "knowledge provider"
 //     state = const AsyncValue.loading();
 
-//     final categories = await AsyncValue.guard(() =>
-//         ref.read(apiServiceProvider).getRecipeCategories(pageSize: 10000));
-//     if (categories.hasError) {
-//       if (categories.error is ApiException) {
-//         openReauthenticationDialog(
-//             // TODO: onconfirm
-//             );
-//       } else if (categories.error is ServerNotReachableException) {
-//         openServerNotAvailableDialog(onPressed: () {
-//           ref.read(apiStatusProvider.notifier).updateStatus(false);
-//           shellNavigatorKey.currentState!.overlay!.context
-//               .goNamed(RecipeSearchPage.routeName);
-//         });
-//       }
-//     }
-//     // express the list as a map
-//     final validCategories = {for (final e in categories.value!) e.id: e};
+//     final categories = await ref.read(staticRepositoryProvider).getCategories();
 
-//     if (!categories.hasError && recipeId != null) {
-//       // set state to loading only for the initial page build
-//       // afterwards we want silent updates?
-//       state = const AsyncValue.loading();
-//       final language =
-//           ref.watch(settingsProvider.select((v) => v.current.language));
-//       final recipeValue = await AsyncValue.guard(() =>
-//           ref.read(apiServiceProvider).getRecipe(recipeId, language: language));
+//     // express the list as a map
+//     final validCategories = {for (final e in categories) e.id: e};
+
+//     if (recipeId != null) {
+//       final recipeValue = await AsyncValue.guard(
+//           () => ref.read(recipeRepositoryProvider).getRecipeById(recipeId));
 //       if (recipeValue.hasError) {
-//         if (recipeValue.error is ApiException) {
-//           openReauthenticationDialog(
-//               // TODO: onconfirm
-//               );
-//         } else if (recipeValue.error is ServerNotReachableException) {
-//           openServerNotAvailableDialog();
-//         }
-//         // return nothing but we will return the empty state below
+//         // TODO: Handle errors?
 //         log("some other unhandled error occured...");
 //       }
 //       if (recipeValue.hasValue) {
@@ -265,22 +242,23 @@
 //         return s;
 //       }
 //     } else if (draftId != null) {
-//       // load draft
-//       final draftState = ref
-//           .read(recipeDraftSearchControllerProvider.notifier)
-//           .getById(draftId);
-//       // this keeps it alive...lets dispose
-//       ref.onDispose(() async {
-//         ref.read(recipeDraftSearchControllerProvider.notifier).reload();
-//       });
-//       if (draftState != null) {
-//         final s =
-//             draftState.copyWith(validRecipeCategoryChoices: validCategories);
-//         ref.watch(recipeEditorHistoryControllerProvider.notifier).reset();
-//         pushState(s);
-//         state = AsyncValue.data(s);
-//         return s;
-//       }
+//       // TODO: Reactivate draft!
+//       // // load draft
+//       // final draftState = ref
+//       //     .read(recipeDraftSearchControllerProvider.notifier)
+//       //     .getById(draftId);
+//       // // this keeps it alive...lets dispose
+//       // ref.onDispose(() async {
+//       //   ref.read(recipeDraftSearchControllerProvider.notifier).reload();
+//       // });
+//       // if (draftState != null) {
+//       //   final s =
+//       //       draftState.copyWith(validRecipeCategoryChoices: validCategories);
+//       //   ref.watch(recipeEditorHistoryControllerProvider.notifier).reset();
+//       //   pushState(s);
+//       //   state = AsyncValue.data(s);
+//       //   return s;
+//       // }
 //     }
 
 //     // initialize debounce timers
@@ -290,21 +268,25 @@
 
 //     // either no recipeId or some error above...we jsut drop down to below...
 //     log("Building recipe empty for editor");
-//     final s = rebuildStateFromRecipeImpl(Recipe(
-//       recipeId: "",
-//       dateCreated: DateTime.now(),
-//       owner: "",
+//     final s = rebuildStateFromRecipeImpl(RecipeDraft(
+//       // meta
 //       language: ref.read(settingsProvider).current.language,
-//       title: "",
-//       private: false,
-//       ownerComment: "",
-//       tags: [],
-//       categories: [],
-//       servings: 1,
-//       ingredientGroups: [IngredientGroup(name: "", ingredients: [])],
-//       instructionGroups: [
-//         InstructionGroup(name: "", instructions: [Instruction(text: "")])
-//       ],
+//       isPrivate: true,
+//       // content
+//       latestRevision: RecipeRevisionDraft(
+//           title: "",
+//           subtitle: "",
+//           ownerComment: "",
+//           difficulty: 0,
+//           servings: null,
+//           prepTime: null,
+//           cookTime: null,
+//           sourceName: null,
+//           sourcePage: null,
+//           sourceUrl: null,
+//           categories: [],
+//           instructionGroups: [],
+//           ingredientGroups: []),
 //     )).copyWith(
 //       validRecipeCategoryChoices: validCategories,
 //     );
@@ -340,25 +322,25 @@
 //     // );
 //   }
 
-//   RecipeEditState rebuildStateFromRecipeImpl(Recipe recipe) {
+//   RecipeEditState rebuildStateFromRecipeImpl(RecipeDraft recipe) {
 //     log("Building recipe for editor: $recipe");
 
 //     final instructionsGroups = [
-//       for (final instrGroup in recipe.instructionGroups)
+//       for (final instrGroup in recipe.latestRevision.instructionGroups)
 //         InstructionGroupState(
 //             name: instrGroup.name,
 //             instructions: instrGroup.instructions.map((e) => e.text).toList()),
 //     ];
 //     final ingredientGroups = [
-//       for (final ingrdGroup in recipe.ingredientGroups)
+//       for (final ingrdGroup in recipe.latestRevision.ingredientGroups)
 //         IngredientGroupState(
 //           name: ingrdGroup.name,
 //           ingredients: ingrdGroup.ingredients
 //               .map(
 //                 (e) => IngredientState(
-//                   amountMin: e.amount,
+//                   amountMin: e.amountMin,
 //                   amountMax: e.amountMax ?? "",
-//                   details: e.details ?? "",
+//                   details: e.comment ?? "",
 //                   unit: e.unit.name.value(),
 //                   food: e.food.name.value(),
 //                   selectedUnit: e.unit,

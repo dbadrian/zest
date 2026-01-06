@@ -23,3 +23,19 @@ class FoodListResponse with _$FoodListResponse {
     return 'FoodListResponse{Lenght: ${results.length}}';
   }
 }
+
+@freezed
+class FoodSearchListResponse with _$FoodSearchListResponse {
+  factory FoodSearchListResponse({
+    required PaginationMeta pagination,
+    required List<Food> results,
+  }) = _FoodSearchListResponse;
+
+  factory FoodSearchListResponse.fromJson(Map<String, dynamic> json) =>
+      _$FoodSearchListResponseFromJson(json);
+
+  @override
+  String toString() {
+    return 'FoodSearchListResponse{Lenght: ${results.length}}';
+  }
+}
