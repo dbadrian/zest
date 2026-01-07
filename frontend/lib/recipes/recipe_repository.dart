@@ -8,6 +8,7 @@ import 'package:zest/api/responses/pagination.dart';
 import 'package:zest/api/responses/responses.dart';
 import 'package:zest/core/cache/cache_providers.dart';
 import 'package:zest/core/providers/http_client_provider.dart';
+import 'package:zest/recipes/models/recipe_draft.dart';
 
 import '../../../core/cache/cache_manager.dart';
 import '../../../core/cache/cache_entry.dart';
@@ -44,6 +45,14 @@ class RecipeRepository {
       {bool forceRefresh = false}) async {
     // TODO: implement caching online/offline usage
     return await _client.getRecipeById(recipeId);
+  }
+
+  Future<Recipe?> createRecipe(RecipeDraft draft) async {
+    return await _client.createRecipe(draft);
+  }
+
+  Future<Recipe?> updateRecipe(int recipeId, RecipeDraft draft) async {
+    return await _client.updateRecipe(recipeId, draft);
   }
 
   Future<bool> deleteRecipeById(int recipeId) async {

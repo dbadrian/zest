@@ -7,7 +7,7 @@ part 'recipe_draft.g.dart';
 @freezed
 abstract class IngredientDraft with _$IngredientDraft {
   const factory IngredientDraft({
-    required int unit,
+    @JsonKey(name: 'unit_id') required int unitId,
     @JsonKey(name: 'amount_min') required double amountMin,
     @JsonKey(name: 'amount_max') required double? amountMax,
     required String food,

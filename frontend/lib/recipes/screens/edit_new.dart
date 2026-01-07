@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:zest/recipes/models/models.dart';
+import 'package:zest/recipes/models/recipe_draft.dart';
+import 'package:zest/recipes/recipe_repository.dart';
 import 'package:zest/recipes/static_data_repository.dart';
 
 class RecipeEditScreen extends ConsumerStatefulWidget {
@@ -42,7 +44,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   final _sourcePageController = TextEditingController();
   final _sourceUrlController = TextEditingController();
 
-  String? _selectedLanguage;
+  String? _selectedLanguage = "en";
   bool _isPrivate = false;
   int _difficulty = 3;
   int _servings = 4;
@@ -51,7 +53,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   int _cookTimeHours = 0;
   int _cookTimeMinutes = 0;
   Set<int> _selectedCategories = {};
-  List<InstructionGroup> _instructionGroups = [InstructionGroup()];
+  List<InstructionGroupWidget> _instructionGroups = [InstructionGroupWidget()];
   List<IngredientGroup> _ingredientGroups = [IngredientGroup()];
   bool _isSubmitting = false;
 
@@ -109,34 +111,74 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      final formData = {
-        'title': _titleController.text,
-        'subtitle':
-            _subtitleController.text.isEmpty ? null : _subtitleController.text,
-        'comment':
-            _commentController.text.isEmpty ? null : _commentController.text,
-        'language': _selectedLanguage,
-        'isPrivate': _isPrivate,
-        'difficulty': _difficulty,
-        'servings': _servings,
-        'prep_time': _prepTimeHours * 60 + _prepTimeMinutes,
-        'cook_time': _cookTimeHours * 60 + _cookTimeMinutes,
-        'sourceName': _sourceNameController.text.isEmpty
-            ? null
-            : _sourceNameController.text,
-        'sourcePage': _sourcePageController.text.isEmpty
-            ? null
-            : _sourcePageController.text,
-        'sourceUrl': _sourceUrlController.text.isEmpty
-            ? null
-            : _sourceUrlController.text,
-        'categories': _selectedCategories.toList(),
-        'instructionGroups': _instructionGroups.map((g) => g.toJson()).toList(),
-        'ingredientGroups': _ingredientGroups.map((g) => g.toJson()).toList(),
-      };
+      // final formData = {
+      //   'title': _titleController.text,
+      //   'subtitle':
+      //       _subtitleController.text.isEmpty ? null : _subtitleController.text,
+      //   'comment':
+      //       _commentController.text.isEmpty ? null : _commentController.text,
+      //   'language': _selectedLanguage,
+      //   'isPrivate': _isPrivate,
+      //   'difficulty': _difficulty,
+      //   'servings': _servings,
+      //   'prep_time': _prepTimeHours * 60 + _prepTimeMinutes,
+      //   'cook_time': _cookTimeHours * 60 + _cookTimeMinutes,
+      //   'sourceName': _sourceNameController.text.isEmpty
+      //       ? null
+      //       : _sourceNameController.text,
+      //   'sourcePage': _sourcePageController.text.isEmpty
+      //       ? null
+      //       : _sourcePageController.text,
+      //   'sourceUrl': _sourceUrlController.text.isEmpty
+      //       ? null
+      //       : _sourceUrlController.text,
+      //   'categories': _selectedCategories.toList(),
+      //   'instructionGroups': _instructionGroups.map((g) => g.toJson()).toList(),
+      //   'ingredientGroups': _ingredientGroups.map((g) => g.toJson()).toList(),
+      // };
+
+      final draft = RecipeDraft(
+          language: _selectedLanguage = "en",
+          isPrivate: _isPrivate,
+          latestRevision: RecipeRevisionDraft(
+              title: _titleController.text,
+              subtitle: _subtitleController.text.isEmpty
+                  ? null
+                  : _subtitleController.text,
+              ownerComment: _commentController.text.isEmpty
+                  ? null
+                  : _commentController.text,
+              difficulty: _difficulty,
+              servings: _servings,
+              prepTime: _prepTimeHours * 60 + _prepTimeMinutes,
+              cookTime: _cookTimeHours * 60 + _cookTimeMinutes,
+              sourceName: _sourceNameController.text.isEmpty
+                  ? null
+                  : _sourceNameController.text,
+              sourcePage: _sourcePageController.text.isEmpty
+                  ? null
+                  : _sourcePageController.text,
+              sourceUrl: _sourceUrlController.text.isEmpty
+                  ? null
+                  : _sourceUrlController.text,
+              categories: _selectedCategories.toList(),
+              instructionGroups:
+                  _instructionGroups.map((g) => g.toModel()).toList(),
+              ingredientGroups:
+                  _ingredientGroups.map((g) => g.toModel()).toList()));
 
       // TODO: handle the form by uploading via repository.
       // await widget.handleForm(formData);
+
+      if (widget.recipeId == null) {
+        ref.read(recipeRepositoryProvider).createRecipe(draft);
+      } else {
+        ref
+            .read(recipeRepositoryProvider)
+            .updateRecipe(widget.recipeId!, draft);
+      }
+
+      debugPrint(draft.toJson().toString());
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -298,7 +340,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
 
   Widget _buildLanguageDropdown() {
     return DropdownButtonFormField<String>(
-      value: _selectedLanguage,
+      value: _selectedLanguage = "en",
       decoration: const InputDecoration(
         labelText: 'Language *',
         border: OutlineInputBorder(),
@@ -637,7 +679,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                 IconButton(
                   icon: const Icon(Icons.add_circle),
                   onPressed: () => setState(
-                      () => _instructionGroups.add(InstructionGroup())),
+                      () => _instructionGroups.add(InstructionGroupWidget())),
                 ),
               ],
             ),
@@ -793,15 +835,13 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   }
 }
 
-class InstructionGroup {
+class InstructionGroupWidget {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController textController = TextEditingController();
 
-  Map<String, dynamic> toJson() {
-    return {
-      'name': nameController.text,
-      'text': textController.text,
-    };
+  InstructionGroup toModel() {
+    return InstructionGroup(
+        name: nameController.text, instructions: textController.text);
   }
 
   void dispose() {
@@ -811,7 +851,7 @@ class InstructionGroup {
 }
 
 class _InstructionGroupWidget extends StatelessWidget {
-  final InstructionGroup group;
+  final InstructionGroupWidget group;
   final int index;
   final bool canMoveUp;
   final bool canMoveDown;
@@ -909,11 +949,17 @@ class IngredientGroup {
   final TextEditingController nameController = TextEditingController();
   final List<Ingredient> ingredients = [Ingredient()];
 
-  Map<String, dynamic> toJson() {
-    return {
-      'name': nameController.text,
-      'ingredients': ingredients.map((i) => i.toJson()).toList(),
-    };
+  // Map<String, dynamic> toJson() {
+  //   return {
+  //     'name': nameController.text,
+  //     'ingredients': ingredients.map((i) => i.toJson()).toList(),
+  //   };
+  // }
+
+  IngredientGroupDraft toModel() {
+    return IngredientGroupDraft(
+        name: nameController.text,
+        ingredients: ingredients.map((i) => i.toModel()).toList());
   }
 
   void dispose() {
@@ -932,16 +978,16 @@ class Ingredient {
   Unit? selectedUnit;
   Food? selectedFood;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'unit': selectedUnit?.toJson(),
-      'food': selectedFood?.toJson() ?? foodController.text,
-      'amountMin': double.tryParse(amountMinController.text),
-      'amountMax': amountMaxController.text.isEmpty
-          ? null
-          : double.tryParse(amountMaxController.text),
-      'comment': commentController.text.isEmpty ? null : commentController.text,
-    };
+  IngredientDraft toModel() {
+    return IngredientDraft(
+        unitId: selectedUnit!.id,
+        amountMin: double.parse(amountMinController.text),
+        amountMax: amountMaxController.text.isEmpty
+            ? null
+            : double.parse(amountMaxController.text),
+        food: (selectedFood != null) ? selectedFood!.name : foodController.text,
+        comment:
+            commentController.text.isEmpty ? null : commentController.text);
   }
 
   void dispose() {
