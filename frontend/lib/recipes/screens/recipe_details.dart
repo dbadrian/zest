@@ -556,11 +556,16 @@ class IngredientsColumn extends HookConsumerWidget {
 
 TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient, int recipeId,
     bool isMarked, Function() markCallback) {
-  final amount = "${ingredient.amountMin} ? ${ingredient.amountMax}";
+  final amount =
+      "${ingredient.amountMin} ${ingredient.amountMax != null ? " - ${ingredient.amountMax}" : ""}";
 
   final unit = ingredient.unit.name;
   final food = ingredient.food;
   final details = ingredient.comment;
+
+  final metric_or_systemless = (ingredient.unit.unitSystem == "Metric") ||
+      (ingredient.unit.unitSystem.isEmpty) ||
+      (ingredient.unit.unitSystem == " ");
 
   return TableRow(
     children: <Widget>[
@@ -581,9 +586,9 @@ TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient, int recipeId,
       TableRowInkWell(
         onTap: markCallback,
         child: Tooltip(
-          message: "${ingredient.unit} [ ${ingredient.unit.unitSystem} ]",
+          message: "${ingredient.unit.name} [ ${ingredient.unit.unitSystem} ]",
           child: Text(
-            "$unit ",
+            "$unit ${!metric_or_systemless ? "(${ingredient.unit.unitSystem})" : ""}",
             style: TextStyle(
                 fontWeight: isMarked ? FontWeight.bold : FontWeight.normal),
           ),

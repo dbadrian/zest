@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:zest/recipes/controller/details_controller.dart';
 import 'package:zest/recipes/models/models.dart';
 import 'package:zest/recipes/models/recipe_draft.dart';
 import 'package:zest/recipes/recipe_repository.dart';
+import 'package:zest/recipes/screens/recipe_details.dart';
 import 'package:zest/recipes/static_data_repository.dart';
+import 'package:zest/utils/loading_indicator.dart';
 
 class RecipeEditScreen extends ConsumerStatefulWidget {
   static String get routeNameEdit => 'recipe_edit';
   static String get routeNameDraftEdit => 'recipe_draft_edit';
   static String get routeNameCreate => 'recipe_create';
 
-  final int? recipeId;
-
+  int? recipeId;
+  final int undoHistoryLimit;
   // final List<String> availableLanguages;
   // final Map<int, String> validCategories;
   // final List<String> units;
@@ -21,15 +25,11 @@ class RecipeEditScreen extends ConsumerStatefulWidget {
   // final Future<List<String>> Function(String query) searchFoods;
   // final Future<void> Function(Map<String, dynamic> formData) handleForm;
 
-  const RecipeEditScreen({super.key, this.recipeId
-      // required this.availableLanguages,
-      // required this.validCategories,
-      // required this.units,
-      // required this.foods,
-      // required this.searchUnits,
-      // required this.searchFoods,
-      // required this.handleForm,
-      });
+  RecipeEditScreen({
+    super.key,
+    this.recipeId,
+    this.undoHistoryLimit = 50,
+  });
 
   @override
   ConsumerState<RecipeEditScreen> createState() => _RecipeEditScreenState();
@@ -37,6 +37,8 @@ class RecipeEditScreen extends ConsumerStatefulWidget {
 
 class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _focusNode = FocusScopeNode();
+
   final _titleController = TextEditingController();
   final _subtitleController = TextEditingController();
   final _commentController = TextEditingController();
@@ -53,19 +55,134 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   int _cookTimeHours = 0;
   int _cookTimeMinutes = 0;
   Set<int> _selectedCategories = {};
-  List<InstructionGroupWidget> _instructionGroups = [InstructionGroupWidget()];
-  List<IngredientGroup> _ingredientGroups = [IngredientGroup()];
+  List<InstructionGroupData> _instructionGroups = [InstructionGroupData()];
+  List<IngredientGroupData> _ingredientGroups = [IngredientGroupData()];
   bool _isSubmitting = false;
+
+  // Undo/Redo system
+  final List<FormSnapshot> _undoStack = [];
+  final List<FormSnapshot> _redoStack = [];
+  bool _isUndoRedoOperation = false;
+  int _rebuildKey = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _saveSnapshot(); // Initial state
+  }
 
   @override
   void dispose() {
+    _focusNode.dispose();
     _titleController.dispose();
     _subtitleController.dispose();
     _commentController.dispose();
     _sourceNameController.dispose();
     _sourcePageController.dispose();
     _sourceUrlController.dispose();
+    for (var group in _instructionGroups) {
+      group.dispose();
+    }
+    for (var group in _ingredientGroups) {
+      group.dispose();
+    }
     super.dispose();
+  }
+
+  void _saveSnapshot() {
+    // if (_isUndoRedoOperation) return;
+
+    // final snapshot = FormSnapshot(
+    //   title: _titleController.text,
+    //   subtitle: _subtitleController.text,
+    //   comment: _commentController.text,
+    //   selectedLanguage: _selectedLanguage,
+    //   isPrivate: _isPrivate,
+    //   difficulty: _difficulty,
+    //   servings: _servings,
+    //   prepTimeHours: _prepTimeHours,
+    //   prepTimeMinutes: _prepTimeMinutes,
+    //   cookTimeHours: _cookTimeHours,
+    //   cookTimeMinutes: _cookTimeMinutes,
+    //   sourceName: _sourceNameController.text,
+    //   sourcePage: _sourcePageController.text,
+    //   sourceUrl: _sourceUrlController.text,
+    //   selectedCategories: Set.from(_selectedCategories),
+    //   instructionGroups: _instructionGroups.map((g) => g.clone()).toList(),
+    //   ingredientGroups: _ingredientGroups.map((g) => g.clone()).toList(),
+    // );
+
+    // _undoStack.add(snapshot);
+    // debugPrint("Adding on top of stack");
+    // if (_undoStack.length > widget.undoHistoryLimit) {
+    //   debugPrint("Dropping oldest stack entry");
+    //   _undoStack.removeAt(0);
+    // }
+    // _redoStack.clear();
+  }
+
+  void _undo() {
+    if (_undoStack.length <= 1) return;
+
+    setState(() {
+      _isUndoRedoOperation = true;
+
+      final current = _undoStack.removeLast();
+      _redoStack.add(current);
+
+      final previous = _undoStack.last;
+      _restoreSnapshot(previous);
+
+      _rebuildKey++; // Force widget tree rebuild
+    });
+
+    // Delay resetting flag
+    Future.microtask(() {
+      _isUndoRedoOperation = false;
+    });
+  }
+
+  void _redo() {
+    if (_redoStack.isEmpty) return;
+
+    _isUndoRedoOperation = true;
+    final snapshot = _redoStack.removeLast();
+    _undoStack.add(snapshot);
+    _restoreSnapshot(snapshot);
+    _isUndoRedoOperation = false;
+  }
+
+  void _restoreSnapshot(FormSnapshot snapshot) {
+    setState(() {
+      _titleController.text = snapshot.title;
+      _subtitleController.text = snapshot.subtitle;
+      _commentController.text = snapshot.comment;
+      _selectedLanguage = snapshot.selectedLanguage;
+      _isPrivate = snapshot.isPrivate;
+      _difficulty = snapshot.difficulty;
+      _servings = snapshot.servings;
+      _prepTimeHours = snapshot.prepTimeHours;
+      _prepTimeMinutes = snapshot.prepTimeMinutes;
+      _cookTimeHours = snapshot.cookTimeHours;
+      _cookTimeMinutes = snapshot.cookTimeMinutes;
+      _sourceNameController.text = snapshot.sourceName;
+      _sourcePageController.text = snapshot.sourcePage;
+      _sourceUrlController.text = snapshot.sourceUrl;
+      _selectedCategories = Set.from(snapshot.selectedCategories);
+
+      // Dispose old groups
+      for (var group in _instructionGroups) {
+        group.dispose();
+      }
+      for (var group in _ingredientGroups) {
+        group.dispose();
+      }
+
+      _instructionGroups =
+          snapshot.instructionGroups.map((g) => g.clone()).toList();
+      _ingredientGroups =
+          snapshot.ingredientGroups.map((g) => g.clone()).toList();
+    });
   }
 
   String _getFlagEmoji(String languageCode) {
@@ -100,43 +217,17 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
     return names[code] ?? code.toUpperCase();
   }
 
-  Future<void> _submitForm() async {
+  Future<bool> _submitForm() async {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fix validation errors')),
       );
-      return;
+      return false;
     }
 
     setState(() => _isSubmitting = true);
-
+    var success = true;
     try {
-      // final formData = {
-      //   'title': _titleController.text,
-      //   'subtitle':
-      //       _subtitleController.text.isEmpty ? null : _subtitleController.text,
-      //   'comment':
-      //       _commentController.text.isEmpty ? null : _commentController.text,
-      //   'language': _selectedLanguage,
-      //   'isPrivate': _isPrivate,
-      //   'difficulty': _difficulty,
-      //   'servings': _servings,
-      //   'prep_time': _prepTimeHours * 60 + _prepTimeMinutes,
-      //   'cook_time': _cookTimeHours * 60 + _cookTimeMinutes,
-      //   'sourceName': _sourceNameController.text.isEmpty
-      //       ? null
-      //       : _sourceNameController.text,
-      //   'sourcePage': _sourcePageController.text.isEmpty
-      //       ? null
-      //       : _sourcePageController.text,
-      //   'sourceUrl': _sourceUrlController.text.isEmpty
-      //       ? null
-      //       : _sourceUrlController.text,
-      //   'categories': _selectedCategories.toList(),
-      //   'instructionGroups': _instructionGroups.map((g) => g.toJson()).toList(),
-      //   'ingredientGroups': _ingredientGroups.map((g) => g.toJson()).toList(),
-      // };
-
       final draft = RecipeDraft(
           language: _selectedLanguage = "en",
           isPrivate: _isPrivate,
@@ -171,7 +262,11 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
       // await widget.handleForm(formData);
 
       if (widget.recipeId == null) {
-        ref.read(recipeRepositoryProvider).createRecipe(draft);
+        final recipe =
+            await ref.read(recipeRepositoryProvider).createRecipe(draft);
+        if (recipe != null) {
+          widget.recipeId = recipe.id;
+        }
       } else {
         ref
             .read(recipeRepositoryProvider)
@@ -186,6 +281,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
         );
       }
     } catch (e) {
+      success = false;
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e')),
@@ -194,6 +290,8 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
+
+    return success;
   }
 
   @override
@@ -217,49 +315,101 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
       data: (data) {
         debugPrint("layout./....");
 
-        return LayoutBuilder(
-          builder: (context, constraints) {
-            final isWide = constraints.maxWidth > 800;
-            return Form(
-              key: _formKey,
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(isWide ? 32 : 16),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                        maxWidth: isWide ? 1200 : double.infinity),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildBasicInfoSection(isWide),
-                        const SizedBox(height: 32),
-                        _buildMetadataSection(isWide),
-                        const SizedBox(height: 32),
-                        _buildTimeSection(isWide),
-                        const SizedBox(height: 32),
-                        _buildSourceSection(isWide),
-                        const SizedBox(height: 32),
-                        _buildCategoriesSection(data.categories
-                            .map((e) => e.copyWith(
-                                name: data.currentLanguageData["categories"]
-                                    [e.name]))
-                            .toList()),
-                        const SizedBox(height: 32),
-                        _buildInstructionGroupsSection(),
-                        const SizedBox(height: 32),
-                        _buildIngredientGroupsSection(
-                            data.units, data.foods, data.currentLanguageData),
-                        const SizedBox(height: 48),
-                        _buildSubmitButton(),
-                        const SizedBox(height: 24),
-                      ],
+        return KeyboardListener(
+            focusNode: _focusNode,
+            autofocus: true,
+            onKeyEvent: (event) {
+              if (event is KeyDownEvent) {
+                final isControlPressed =
+                    HardwareKeyboard.instance.isControlPressed ||
+                        HardwareKeyboard.instance.isMetaPressed;
+                final isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
+
+                // // Undo/Redo
+                // if (isControlPressed &&
+                //     event.logicalKey == LogicalKeyboardKey.keyZ) {
+                //   if (isShiftPressed) {
+                //     _redo();
+                //   } else {
+                //     _undo();
+                //   }
+                // }
+                // // Submit form
+                // else
+                if (isControlPressed &&
+                    event.logicalKey == LogicalKeyboardKey.enter) {
+                  _submitForm();
+                }
+                // Add instruction group
+                else if (isControlPressed &&
+                    isShiftPressed &&
+                    event.logicalKey == LogicalKeyboardKey.keyI) {
+                  setState(() {
+                    _instructionGroups.add(InstructionGroupData());
+                    _saveSnapshot();
+                  });
+                }
+                // Add ingredient group
+                else if (isControlPressed &&
+                    isShiftPressed &&
+                    event.logicalKey == LogicalKeyboardKey.keyG) {
+                  setState(() {
+                    _ingredientGroups.add(IngredientGroupData());
+                    _saveSnapshot();
+                  });
+                }
+              }
+            },
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth > 800;
+                return Form(
+                  key: _formKey,
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.all(isWide ? 32 : 16),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                            maxWidth: isWide ? 1200 : double.infinity),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildBasicInfoSection(isWide),
+                            const SizedBox(height: 32),
+                            _buildMetadataSection(isWide),
+                            const SizedBox(height: 32),
+                            _buildTimeSection(isWide),
+                            const SizedBox(height: 32),
+                            _buildSourceSection(isWide),
+                            const SizedBox(height: 32),
+                            _buildCategoriesSection(data.categories
+                                .map((e) => e.copyWith(
+                                    name: data.currentLanguageData["categories"]
+                                        [e.name]))
+                                .toList()),
+                            const SizedBox(height: 32),
+                            _buildInstructionGroupsSection(),
+                            const SizedBox(height: 32),
+                            _buildIngredientGroupsSection(data.units,
+                                data.foods, data.currentLanguageData),
+                            const SizedBox(height: 48),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildSubmitButton(),
+                                const SizedBox(width: 14),
+                                _buildSubmitAndCloseButton(),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            );
-          },
-        );
+                );
+              },
+            ));
       },
     );
   }
@@ -281,6 +431,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                 border: OutlineInputBorder(),
               ),
               validator: (v) => v?.isEmpty ?? true ? 'Title is required' : null,
+              onChanged: (_) => _saveSnapshot(),
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -289,6 +440,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                 labelText: 'Subtitle',
                 border: OutlineInputBorder(),
               ),
+              onChanged: (_) => _saveSnapshot(),
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -298,6 +450,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
+              onChanged: (_) => _saveSnapshot(),
             ),
           ],
         ),
@@ -340,7 +493,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
 
   Widget _buildLanguageDropdown() {
     return DropdownButtonFormField<String>(
-      value: _selectedLanguage = "en",
+      initialValue: _selectedLanguage = "en",
       decoration: const InputDecoration(
         labelText: 'Language *',
         border: OutlineInputBorder(),
@@ -358,7 +511,10 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
           ),
         );
       }).toList(),
-      onChanged: (v) => setState(() => _selectedLanguage = v),
+      onChanged: (v) {
+        setState(() => _selectedLanguage = v);
+        _saveSnapshot();
+      },
       validator: (v) => v == null ? 'Language is required' : null,
     );
   }
@@ -383,7 +539,10 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
             },
             onChanged: (v) {
               final val = int.tryParse(v);
-              if (val != null) _servings = val;
+              if (val != null) {
+                setState(() => _servings = val);
+                _saveSnapshot();
+              }
             },
           ),
         ),
@@ -391,13 +550,19 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
         IconButton(
           icon: const Icon(Icons.remove_circle_outline),
           onPressed: () => setState(() {
-            if (_servings > 1) _servings--;
+            if (_servings > 1) {
+              setState(() => _servings--);
+              _saveSnapshot();
+            }
           }),
         ),
         IconButton(
           icon: const Icon(Icons.add_circle_outline),
           onPressed: () => setState(() {
-            if (_servings < 99) _servings++;
+            if (_servings < 99) {
+              setState(() => _servings++);
+              _saveSnapshot();
+            }
           }),
         ),
       ],
@@ -409,7 +574,10 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
       title: const Text('Private Recipe'),
       subtitle: const Text('Only visible to you'),
       value: _isPrivate,
-      onChanged: (v) => setState(() => _isPrivate = v ?? false),
+      onChanged: (v) {
+        setState(() => _isPrivate = v ?? false);
+        _saveSnapshot();
+      },
       controlAffinity: ListTileControlAffinity.leading,
     );
   }
@@ -426,7 +594,10 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
           children: List.generate(5, (i) {
             final level = i + 1;
             return InkWell(
-              onTap: () => setState(() => _difficulty = level),
+              onTap: () {
+                setState(() => _difficulty = level);
+                _saveSnapshot();
+              },
               borderRadius: BorderRadius.circular(8),
               child: Padding(
                 padding: const EdgeInsets.all(8),
@@ -505,11 +676,13 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                 onChanged: (v) {
                   final val = int.tryParse(v) ?? 0;
                   setState(() {
-                    if (isPrep)
-                      _prepTimeHours = val;
-                    else
-                      _cookTimeHours = val;
+                    if (isPrep) {
+                      _prepTimeMinutes = val;
+                    } else {
+                      _cookTimeMinutes = val;
+                    }
                   });
+                  _saveSnapshot();
                 },
               ),
             ),
@@ -559,6 +732,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
             const SizedBox(height: 20),
             TextFormField(
               controller: _sourceNameController,
+              onChanged: (_) => _saveSnapshot(),
               decoration: const InputDecoration(
                 labelText: 'Source Name',
                 border: OutlineInputBorder(),
@@ -571,6 +745,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                   Expanded(
                     child: TextFormField(
                       controller: _sourcePageController,
+                      onChanged: (_) => _saveSnapshot(),
                       decoration: const InputDecoration(
                         labelText: 'Source Page',
                         border: OutlineInputBorder(),
@@ -581,6 +756,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                   Expanded(
                     child: TextFormField(
                       controller: _sourceUrlController,
+                      onChanged: (_) => _saveSnapshot(),
                       decoration: const InputDecoration(
                         labelText: 'Source URL',
                         border: OutlineInputBorder(),
@@ -600,6 +776,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
             else ...[
               TextFormField(
                 controller: _sourcePageController,
+                onChanged: (_) => _saveSnapshot(),
                 decoration: const InputDecoration(
                   labelText: 'Source Page',
                   border: OutlineInputBorder(),
@@ -608,6 +785,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _sourceUrlController,
+                onChanged: (_) => _saveSnapshot(),
                 decoration: const InputDecoration(
                   labelText: 'Source URL',
                   border: OutlineInputBorder(),
@@ -654,6 +832,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                         _selectedCategories.remove(cat.id);
                       }
                     });
+                    _saveSnapshot();
                   },
                 );
               }).toList(),
@@ -676,10 +855,16 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
               children: [
                 Text('Instructions',
                     style: Theme.of(context).textTheme.headlineSmall),
-                IconButton(
-                  icon: const Icon(Icons.add_circle),
-                  onPressed: () => setState(
-                      () => _instructionGroups.add(InstructionGroupWidget())),
+                Tooltip(
+                  message: 'Ctrl+Shift+I',
+                  child: IconButton(
+                    icon: const Icon(Icons.add_circle),
+                    onPressed: () {
+                      setState(
+                          () => _instructionGroups.add(InstructionGroupData()));
+                      _saveSnapshot();
+                    },
+                  ),
                 ),
               ],
             ),
@@ -694,6 +879,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                   final item = _instructionGroups.removeAt(oldIndex);
                   _instructionGroups.insert(newIndex, item);
                 });
+                _saveSnapshot();
               },
               itemBuilder: (context, i) {
                 return Padding(
@@ -709,15 +895,20 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                         final item = _instructionGroups.removeAt(i);
                         _instructionGroups.insert(i - 1, item);
                       });
+                      _saveSnapshot();
                     },
                     onMoveDown: () {
                       setState(() {
                         final item = _instructionGroups.removeAt(i);
                         _instructionGroups.insert(i + 1, item);
                       });
+                      _saveSnapshot();
                     },
                     onRemove: _instructionGroups.length > 1
-                        ? () => setState(() => _instructionGroups.removeAt(i))
+                        ? () {
+                            setState(() => _instructionGroups.removeAt(i));
+                            _saveSnapshot();
+                          }
                         : null,
                   ),
                 );
@@ -742,10 +933,15 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
               children: [
                 Text('Ingredients',
                     style: Theme.of(context).textTheme.headlineSmall),
-                IconButton(
-                  icon: const Icon(Icons.add_circle),
-                  onPressed: () =>
-                      setState(() => _ingredientGroups.add(IngredientGroup())),
+                Tooltip(
+                  message: 'Ctrl+Shift+I',
+                  child: IconButton(
+                      icon: const Icon(Icons.add_circle),
+                      onPressed: () {
+                        setState(
+                            () => _ingredientGroups.add(IngredientGroupData()));
+                        _saveSnapshot();
+                      }),
                 ),
               ],
             ),
@@ -790,15 +986,20 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                         final item = _ingredientGroups.removeAt(i);
                         _ingredientGroups.insert(i - 1, item);
                       });
+                      _saveSnapshot();
                     },
                     onMoveDown: () {
                       setState(() {
                         final item = _ingredientGroups.removeAt(i);
                         _ingredientGroups.insert(i + 1, item);
                       });
+                      _saveSnapshot();
                     },
                     onRemove: _ingredientGroups.length > 1
-                        ? () => setState(() => _ingredientGroups.removeAt(i))
+                        ? () {
+                            setState(() => _ingredientGroups.removeAt(i));
+                            _saveSnapshot();
+                          }
                         : null,
                     onReorderIngredients: (oldIdx, newIdx) {
                       setState(() {
@@ -807,6 +1008,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                             _ingredientGroups[i].ingredients.removeAt(oldIdx);
                         _ingredientGroups[i].ingredients.insert(newIdx, item);
                       });
+                      _saveSnapshot();
                     },
                   ),
                 );
@@ -830,18 +1032,144 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
               width: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : const Text('Save Recipe', style: TextStyle(fontSize: 18)),
+          : const Text('Save', style: TextStyle(fontSize: 18)),
+    );
+  }
+
+  Widget _buildSubmitAndCloseButton() {
+    return ElevatedButton(
+      onPressed: _isSubmitting
+          ? null
+          : () async {
+              final success = await _submitForm();
+
+              if (success && widget.recipeId != null) {
+                ref.invalidate(
+                    RecipeDetailsControllerProvider(widget.recipeId!));
+                if (context.mounted) {
+                  context.goNamed(
+                    RecipeDetailsPage.routeName,
+                    pathParameters: {'id': widget.recipeId.toString()},
+                  );
+                }
+              } else {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Unknown error occured!')),
+                  );
+                }
+              }
+//                         if (success) {
+//                           controller.deleteRecipeDraft();
+//                         }
+
+              // LoadingIndicatorDialog().dismiss();
+
+//                         final rId = ref.read(recipeEditControllerProvider(
+//                                 recipeId,
+//                                 draftId: draftId)
+//                             .select((v) => v.value?.recipe?.recipeId));
+
+//                         if (success && rId != null) {
+//                           if (context.mounted) {
+//                             ScaffoldMessenger.of(context).showSnackBar(
+//                               const SnackBar(
+//                                 content: Text('Saved to cloud :)'),
+//                                 duration: Duration(milliseconds: 500),
+//                               ),
+//                             );
+//                             // TODO: Can this be avoided somehow?
+//                             ref.invalidate(
+//                                 RecipeDetailsControllerProvider(rId));
+//                             context.goNamed(
+//                               RecipeDetailsPage.routeName,
+//                               pathParameters: {'id': rId.toString()},
+//                             );
+//                           }
+//                         } else {
+//                           if (context.mounted) {
+//                             ScaffoldMessenger.of(context).showSnackBar(
+//                               const SnackBar(
+//                                   content: Text(
+//                                       'Unknown error occured communicating with backend!')),
+//                             );
+//                           }
+//                         }
+            },
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+      ),
+      child: _isSubmitting
+          ? const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Text('Save and Close', style: TextStyle(fontSize: 18)),
     );
   }
 }
 
-class InstructionGroupWidget {
+// Snapshot system for undo/redo
+class FormSnapshot {
+  final String title;
+  final String subtitle;
+  final String comment;
+  final String? selectedLanguage;
+  final bool isPrivate;
+  final int difficulty;
+  final int servings;
+  final int prepTimeHours;
+  final int prepTimeMinutes;
+  final int cookTimeHours;
+  final int cookTimeMinutes;
+  final String sourceName;
+  final String sourcePage;
+  final String sourceUrl;
+  final Set<int> selectedCategories;
+  final List<InstructionGroupData> instructionGroups;
+  final List<IngredientGroupData> ingredientGroups;
+
+  FormSnapshot({
+    required this.title,
+    required this.subtitle,
+    required this.comment,
+    required this.selectedLanguage,
+    required this.isPrivate,
+    required this.difficulty,
+    required this.servings,
+    required this.prepTimeHours,
+    required this.prepTimeMinutes,
+    required this.cookTimeHours,
+    required this.cookTimeMinutes,
+    required this.sourceName,
+    required this.sourcePage,
+    required this.sourceUrl,
+    required this.selectedCategories,
+    required this.instructionGroups,
+    required this.ingredientGroups,
+  });
+}
+
+class InstructionGroupData {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController textController = TextEditingController();
+
+  InstructionGroupData();
 
   InstructionGroup toModel() {
     return InstructionGroup(
         name: nameController.text, instructions: textController.text);
+  }
+
+  InstructionGroupData.fromData(String name, String text) {
+    nameController.text = name;
+    textController.text = text;
+  }
+
+  InstructionGroupData clone() {
+    return InstructionGroupData.fromData(
+        nameController.text, textController.text);
   }
 
   void dispose() {
@@ -851,7 +1179,7 @@ class InstructionGroupWidget {
 }
 
 class _InstructionGroupWidget extends StatelessWidget {
-  final InstructionGroupWidget group;
+  final InstructionGroupData group;
   final int index;
   final bool canMoveUp;
   final bool canMoveDown;
@@ -945,16 +1273,24 @@ class _InstructionGroupWidget extends StatelessWidget {
   }
 }
 
-class IngredientGroup {
+class IngredientGroupData {
   final TextEditingController nameController = TextEditingController();
   final List<Ingredient> ingredients = [Ingredient()];
 
-  // Map<String, dynamic> toJson() {
-  //   return {
-  //     'name': nameController.text,
-  //     'ingredients': ingredients.map((i) => i.toJson()).toList(),
-  //   };
-  // }
+  IngredientGroupData();
+
+  IngredientGroupData.fromData(String name, List<Ingredient> ings) {
+    nameController.text = name;
+    ingredients.clear();
+    ingredients.addAll(ings);
+  }
+
+  IngredientGroupData clone() {
+    return IngredientGroupData.fromData(
+      nameController.text,
+      ingredients.map((i) => i.clone()).toList(),
+    );
+  }
 
   IngredientGroupDraft toModel() {
     return IngredientGroupDraft(
@@ -978,6 +1314,33 @@ class Ingredient {
   Unit? selectedUnit;
   Food? selectedFood;
 
+  Ingredient();
+
+  Ingredient.fromData({
+    required String amountMin,
+    required String amountMax,
+    required String comment,
+    required String food,
+    required this.selectedUnit,
+    required this.selectedFood,
+  }) {
+    amountMinController.text = amountMin;
+    amountMaxController.text = amountMax;
+    commentController.text = comment;
+    foodController.text = food;
+  }
+
+  Ingredient clone() {
+    return Ingredient.fromData(
+      amountMin: amountMinController.text,
+      amountMax: amountMaxController.text,
+      comment: commentController.text,
+      food: foodController.text,
+      selectedUnit: selectedUnit,
+      selectedFood: selectedFood,
+    );
+  }
+
   IngredientDraft toModel() {
     return IngredientDraft(
         unitId: selectedUnit!.id,
@@ -999,7 +1362,7 @@ class Ingredient {
 }
 
 class _IngredientGroupWidget extends StatefulWidget {
-  final IngredientGroup group;
+  final IngredientGroupData group;
   final int index;
   final List<Unit> units;
   final List<Food> foods;
@@ -1168,6 +1531,9 @@ class _IngredientWidget extends StatefulWidget {
 }
 
 class _IngredientWidgetState extends State<_IngredientWidget> {
+  Unit? _currentUnitSelection;
+  Food? _currentFoodSelection;
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -1241,9 +1607,6 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
     return Autocomplete<Unit>(
       initialValue: TextEditingValue(text: initValue),
       optionsBuilder: (textEditingValue) async {
-        // if (textEditingValue.text.isEmpty) {
-        //   return widget.units.map((e) => e.name);
-        // }
         return await widget.searchUnits(
             textEditingValue.text.isEmpty ? " " : textEditingValue.text);
       },
@@ -1258,6 +1621,7 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
           focusNode: focusNode,
           onChanged: (s) {
             setState(() => widget.ingredient.selectedUnit = null);
+            _currentUnitSelection = null;
           },
           decoration: const InputDecoration(
             labelText: 'Unit *',
@@ -1267,9 +1631,20 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
           validator: (v) {
             if (v == null || v.isEmpty) return 'Required';
             // if (!widget.units.contains(v)) return 'Invalid unit';
-            if (widget.ingredient.selectedUnit == null)
+            if (widget.ingredient.selectedUnit == null) {
               return 'Select Unit from List!';
+            }
             return null;
+          },
+          onFieldSubmitted: (_) {
+            if (_currentUnitSelection != null) {
+              controller.text = widget.currentLangData["units"]
+                  [_currentUnitSelection!.name]["singular"];
+              widget.ingredient.selectedUnit = _currentUnitSelection!;
+              _currentUnitSelection = null;
+              // widget.onChanged();
+            }
+            onFieldSubmitted();
           },
         );
       },
@@ -1281,10 +1656,6 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
       initialValue:
           TextEditingValue(text: widget.ingredient.foodController.text),
       optionsBuilder: (textEditingValue) async {
-        // if (textEditingValue.text.isEmpty) {
-        //   return widget.foods.map((e) => e.name);
-        // }
-        // return await widget.searchFoods(textEditingValue.text);
         return await widget.searchFoods(
             textEditingValue.text.isEmpty ? " " : textEditingValue.text);
       },
@@ -1311,6 +1682,18 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
             if (!widget.foods.contains(v)) {
               widget.ingredient.selectedFood = null;
             }
+          },
+          onFieldSubmitted: (_) {
+            if (_currentFoodSelection != null &&
+                widget.foods.contains(_currentFoodSelection)) {
+              controller.text = _currentFoodSelection!.name;
+              widget.ingredient.foodController.text =
+                  _currentFoodSelection!.name;
+              widget.ingredient.selectedFood = _currentFoodSelection!;
+              _currentFoodSelection = null;
+              // widget.onChanged();
+            }
+            onFieldSubmitted();
           },
         );
       },

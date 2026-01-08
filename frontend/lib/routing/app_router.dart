@@ -107,7 +107,7 @@ GoRouter getRouter(Ref ref) {
                 pageBuilder: (context, state) {
                   return MaterialPage(
                     key: state.pageKey,
-                    child: const RecipeEditScreen(recipeId: null),
+                    child: RecipeEditScreen(recipeId: null),
                   );
                 },
               ),
