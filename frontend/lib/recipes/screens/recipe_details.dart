@@ -576,8 +576,22 @@ class IngredientsColumn extends HookConsumerWidget {
 
 TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient, int recipeId,
     bool isMarked, Function() markCallback) {
-  final amount =
-      "${ingredient.amountMin ?? ""} ${ingredient.amountMax != null ? " - ${ingredient.amountMax}" : ""}";
+  String formatDouble(double value) {
+    if (value % 1 == 0) {
+      return value.toInt().toString();
+    }
+    return value.toString();
+  }
+
+  final amountMin = ingredient.amountMin != null
+      ? formatDouble(ingredient.amountMin!).toString()
+      : "";
+
+  final amountMax = ingredient.amountMax != null
+      ? formatDouble(ingredient.amountMax!).toString()
+      : "";
+
+  final amount = "$amountMin ${amountMax.isNotEmpty ? " - $amountMax" : ""}";
 
   final unit = ingredient.unit?.name;
   final food = ingredient.food;
