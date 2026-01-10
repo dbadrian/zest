@@ -81,7 +81,7 @@ class RecipeListTile extends ConsumerWidget {
       ),
       visualDensity: const VisualDensity(horizontal: 0, vertical: -4),
       title: Row(children: [
-        Text(title ?? "",
+        Text(title ?? "Untitled",
             style: const TextStyle(
                 fontWeight: FontWeight.w600)), // TODO: if null remove widget
         if (isDraft) ...[

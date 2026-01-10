@@ -577,15 +577,16 @@ class IngredientsColumn extends HookConsumerWidget {
 TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient, int recipeId,
     bool isMarked, Function() markCallback) {
   final amount =
-      "${ingredient.amountMin} ${ingredient.amountMax != null ? " - ${ingredient.amountMax}" : ""}";
+      "${ingredient.amountMin ?? ""} ${ingredient.amountMax != null ? " - ${ingredient.amountMax}" : ""}";
 
-  final unit = ingredient.unit.name;
+  final unit = ingredient.unit?.name;
   final food = ingredient.food;
   final details = ingredient.comment;
 
-  final metricOrSystemless = (ingredient.unit.unitSystem == "Metric") ||
-      (ingredient.unit.unitSystem.isEmpty) ||
-      (ingredient.unit.unitSystem == " ");
+  final metricOrSystemless = (ingredient.unit == null) ||
+      (ingredient.unit!.unitSystem == "Metric") ||
+      (ingredient.unit!.unitSystem.isEmpty) ||
+      (ingredient.unit!.unitSystem == " ");
 
   return TableRow(
     children: <Widget>[
@@ -603,37 +604,40 @@ TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient, int recipeId,
           ),
         ),
       ),
-      TableRowInkWell(
-        onTap: markCallback,
-        child: Tooltip(
-          message: "${ingredient.unit.name} [ ${ingredient.unit.unitSystem} ]",
-          child: Text(
-            "$unit ${!metricOrSystemless ? "(${ingredient.unit.unitSystem})" : ""}",
-            style: TextStyle(
-                fontWeight: isMarked ? FontWeight.bold : FontWeight.normal),
+      if (ingredient.unit != null)
+        TableRowInkWell(
+          onTap: markCallback,
+          child: Tooltip(
+            message:
+                "${ingredient.unit!.name} [ ${ingredient.unit!.unitSystem} ]",
+            child: Text(
+              "$unit ${!metricOrSystemless ? "(${ingredient.unit!.unitSystem})" : ""}",
+              style: TextStyle(
+                  fontWeight: isMarked ? FontWeight.bold : FontWeight.normal),
+            ),
           ),
         ),
-      ),
-      TableRowInkWell(
-        onTap: markCallback,
-        child: Wrap(
-          children: [
-            Text(food),
-            details != null
-                ? Padding(
-                    padding: const EdgeInsets.only(left: 20),
-                    child: Text(
-                      "... $details",
-                      style: TextStyle(
-                          fontStyle: FontStyle.italic,
-                          fontWeight:
-                              isMarked ? FontWeight.bold : FontWeight.normal),
-                    ),
-                  )
-                : Container(),
-          ],
+      if (food != null)
+        TableRowInkWell(
+          onTap: markCallback,
+          child: Wrap(
+            children: [
+              Text(food),
+              details != null
+                  ? Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: Text(
+                        "... $details",
+                        style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            fontWeight:
+                                isMarked ? FontWeight.bold : FontWeight.normal),
+                      ),
+                    )
+                  : Container(),
+            ],
+          ),
         ),
-      ),
     ],
   );
 }
@@ -830,6 +834,10 @@ class _InstructionGroupWidgetState
 
   @override
   Widget build(BuildContext context) {
+    final instructions = widget.group.instructions.isNotEmpty
+        ? widget.group.instructions.split("\n\n")
+        : <String>[];
+
     return Padding(
       padding: const EdgeInsets.only(left: 5, right: 10),
       child: Column(
@@ -841,11 +849,7 @@ class _InstructionGroupWidgetState
                   color: Theme.of(context).colorScheme.primary,
                 ),
           ),
-          ...widget.group.instructions
-              .split("\n\n")
-              .asMap()
-              .entries
-              .map((entry) {
+          ...instructions.asMap().entries.map((entry) {
             return Padding(
                 padding: const EdgeInsets.only(left: 10, bottom: 8),
                 child: InstructionWidget(
@@ -936,7 +940,7 @@ class TitleWidget extends ConsumerWidget {
           child: TextButton(
             child: Text(
                 recipe!.latestRevision.title ??
-                    "", // TODO: if null remove widget
+                    "Untitled", // TODO: if null remove widget
                 style: const TextStyle(fontSize: 20)),
             onPressed: () async {
               await ref

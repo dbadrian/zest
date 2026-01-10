@@ -7,11 +7,11 @@ part 'recipe.g.dart';
 @freezed
 abstract class Ingredient with _$Ingredient {
   const factory Ingredient({
-    required String food,
+    required String? food,
     @JsonKey(name: 'amount_min') required double? amountMin,
     @JsonKey(name: 'amount_max') required double? amountMax,
     required String? comment,
-    required Unit unit,
+    required Unit? unit,
   }) = _Ingredient;
 
   factory Ingredient.fromJson(Map<String, dynamic> json) =>

@@ -258,6 +258,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   //   });
   // }
 
+  // TODO: Use 3rd party here...
   String _getFlagEmoji(String languageCode) {
     final flags = {
       'de': '🇩🇪',
@@ -274,6 +275,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
     return flags[languageCode] ?? '🌐';
   }
 
+  // TODO: Get from settings
   String _getLanguageName(String code) {
     final names = {
       'de': 'German',
@@ -291,7 +293,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   }
 
   Future<bool> _submitForm() async {
-    if (!_formKey.currentState!.validate()) {
+    if (!_isDraft && !_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fix validation errors')),
       );
@@ -483,10 +485,10 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                                         [e.name]))
                                 .toList()),
                             const SizedBox(height: 32),
-                            _buildInstructionGroupsSection(),
-                            const SizedBox(height: 32),
                             _buildIngredientGroupsSection(data.units,
                                 data.foods, data.currentLanguageData),
+                            const SizedBox(height: 32),
+                            _buildInstructionGroupsSection(),
                             const SizedBox(height: 48),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -1144,16 +1146,10 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                     RecipeDetailsControllerProvider(widget.recipeId!));
                 if (context.mounted) {
                   // ignore: use_build_context_synchronously
+                  context.pop();
                   context.goNamed(
                     RecipeDetailsPage.routeName,
                     pathParameters: {'id': widget.recipeId.toString()},
-                  );
-                }
-              } else {
-                if (context.mounted) {
-                  // ignore: use_build_context_synchronously
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Unknown error occured!')),
                   );
                 }
               }
@@ -1405,8 +1401,10 @@ class Ingredient {
 
   IngredientDraft toModel() {
     return IngredientDraft(
-        unitId: selectedUnit!.id,
-        amountMin: double.parse(amountMinController.text),
+        unitId: selectedUnit?.id,
+        amountMin: amountMinController.text.isEmpty
+            ? null
+            : double.parse(amountMinController.text),
         amountMax: amountMaxController.text.isEmpty
             ? null
             : double.parse(amountMaxController.text),
@@ -1767,7 +1765,7 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
     return TextFormField(
       controller: widget.ingredient.amountMinController,
       decoration: const InputDecoration(
-        labelText: 'Min *',
+        labelText: 'Min',
         border: OutlineInputBorder(),
         isDense: true,
       ),
@@ -1776,8 +1774,12 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
         FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
       ],
       validator: (v) {
-        if (v == null || v.isEmpty) return 'Required';
-        final val = double.tryParse(v);
+        if (v == null || v.isEmpty) {
+          return null;
+        }
+
+        final val = double.tryParse(v!);
+
         if (val == null || val <= 0) return '>0';
         return null;
       },
