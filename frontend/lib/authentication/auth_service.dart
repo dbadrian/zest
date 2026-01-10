@@ -1,24 +1,16 @@
-import 'dart:convert';
-import 'dart:io';
 import 'dart:async';
-import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:http_interceptor/http_interceptor.dart';
-import 'package:zest/api/api_utils.dart';
-import 'package:zest/core/network/api_exception.dart';
 import 'package:zest/core/network/http_client.dart';
 import 'package:zest/core/network/interceptors/logging_interceptor.dart';
 import 'package:zest/settings/settings_provider.dart';
 
 import 'package:zest/utils/model_storage.dart';
 
-import '../utils/networking.dart';
 import 'auth_state.dart';
 import 'auth_state_storage.dart';
 import 'user.dart';
-import 'user_storage.dart';
 
 part 'auth_service.g.dart';
 
@@ -52,13 +44,13 @@ class AuthenticationService extends _$AuthenticationService {
 
     // Look for token in storage (will refresh if necessary)
 
-    final _state = await _authStorage.read();
-    debugPrint(_state.toString());
+    final state = await _authStorage.read();
+    debugPrint(state.toString());
 
-    if (_state == null) {
+    if (state == null) {
       debugPrint("AuthState not found in storage");
     }
-    return _state;
+    return state;
   }
 
   /// Checks if access is still valid.
@@ -68,7 +60,7 @@ class AuthenticationService extends _$AuthenticationService {
     if (authState != null && !authState.isExpired) {
       // isExpired can only be True if expiresAt is not null. and if its anyway
       // expired already, it certainly will be in the future
-      return DateTime.now().add(duration).isBefore(authState.expiresAt!);
+      return DateTime.now().add(duration).isBefore(authState.expiresAt);
     } else {
       return false;
     }
@@ -96,11 +88,11 @@ class AuthenticationService extends _$AuthenticationService {
       return false;
     }
 
-    final _authState = loginResponse.dataOrNull!;
+    final authState = loginResponse.dataOrNull!;
 
     // since it was a success, we can now query for the user credentials
     final userResponse = await _client.get<User>("/auth/me", User.fromJson,
-        headers: {'Authorization': 'Bearer ${_authState.accessToken}'});
+        headers: {'Authorization': 'Bearer ${authState.accessToken}'});
 
     if (userResponse.isFailure) {
       state = AsyncError(userResponse.errorOrNull!, StackTrace.current);
@@ -108,9 +100,9 @@ class AuthenticationService extends _$AuthenticationService {
     }
 
     final newState = AuthState(
-        accessToken: _authState.accessToken,
-        refreshToken: _authState.refreshToken,
-        expiresAt: DateTime.now().add(Duration(seconds: _authState.expiresIn)),
+        accessToken: authState.accessToken,
+        refreshToken: authState.refreshToken,
+        expiresAt: DateTime.now().add(Duration(seconds: authState.expiresIn)),
         user: userResponse.dataOrNull!);
     await _authStorage.save(newState);
     state = AsyncData(newState);
@@ -136,11 +128,11 @@ class AuthenticationService extends _$AuthenticationService {
       return false;
     }
 
-    final _authState = refreshResponse.dataOrNull!;
+    final authState = refreshResponse.dataOrNull!;
     final newState = oldState.copyWith(
-        accessToken: _authState.accessToken,
-        refreshToken: _authState.refreshToken,
-        expiresAt: DateTime.now().add(Duration(seconds: _authState.expiresIn)));
+        accessToken: authState.accessToken,
+        refreshToken: authState.refreshToken,
+        expiresAt: DateTime.now().add(Duration(seconds: authState.expiresIn)));
     debugPrint("Got a new state: $newState");
     await _authStorage.save(newState);
     state = AsyncData(newState);

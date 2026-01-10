@@ -6,9 +6,6 @@ import 'package:zest/api/responses/multilingual_data_response.dart';
 import 'package:zest/recipes/models/models.dart';
 import 'package:zest/settings/settings_provider.dart';
 
-import '../../../core/cache/cache_manager.dart';
-import '../../../core/cache/cache_entry.dart';
-import '../../../core/network/http_client.dart';
 
 part 'static_data_repository.g.dart';
 

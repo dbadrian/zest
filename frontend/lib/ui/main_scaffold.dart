@@ -243,12 +243,15 @@ class MainScaffold extends ConsumerWidget {
                               fontWeight: FontWeight.w600),
                         ),
                         onTap: () {
-                          Navigator.pop(context);
-                          ref
-                              .read(authenticationServiceProvider.notifier)
-                              .logout()
-                              .whenComplete(() => GoRouter.of(context)
-                                  .go(LoginPage.routeLocation));
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            ref
+                                .read(authenticationServiceProvider.notifier)
+                                .logout()
+                                // ignore: use_build_context_synchronously
+                                .whenComplete(() => GoRouter.of(context)
+                                    .go(LoginPage.routeLocation));
+                          }
                         },
                       ),
                     if (!isAuthenticated)

@@ -1,20 +1,13 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/api/api_service.dart';
-import 'package:zest/api/responses/pagination.dart';
 import 'package:zest/api/responses/responses.dart';
 import 'package:zest/core/cache/cache_providers.dart';
-import 'package:zest/core/providers/http_client_provider.dart';
 import 'package:zest/recipes/models/recipe_draft.dart';
 
 import '../../../core/cache/cache_manager.dart';
-import '../../../core/cache/cache_entry.dart';
-import '../../../core/cache/cache_strategy.dart';
-import '../../../core/network/http_client.dart';
-import '../../../core/network/api_response.dart';
 
 import 'package:zest/recipes/models/recipe_list_item.dart';
 
@@ -24,7 +17,9 @@ part 'recipe_repository.g.dart';
 
 class RecipeRepository {
   final APIService _client;
+  // ignore: unused_field
   final CacheManager<RecipeListItem> _listCache;
+  // ignore: unused_field
   final CacheManager<Recipe> _fullRecipeCache;
 
   RecipeRepository({

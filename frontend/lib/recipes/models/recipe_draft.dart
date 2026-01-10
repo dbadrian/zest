@@ -7,8 +7,8 @@ part 'recipe_draft.g.dart';
 @freezed
 abstract class IngredientDraft with _$IngredientDraft {
   const factory IngredientDraft({
-    @JsonKey(name: 'unit_id') required int unitId,
-    @JsonKey(name: 'amount_min') required double amountMin,
+    @JsonKey(name: 'unit_id') required int? unitId,
+    @JsonKey(name: 'amount_min') required double? amountMin,
     @JsonKey(name: 'amount_max') required double? amountMax,
     required String food,
     required String? comment,
@@ -21,7 +21,7 @@ abstract class IngredientDraft with _$IngredientDraft {
 @freezed
 abstract class IngredientGroupDraft with _$IngredientGroupDraft {
   const factory IngredientGroupDraft({
-    required String name,
+    required String? name,
     required List<IngredientDraft> ingredients,
   }) = _IngredientGroupDraft;
 
@@ -32,10 +32,10 @@ abstract class IngredientGroupDraft with _$IngredientGroupDraft {
 @freezed
 abstract class RecipeRevisionDraft with _$RecipeRevisionDraft {
   const factory RecipeRevisionDraft({
-    required String title,
+    required String? title,
     required String? subtitle,
     @JsonKey(name: 'owner_comment') required String? ownerComment,
-    required int difficulty,
+    required int? difficulty,
     required int? servings,
     @JsonKey(name: 'prep_time') required int? prepTime,
     @JsonKey(name: 'cook_time') required int? cookTime,
@@ -58,6 +58,7 @@ abstract class RecipeDraft with _$RecipeDraft {
   const factory RecipeDraft({
     required String language,
     @JsonKey(name: 'is_private') required bool isPrivate,
+    @JsonKey(name: 'is_draft') required bool isDraft,
     @JsonKey(name: 'content') required RecipeRevisionDraft latestRevision,
   }) = _RecipeDraft;
 

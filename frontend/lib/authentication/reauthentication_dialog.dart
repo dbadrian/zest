@@ -108,7 +108,10 @@ class ReauthenticationDialog extends HookConsumerWidget {
                 onConfirm?.call();
                 log("Trying to pop context");
                 // Navigator.of(context).pop();
-                Navigator.of(context).pop();
+                if (context.mounted) {
+                  // TODO: should this be even navigator?
+                  Navigator.of(context).pop();
+                }
               } else {
                 showErrorState.value = true;
               }

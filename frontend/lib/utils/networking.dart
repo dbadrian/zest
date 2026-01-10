@@ -4,14 +4,9 @@ import 'dart:io';
 import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_interceptor/http_interceptor.dart';
 
-import 'package:http/io_client.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:zest/authentication/auth_service.dart';
-import 'package:zest/utils/interceptors.dart';
 
 import '../routing/app_router.dart';
 

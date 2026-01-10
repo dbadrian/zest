@@ -7,7 +7,6 @@ import 'package:zest/recipes/static_data_repository.dart';
 import 'package:zest/settings/settings_provider.dart';
 
 import '../../api/responses/recipe_list_response.dart';
-import '../models/recipe_category.dart';
 
 // class RecipeSearchController
 //     extends StateNotifier<AsyncValue<RecipeListResponse>> {
@@ -146,7 +145,7 @@ class RecipeSearchController extends _$RecipeSearchController {
           // favoritesOnly: filterSettings.favoritesOnly,
           // lcFilter: filterSettings.lcFilter.toList(),
           categories:
-              filterSettings.categories!.map((e) => mapcat[e]!.name).toList(),
+              filterSettings.categories.map((e) => mapcat[e]!.name).toList(),
           // searchFields: filterSettings.searchFields
           //     .map<String>((e) => API_RECIPE_SEARCH_FIELDS[e]!.left)
           //     .toList(),

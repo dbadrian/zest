@@ -23,7 +23,7 @@ class RecipeListTile extends ConsumerWidget {
     this.onDelete,
   });
 
-  final String title;
+  final String? title;
   final String? subtitle;
   final int? totalTime;
   final int? cookTime;
@@ -79,7 +79,9 @@ class RecipeListTile extends ConsumerWidget {
       ),
       visualDensity: const VisualDensity(horizontal: 0, vertical: -4),
       title: Row(children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        Text(title ?? "",
+            style: const TextStyle(
+                fontWeight: FontWeight.w600)), // TODO: if null remove widget
         if (isFavorite != null && isFavorite!)
           Icon(
             key: const Key("favoriteIcon"),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:zest/authentication/auth_service.dart';
 import 'package:zest/config/zest_api.dart';
 import 'package:zest/core/network/api_exception.dart';
 import 'package:zest/recipes/static_data_repository.dart';
@@ -345,16 +344,17 @@ class FilterSettingsBottomWindow extends ConsumerWidget {
               ),
               selectedColor: Theme.of(context).colorScheme.secondaryContainer,
               options: snapshot.data!
-                      .map<FormBuilderChipOption<int>>(
-                        (RecipeCategory e) => FormBuilderChipOption<int>(
-                          value: e.id,
-                          child: Text(
-                            e.name,
-                          ),
-                        ),
-                      )
-                      .toList() ??
-                  List<FormBuilderChipOption<int>>.empty(),
+                  .map<FormBuilderChipOption<int>>(
+                    (RecipeCategory e) => FormBuilderChipOption<int>(
+                      value: e.id,
+                      child: Text(
+                        e.name,
+                      ),
+                    ),
+                  )
+                  .toList(),
+              //      ??
+              // List<FormBuilderChipOption<int>>.empty(),
               // validator: emptyListValidator,
               onChanged: ((c) => ref
                   .read(recipeSearchFilterSettingsProvider.notifier)

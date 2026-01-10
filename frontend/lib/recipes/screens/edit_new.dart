@@ -8,7 +8,6 @@ import 'package:zest/recipes/models/recipe_draft.dart';
 import 'package:zest/recipes/recipe_repository.dart';
 import 'package:zest/recipes/screens/recipe_details.dart';
 import 'package:zest/recipes/static_data_repository.dart';
-import 'package:zest/utils/loading_indicator.dart';
 
 class RecipeEditScreen extends ConsumerStatefulWidget {
   static String get routeNameEdit => 'recipe_edit';
@@ -46,8 +45,10 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   final _sourcePageController = TextEditingController();
   final _sourceUrlController = TextEditingController();
 
+  // ignore: unused_field
   String? _selectedLanguage = "en";
   bool _isPrivate = false;
+  bool _isDraft = false;
   int _difficulty = 3;
   int _servings = 4;
   int _prepTimeHours = 0;
@@ -60,10 +61,10 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   bool _isSubmitting = false;
 
   // Undo/Redo system
-  final List<FormSnapshot> _undoStack = [];
-  final List<FormSnapshot> _redoStack = [];
-  bool _isUndoRedoOperation = false;
-  int _rebuildKey = 0;
+  // final List<FormSnapshot> _undoStack = [];
+  // final List<FormSnapshot> _redoStack = [];
+  // bool _isUndoRedoOperation = false;
+  // int _rebuildKey = 0;
 
   @override
   void initState() {
@@ -121,69 +122,69 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
     // _redoStack.clear();
   }
 
-  void _undo() {
-    if (_undoStack.length <= 1) return;
+  // void _undo() {
+  //   if (_undoStack.length <= 1) return;
 
-    setState(() {
-      _isUndoRedoOperation = true;
+  //   setState(() {
+  //     _isUndoRedoOperation = true;
 
-      final current = _undoStack.removeLast();
-      _redoStack.add(current);
+  //     final current = _undoStack.removeLast();
+  //     _redoStack.add(current);
 
-      final previous = _undoStack.last;
-      _restoreSnapshot(previous);
+  //     final previous = _undoStack.last;
+  //     _restoreSnapshot(previous);
 
-      _rebuildKey++; // Force widget tree rebuild
-    });
+  //     _rebuildKey++; // Force widget tree rebuild
+  //   });
 
-    // Delay resetting flag
-    Future.microtask(() {
-      _isUndoRedoOperation = false;
-    });
-  }
+  //   // Delay resetting flag
+  //   Future.microtask(() {
+  //     _isUndoRedoOperation = false;
+  //   });
+  // }
 
-  void _redo() {
-    if (_redoStack.isEmpty) return;
+  // void _redo() {
+  //   if (_redoStack.isEmpty) return;
 
-    _isUndoRedoOperation = true;
-    final snapshot = _redoStack.removeLast();
-    _undoStack.add(snapshot);
-    _restoreSnapshot(snapshot);
-    _isUndoRedoOperation = false;
-  }
+  //   _isUndoRedoOperation = true;
+  //   final snapshot = _redoStack.removeLast();
+  //   _undoStack.add(snapshot);
+  //   _restoreSnapshot(snapshot);
+  //   _isUndoRedoOperation = false;
+  // }
 
-  void _restoreSnapshot(FormSnapshot snapshot) {
-    setState(() {
-      _titleController.text = snapshot.title;
-      _subtitleController.text = snapshot.subtitle;
-      _commentController.text = snapshot.comment;
-      _selectedLanguage = snapshot.selectedLanguage;
-      _isPrivate = snapshot.isPrivate;
-      _difficulty = snapshot.difficulty;
-      _servings = snapshot.servings;
-      _prepTimeHours = snapshot.prepTimeHours;
-      _prepTimeMinutes = snapshot.prepTimeMinutes;
-      _cookTimeHours = snapshot.cookTimeHours;
-      _cookTimeMinutes = snapshot.cookTimeMinutes;
-      _sourceNameController.text = snapshot.sourceName;
-      _sourcePageController.text = snapshot.sourcePage;
-      _sourceUrlController.text = snapshot.sourceUrl;
-      _selectedCategories = Set.from(snapshot.selectedCategories);
+  // void _restoreSnapshot(FormSnapshot snapshot) {
+  //   setState(() {
+  //     _titleController.text = snapshot.title;
+  //     _subtitleController.text = snapshot.subtitle;
+  //     _commentController.text = snapshot.comment;
+  //     _selectedLanguage = snapshot.selectedLanguage;
+  //     _isPrivate = snapshot.isPrivate;
+  //     _difficulty = snapshot.difficulty;
+  //     _servings = snapshot.servings;
+  //     _prepTimeHours = snapshot.prepTimeHours;
+  //     _prepTimeMinutes = snapshot.prepTimeMinutes;
+  //     _cookTimeHours = snapshot.cookTimeHours;
+  //     _cookTimeMinutes = snapshot.cookTimeMinutes;
+  //     _sourceNameController.text = snapshot.sourceName;
+  //     _sourcePageController.text = snapshot.sourcePage;
+  //     _sourceUrlController.text = snapshot.sourceUrl;
+  //     _selectedCategories = Set.from(snapshot.selectedCategories);
 
-      // Dispose old groups
-      for (var group in _instructionGroups) {
-        group.dispose();
-      }
-      for (var group in _ingredientGroups) {
-        group.dispose();
-      }
+  //     // Dispose old groups
+  //     for (var group in _instructionGroups) {
+  //       group.dispose();
+  //     }
+  //     for (var group in _ingredientGroups) {
+  //       group.dispose();
+  //     }
 
-      _instructionGroups =
-          snapshot.instructionGroups.map((g) => g.clone()).toList();
-      _ingredientGroups =
-          snapshot.ingredientGroups.map((g) => g.clone()).toList();
-    });
-  }
+  //     _instructionGroups =
+  //         snapshot.instructionGroups.map((g) => g.clone()).toList();
+  //     _ingredientGroups =
+  //         snapshot.ingredientGroups.map((g) => g.clone()).toList();
+  //   });
+  // }
 
   String _getFlagEmoji(String languageCode) {
     final flags = {
@@ -231,8 +232,10 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
       final draft = RecipeDraft(
           language: _selectedLanguage = "en",
           isPrivate: _isPrivate,
+          isDraft: _isDraft,
           latestRevision: RecipeRevisionDraft(
-              title: _titleController.text,
+              title:
+                  _titleController.text.isEmpty ? null : _titleController.text,
               subtitle: _subtitleController.text.isEmpty
                   ? null
                   : _subtitleController.text,
@@ -484,6 +487,8 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
             const SizedBox(height: 20),
             _buildPrivateCheckbox(),
             const SizedBox(height: 20),
+            _buildDraftCheckbox(),
+            const SizedBox(height: 20),
             _buildDifficultySelector(),
           ],
         ),
@@ -576,6 +581,19 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
       value: _isPrivate,
       onChanged: (v) {
         setState(() => _isPrivate = v ?? false);
+        _saveSnapshot();
+      },
+      controlAffinity: ListTileControlAffinity.leading,
+    );
+  }
+
+  Widget _buildDraftCheckbox() {
+    return CheckboxListTile(
+      title: const Text('Draft Recipe'),
+      subtitle: const Text('Only visible to you until released'),
+      value: _isDraft,
+      onChanged: (v) {
+        setState(() => _isDraft = v ?? false);
         _saveSnapshot();
       },
       controlAffinity: ListTileControlAffinity.leading,
@@ -706,10 +724,11 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                 onChanged: (v) {
                   final val = int.tryParse(v) ?? 0;
                   setState(() {
-                    if (isPrep)
+                    if (isPrep) {
                       _prepTimeMinutes = val;
-                    else
+                    } else {
                       _cookTimeMinutes = val;
+                    }
                   });
                 },
               ),
@@ -1047,6 +1066,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                 ref.invalidate(
                     RecipeDetailsControllerProvider(widget.recipeId!));
                 if (context.mounted) {
+                  // ignore: use_build_context_synchronously
                   context.goNamed(
                     RecipeDetailsPage.routeName,
                     pathParameters: {'id': widget.recipeId.toString()},
@@ -1054,6 +1074,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                 }
               } else {
                 if (context.mounted) {
+                  // ignore: use_build_context_synchronously
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Unknown error occured!')),
                   );
@@ -1680,6 +1701,7 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
           },
           onChanged: (v) {
             if (!widget.foods.contains(v)) {
+              // TODO: broken
               widget.ingredient.selectedFood = null;
             }
           },

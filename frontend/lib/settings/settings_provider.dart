@@ -98,8 +98,10 @@ class Settings extends _$Settings {
     final prefs = ref.read(sharedPreferencesProvider);
     // Theme
     final useDarkTheme = prefs.getBool(_themeUseDarkThemeKey) ?? false;
-    final pickerColor = prefs.getInt(_themeColorPickerKey) ?? _baseColor.value;
-    final themeBaseColor = prefs.getInt(_themeBaseColorKey) ?? _baseColor.value;
+    final pickerColor =
+        prefs.getInt(_themeColorPickerKey) ?? _baseColor.toARGB32();
+    final themeBaseColor =
+        prefs.getInt(_themeBaseColorKey) ?? _baseColor.toARGB32();
     // Language
     final language = prefs.getString(_languageKey) ?? DEFAULT_LANGUAGE;
     final searchAllLanguages = prefs.getBool(_searchAllLanguagesKey) ?? false;
@@ -147,8 +149,8 @@ class Settings extends _$Settings {
     final prefs = ref.read(sharedPreferencesProvider);
     // Theme
     prefs.setBool(_themeUseDarkThemeKey, state.dirty.useDarkTheme);
-    prefs.setInt(_themeColorPickerKey, state.dirty.pickerColor.value);
-    prefs.setInt(_themeBaseColorKey, state.dirty.themeBaseColor.value);
+    prefs.setInt(_themeColorPickerKey, state.dirty.pickerColor.toARGB32());
+    prefs.setInt(_themeBaseColorKey, state.dirty.themeBaseColor.toARGB32());
     // Language
     prefs.setString(_languageKey, state.dirty.language);
     prefs.setBool(_searchAllLanguagesKey, state.dirty.searchAllLanguages);

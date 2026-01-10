@@ -2,6 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+class _CancelException implements Exception {
+  const _CancelException();
+}
+
+// An exception indicating that a network request has failed.
+// ignore: unused_element
+class _NetworkException implements Exception {
+  const _NetworkException();
+}
+
 class AsyncAutocomplete<T extends Object> extends StatefulWidget {
   const AsyncAutocomplete({
     super.key,
@@ -126,15 +136,6 @@ class _AsyncAutocompleteState<T extends Object>
       onSelected: widget.onSelected,
     );
   }
-}
-
-class _CancelException implements Exception {
-  const _CancelException();
-}
-
-// An exception indicating that a network request has failed.
-class _NetworkException implements Exception {
-  const _NetworkException();
 }
 
 typedef _Debounceable<S, T> = Future<S?> Function(T parameter);

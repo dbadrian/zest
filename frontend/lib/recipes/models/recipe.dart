@@ -8,7 +8,7 @@ part 'recipe.g.dart';
 abstract class Ingredient with _$Ingredient {
   const factory Ingredient({
     required String food,
-    @JsonKey(name: 'amount_min') required double amountMin,
+    @JsonKey(name: 'amount_min') required double? amountMin,
     @JsonKey(name: 'amount_max') required double? amountMax,
     required String? comment,
     required Unit unit,
@@ -21,7 +21,7 @@ abstract class Ingredient with _$Ingredient {
 @freezed
 abstract class IngredientGroup with _$IngredientGroup {
   const factory IngredientGroup({
-    required String name,
+    required String? name,
     required List<Ingredient> ingredients,
   }) = _IngredientGroup;
 
@@ -32,7 +32,7 @@ abstract class IngredientGroup with _$IngredientGroup {
 @freezed
 abstract class InstructionGroup with _$InstructionGroup {
   const factory InstructionGroup({
-    required String name,
+    required String? name,
     required String instructions,
   }) = _InstructionGroup;
 
@@ -43,11 +43,11 @@ abstract class InstructionGroup with _$InstructionGroup {
 @freezed
 abstract class RecipeRevision with _$RecipeRevision {
   const factory RecipeRevision({
-    required String title,
+    required String? title,
     required String? subtitle,
     @JsonKey(name: 'owner_comment') required String? ownerComment,
-    required int difficulty,
-    required int servings,
+    required int? difficulty,
+    required int? servings,
     @JsonKey(name: 'prep_time') required int? prepTime,
     @JsonKey(name: 'cook_time') required int? cookTime,
     @JsonKey(name: 'source_name') required String? sourceName,
@@ -71,6 +71,7 @@ abstract class Recipe with _$Recipe {
     required String language,
     @JsonKey(name: 'owner_id') required String ownerId,
     @JsonKey(name: 'is_private') required bool isPrivate,
+    @JsonKey(name: 'is_draft') required bool isDraft,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
     @JsonKey(name: 'is_favorited') required bool isFavorited,
@@ -87,12 +88,13 @@ abstract class RecipeListView with _$RecipeListView {
     required String language,
     @JsonKey(name: 'owner_id') required String ownerId,
     @JsonKey(name: 'is_private') required bool isPrivate,
+    @JsonKey(name: 'is_draft') required bool isDraft,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
-    required String title,
+    required String? title,
     required String? subtitle,
-    required int servings,
-    required int difficulty,
+    required int? servings,
+    required int? difficulty,
     @JsonKey(name: 'is_favorited') required bool isFavorited,
     @JsonKey(name: 'owner_comment') required String? ownerComment,
     @JsonKey(name: 'prep_time') required int? prepTime,

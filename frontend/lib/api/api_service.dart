@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer' as developer;
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -14,8 +13,6 @@ import 'package:zest/recipes/models/recipe_draft.dart';
 import 'package:zest/utils/networking.dart';
 
 import '../recipes/models/models.dart';
-import '../settings/settings_provider.dart';
-import 'api_utils.dart';
 import 'responses/responses.dart';
 
 part 'api_service.g.dart';
@@ -58,9 +55,8 @@ class APIService {
       "q": query,
       "page": page.toString(),
       if (pageSize != null) 'page_size': pageSize.toString(),
-      if (categories != null && categories.isNotEmpty)
-        'categories': categories!,
-      if (languages != null) 'languages': languages!,
+      if (categories != null && categories.isNotEmpty) 'categories': categories,
+      if (languages != null) 'languages': languages,
     };
 
     final response = await client.get<RecipeSearchListResponse>(
@@ -75,8 +71,6 @@ class APIService {
   }
 
   Future<Recipe> getRecipeById(int recipeId) async {
-    final SettingsState settings = ref.read(settingsProvider);
-
     final response =
         await client.get<Recipe>("/recipes/$recipeId", Recipe.fromJson);
 

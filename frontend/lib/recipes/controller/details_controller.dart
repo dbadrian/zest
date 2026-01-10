@@ -1,14 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:zest/api/api_service.dart';
 import 'package:zest/core/network/api_exception.dart';
-import 'package:zest/extra/gemini.dart';
 import 'package:zest/recipes/recipe_repository.dart';
 import 'package:zest/settings/settings_provider.dart';
-import 'package:zest/utils/utils.dart';
-
-import 'dart:collection';
 
 import '../../authentication/auth_service.dart';
 import '../../authentication/reauthentication_dialog.dart';
@@ -26,7 +20,7 @@ class RecipeDetailsController extends _$RecipeDetailsController {
     // afterwards we want silent updates?
     state = const AsyncValue.loading();
 
-    String language = ref.watch(settingsProvider).current.language;
+    String _ = ref.watch(settingsProvider).current.language;
     final recipeValue = await AsyncValue.guard(() => _loadRecipe());
     if (recipeValue.hasError) {
       if (recipeValue.error is ApiException) {
@@ -46,7 +40,7 @@ class RecipeDetailsController extends _$RecipeDetailsController {
   bool get isEditable {
     if (state.hasValue) {
       // all values should be not null if user got to this point
-      final userId = ref.read(authenticationServiceProvider).value?.user?.id;
+      final userId = ref.read(authenticationServiceProvider).value?.user.id;
       return userId != null ? userId == state.value!.ownerId : false;
     }
     return false;
@@ -55,7 +49,7 @@ class RecipeDetailsController extends _$RecipeDetailsController {
   bool isDeleteable() {
     if (state.hasValue) {
       // all values should be not null if user got to this point
-      final userId = ref.read(authenticationServiceProvider).value?.user?.id;
+      final userId = ref.read(authenticationServiceProvider).value?.user.id;
       return userId != null ? userId == state.value!.ownerId : false;
     }
     return false;

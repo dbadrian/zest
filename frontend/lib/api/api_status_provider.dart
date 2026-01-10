@@ -1,10 +1,5 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:zest/api/api_utils.dart';
-import 'package:zest/settings/settings_provider.dart';
 
 part 'api_status_provider.g.dart'; // Generated file
 
@@ -19,7 +14,7 @@ class ApiStatus extends _$ApiStatus {
   }
 
   Future<({bool isOnline, bool redirects})> _checkBackendStatus() async {
-    final SettingsState settings = ref.read(settingsProvider);
+    // final SettingsState settings = ref.read(settingsProvider);
 
     return (isOnline: true, redirects: false);
     // try {

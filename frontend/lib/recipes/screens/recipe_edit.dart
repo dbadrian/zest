@@ -1,33 +1,7 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:math';
 
-import 'package:country_flags/country_flags.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 
-import 'package:form_builder_extra_fields/form_builder_extra_fields.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:go_router/go_router.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:zest/config/constants.dart';
-import 'package:zest/extra/gemini.dart';
 
-import 'package:zest/recipes/controller/edit_controller.dart';
-import 'package:zest/recipes/models/models.dart';
-import 'package:zest/recipes/screens/recipe_details.dart';
-import 'package:zest/recipes/screens/widgets/ingredient_form.dart';
-import 'package:zest/settings/settings_provider.dart';
-import 'package:zest/ui/widgets/divider_text.dart';
-import 'package:zest/ui/widgets/generics.dart';
-import 'package:zest/utils/form_validators.dart';
-import 'package:zest/utils/loading_indicator.dart';
 
-import '../../utils/utils.dart';
-import '../controller/details_controller.dart';
-import 'widgets/instruction_form.dart';
 
 // ///
 // /// A utility function that helps this mess of a code I wrote

@@ -18,7 +18,7 @@ Widget buildLoadingOverlay(BuildContext context, bool isLoading) {
       ? Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
-          color: Colors.grey.withOpacity(0.2),
+          color: Colors.grey.withValues(alpha: .2),
           child: const Center(child: CircularProgressIndicator()),
         )
       : Container();

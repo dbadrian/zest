@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'cache_entry.dart';
 
+// ignore: constant_identifier_names
 const TABLES = ["units", "foods", "recipes_full", "recipe_list_items"];
 
 /// SQLite-based persistent cache

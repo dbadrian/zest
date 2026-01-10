@@ -492,7 +492,7 @@ packages:
     source: hosted
     version: "4.0.1"
   flutter_riverpod:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_riverpod
       sha256: "9532ee6db4a943a1ed8383072a2e3eeda041db5657cdf6d2acecf3c21ecbe7e1"
@@ -760,7 +760,7 @@ packages:
     source: hosted
     version: "0.6.7"
   json_annotation:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: json_annotation
       sha256: "1ce844379ca14835a50d2f019a3099f419082cfdd231cd86a142af94dd5c6bb1"
@@ -912,7 +912,7 @@ packages:
     source: hosted
     version: "3.2.1"
   path:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path
       sha256: "75cca69d1490965be98c73ceaea117e8a04dd21217b37b292c9ddbec0d955bc5"
@@ -1208,7 +1208,7 @@ packages:
     source: hosted
     version: "2.4.1"
   shared_preferences_web:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: shared_preferences_web
       sha256: c49bd060261c9a3f0ff445892695d6212ff603ef3115edbb448509d407600019
@@ -1525,7 +1525,7 @@ packages:
     source: hosted
     version: "1.4.0"
   url_launcher:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: url_launcher
       sha256: f6a7e5c4835bb4e3026a04793a4199ca2d14c739ec378fdfe23fc8075d0439f8

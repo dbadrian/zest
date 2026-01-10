@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:number_inc_dec/number_inc_dec.dart';
@@ -228,7 +229,7 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
 
     return Column(
       children: [
-        if (recipe!.latestRevision.categories.isNotEmpty)
+        if (recipe!.latestRevision.categories.isNotEmpty) ...[
           Wrap(
             direction: Axis.horizontal,
             alignment: WrapAlignment.center,
@@ -250,7 +251,8 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
                         )))
                     .toList(),
           ),
-        const Divider(),
+          const Divider(),
+        ],
         if (recipe.latestRevision.ownerComment != null &&
             recipe.latestRevision.ownerComment != "") ...[
           Padding(
@@ -259,7 +261,7 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
           const Divider(),
         ],
 
-        if (recipe.latestRevision.difficulty != null)
+        if (recipe.latestRevision.difficulty != null) ...[
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -278,48 +280,63 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
                       )),
             ],
           ),
-        const Divider(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 0, right: 20),
-              child: FaIcon(FontAwesomeIcons.clock,
-                  color: Theme.of(context).colorScheme.primary),
-            ),
-            Column(
-              children: [
-                Row(
-                  children: [
-                    const Text("Preparation Time: "),
-                    Text(recipe.latestRevision.prepTime.toString()),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Text("      Cooking Time: "),
-                    Text(recipe.latestRevision.cookTime.toString()),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
+          const Divider(),
+        ],
+        if (recipe.latestRevision.prepTime != null ||
+            recipe.latestRevision.cookTime != null) ...[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 0, right: 20),
+                child: FaIcon(FontAwesomeIcons.clock,
+                    color: Theme.of(context).colorScheme.primary),
+              ),
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      if (recipe.latestRevision.prepTime != null) ...[
+                        const Text("Preparation Time: "),
+                        Text(recipe.latestRevision.prepTime.toString()),
+                      ]
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      if (recipe.latestRevision.cookTime != null) ...[
+                        const Text("      Cooking Time: "),
+                        Text(recipe.latestRevision.cookTime.toString()),
+                      ]
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
 
         if ((recipe.latestRevision.sourceName != null &&
                 recipe.latestRevision.sourceName != "") ||
             recipe.latestRevision.sourcePage != null ||
             recipe.latestRevision.sourceUrl != null &&
                 recipe.latestRevision.sourceUrl != "") ...[
-          const Divider(),
           if (recipe.latestRevision.sourceName != null &&
               recipe.latestRevision.sourceName != "")
-            Text("Source: ${recipe.latestRevision.sourceName}"),
+            Text("By: ${recipe.latestRevision.sourceName}"),
           if (recipe.latestRevision.sourcePage != null)
-            Text("Source Page: ${recipe.latestRevision.sourcePage}"),
+            Text("Page: ${recipe.latestRevision.sourcePage}"),
           if (recipe.latestRevision.sourceUrl != null &&
               recipe.latestRevision.sourceUrl != "")
-            Text("Source Url: ${recipe.latestRevision.sourceUrl}"),
+            TextButton(
+                onPressed: () async {
+                  final Uri? url =
+                      Uri.tryParse(recipe.latestRevision.sourceUrl!);
+                  if (url != null && !await launchUrl(url)) {
+                    throw Exception('Could not launch $url');
+                  }
+                },
+                child: Text("${recipe.latestRevision.sourceUrl}")),
         ]
 
         // const Divider(),
@@ -390,47 +407,49 @@ class IngredientsColumn extends HookConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(
-              width: 90.0,
-              height: 30.0,
-              child: NumberInputWithIncrementDecrement(
-                controller: servingsCtrl,
-                initialValue: recipe.latestRevision.servings,
-                min: 1,
-                max: 99,
-                onIncrement: onServingsChanges,
-                onDecrement: onServingsChanges,
-                onChanged: onServingsChanges,
-                // incIconSize: 20,
-                // decIconSize: 20,
-                incIconDecoration: const BoxDecoration(),
-                decIconDecoration: const BoxDecoration(),
-                buttonArrangement: ButtonArrangement.incRightDecLeft,
-                numberFieldDecoration: const InputDecoration(
-                  contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
-                  border: OutlineInputBorder(
-                      // borderRadius:
-                      //     BorderRadius.circular(8.0),
+            if (recipe.latestRevision.servings != null) ...[
+              SizedBox(
+                width: 90.0,
+                height: 30.0,
+                child: NumberInputWithIncrementDecrement(
+                  controller: servingsCtrl,
+                  initialValue: recipe.latestRevision.servings!,
+                  min: 1,
+                  max: 99,
+                  onIncrement: onServingsChanges,
+                  onDecrement: onServingsChanges,
+                  onChanged: onServingsChanges,
+                  // incIconSize: 20,
+                  // decIconSize: 20,
+                  incIconDecoration: const BoxDecoration(),
+                  decIconDecoration: const BoxDecoration(),
+                  buttonArrangement: ButtonArrangement.incRightDecLeft,
+                  numberFieldDecoration: const InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
+                    border: OutlineInputBorder(
+                        // borderRadius:
+                        //     BorderRadius.circular(8.0),
+                        ),
+                  ),
+                  widgetContainerDecoration: const BoxDecoration(
+                      // border: Border.all(
+                      //     // color: Colors.pink,
+                      //     ),
                       ),
                 ),
-                widgetContainerDecoration: const BoxDecoration(
-                    // border: Border.all(
-                    //     // color: Colors.pink,
-                    //     ),
-                    ),
               ),
-            ),
-            const SizedBox(
-              width: 5,
-            ),
-            const SizedBox(
-              width: 5,
-            ),
-            const Text(" servings",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(
-              width: 25,
-            ),
+              const SizedBox(
+                width: 5,
+              ),
+              const SizedBox(
+                width: 5,
+              ),
+              const Text(" servings",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(
+                width: 25,
+              ),
+            ]
             // if (recipe.hasMetricConversion())
             //   TextButton(
             //     style: TextButton.styleFrom(
@@ -563,7 +582,7 @@ TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient, int recipeId,
   final food = ingredient.food;
   final details = ingredient.comment;
 
-  final metric_or_systemless = (ingredient.unit.unitSystem == "Metric") ||
+  final metricOrSystemless = (ingredient.unit.unitSystem == "Metric") ||
       (ingredient.unit.unitSystem.isEmpty) ||
       (ingredient.unit.unitSystem == " ");
 
@@ -588,7 +607,7 @@ TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient, int recipeId,
         child: Tooltip(
           message: "${ingredient.unit.name} [ ${ingredient.unit.unitSystem} ]",
           child: Text(
-            "$unit ${!metric_or_systemless ? "(${ingredient.unit.unitSystem})" : ""}",
+            "$unit ${!metricOrSystemless ? "(${ingredient.unit.unitSystem})" : ""}",
             style: TextStyle(
                 fontWeight: isMarked ? FontWeight.bold : FontWeight.normal),
           ),
@@ -685,7 +704,7 @@ class _IngredientGroupWidgetState extends ConsumerState<IngredientGroupWidget> {
         Container(
           margin: const EdgeInsets.only(bottom: 5),
           child: Text(
-            widget.group.name,
+            widget.group.name ?? "", // TODO: if null, remove widget?
             style: Theme.of(context).textTheme.titleLarge,
           ),
         ),
@@ -816,7 +835,7 @@ class _InstructionGroupWidgetState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.group.name,
+            widget.group.name ?? "", // TODO: if null remove widget
             style: Theme.of(context).textTheme.titleLarge!.copyWith(
                   color: Theme.of(context).colorScheme.primary,
                 ),
@@ -914,7 +933,9 @@ class TitleWidget extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.only(left: 20),
           child: TextButton(
-            child: Text(recipe!.latestRevision.title,
+            child: Text(
+                recipe!.latestRevision.title ??
+                    "", // TODO: if null remove widget
                 style: const TextStyle(fontSize: 20)),
             onPressed: () async {
               await ref
@@ -925,7 +946,7 @@ class TitleWidget extends ConsumerWidget {
         ),
       ),
       // Text(recipe!.title, style: const TextStyle(fontSize: 20)))),
-      (recipe.isFavorited!)
+      (recipe.isFavorited)
           ? IconButton(
               onPressed: ref
                   .read(recipeDetailsControllerProvider(recipeId).notifier)

@@ -1,4 +1,4 @@
-library zest.api;
+library;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
