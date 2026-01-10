@@ -17,6 +17,7 @@ class RecipeListTile extends ConsumerWidget {
     this.language,
     this.categories,
     this.isFavorite,
+    required this.isDraft,
     this.onTap,
     required this.isAlt,
     required this.isHighlighted,
@@ -30,6 +31,7 @@ class RecipeListTile extends ConsumerWidget {
   final int? prepTime;
   final int? difficulty;
   final bool? isFavorite;
+  final bool isDraft;
   final String? language;
   final List<String>? categories;
 
@@ -82,6 +84,12 @@ class RecipeListTile extends ConsumerWidget {
         Text(title ?? "",
             style: const TextStyle(
                 fontWeight: FontWeight.w600)), // TODO: if null remove widget
+        if (isDraft) ...[
+          SizedBox(
+            width: 5,
+          ),
+          Text("[DRAFT]", style: const TextStyle(fontWeight: FontWeight.w600)),
+        ],
         if (isFavorite != null && isFavorite!)
           Icon(
             key: const Key("favoriteIcon"),
@@ -140,7 +148,8 @@ class RecipeListTile extends ConsumerWidget {
           "Prep time: ${durationToHourMinuteString(Duration(minutes: prepTime ?? 0), verbose: true)}");
     }
     if (difficulty != null && difficulty! > 0) {
-      meta.add("Difficulty: $difficulty / 3");
+      meta.add(
+          "Difficulty: $difficulty / 5"); // TODO: Max value should be provided via the API
     }
     if (categories != null && categories!.isNotEmpty) {
       meta.add(categories!.join(", "));

@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:number_inc_dec/number_inc_dec.dart';
 import 'package:zest/recipes/controller/search_controller.dart';
+import 'package:zest/recipes/screens/edit_new.dart' hide Ingredient;
 import 'package:zest/recipes/screens/recipe_search.dart';
 
 import '../../routing/app_router.dart';
@@ -946,6 +947,12 @@ class TitleWidget extends ConsumerWidget {
         ),
       ),
       // Text(recipe!.title, style: const TextStyle(fontSize: 20)))),
+      if (recipe.isDraft) ...[
+        SizedBox(
+          width: 5,
+        ),
+        Text("[DRAFT]", style: const TextStyle(fontWeight: FontWeight.w600)),
+      ],
       (recipe.isFavorited)
           ? IconButton(
               onPressed: ref
@@ -960,18 +967,18 @@ class TitleWidget extends ConsumerWidget {
                   .read(recipeDetailsControllerProvider(recipeId).notifier)
                   .addToFavorites,
               icon: const Icon(Icons.favorite_outline)),
-      // if (ref
-      //     .read(recipeDetailsControllerProvider(recipeId).notifier)
-      //     .isEditable)
-      //   IconButton(
-      //       onPressed: () {
-      //         context.goNamed(RecipeEditPage.routeNameEdit,
-      //             pathParameters: {'id': recipeId});
-      //       },
-      //       icon: Icon(
-      //         Icons.edit,
-      //         color: Theme.of(context).colorScheme.primary,
-      //       )),
+      if (ref
+          .read(recipeDetailsControllerProvider(recipeId).notifier)
+          .isEditable)
+        IconButton(
+            onPressed: () {
+              context.goNamed(RecipeEditScreen.routeNameEdit,
+                  pathParameters: {'id': recipeId.toString()});
+            },
+            icon: Icon(
+              Icons.edit,
+              color: Theme.of(context).colorScheme.primary,
+            )),
       if (ref
           .read(recipeDetailsControllerProvider(recipeId).notifier)
           .isDeleteable())

@@ -80,3 +80,9 @@ RecipeRepository recipeRepository(Ref ref) {
     fullRecipeCache: ref.watch(recipeFullCacheManagerProvider),
   );
 }
+
+@riverpod
+Future<Recipe?> recipes(Ref ref, int recipeId) async {
+  final repo = ref.read(recipeRepositoryProvider);
+  return repo.getRecipeById(recipeId);
+}

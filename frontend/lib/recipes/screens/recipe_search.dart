@@ -156,6 +156,7 @@ class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
                   language: item.language,
                   categories: item.categories,
                   isFavorite: item.isFavorited,
+                  isDraft: item.isDraft,
                   onTap: () {
                     context.goNamed(
                       RecipeDetailsPage.routeName,

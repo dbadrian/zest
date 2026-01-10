@@ -213,6 +213,7 @@ class CacheManager<T> {
       // Refresh in background (fire and forget)
       // If refresh fails, cache remains unchanged
       unawaited(
+        // ignore: body_might_complete_normally_catch_error
         _fetchAndCache(key, fetcher).catchError((_) {
           // Silently ignore background refresh errors
           // Cache remains valid

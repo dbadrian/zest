@@ -6,7 +6,6 @@ import 'package:zest/api/responses/multilingual_data_response.dart';
 import 'package:zest/recipes/models/models.dart';
 import 'package:zest/settings/settings_provider.dart';
 
-
 part 'static_data_repository.g.dart';
 
 /// Repository for static data (units, categories) and semi-static data (foods)
@@ -110,44 +109,5 @@ StaticDataRepository staticRepository(Ref ref) {
     client: ref.watch(apiServiceProvider),
     // _unitsCache: ref.watch(recipeListCacheManagerProvider),
     // fullRecipeCache: ref.watch(recipeFullCacheManagerProvider),
-  );
-}
-
-class RecipeFormData {
-  final List<RecipeCategory> categories;
-  final List<Unit> units;
-  final List<Food> foods;
-  final Map<String, dynamic> currentLanguageData;
-
-  RecipeFormData({
-    required this.categories,
-    required this.units,
-    required this.foods,
-    required this.currentLanguageData,
-  });
-}
-
-@riverpod
-Future<RecipeFormData> recipeStaticData(Ref ref) async {
-  final repo = ref.watch(staticRepositoryProvider);
-  final language =
-      ref.watch(settingsProvider.select((s) => s.current.language));
-
-  // load all resources in parallel
-  final results = await Future.wait([
-    repo.getCategories(),
-    repo.getUnits(),
-    repo.getFoods(),
-    repo.getMultilingualData()
-  ]);
-
-  final mld = results[3] as MultilingualData;
-  final currentLanguageData = mld.getByLanguage(language);
-
-  return RecipeFormData(
-    categories: results[0] as List<RecipeCategory>,
-    units: results[1] as List<Unit>,
-    foods: results[2] as List<Food>,
-    currentLanguageData: currentLanguageData,
   );
 }

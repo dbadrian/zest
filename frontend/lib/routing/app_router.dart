@@ -120,19 +120,21 @@ GoRouter getRouter(Ref ref) {
                     child: RecipeDetailsPage(recipeId: recipeId),
                   );
                 },
-                // routes: [
-                //   GoRoute(
-                //     name: RecipeEditPage.routeNameEdit,
-                //     path: 'edit',
-                //     pageBuilder: (context, state) {
-                //       final recipeId = state.pathParameters['id']!;
-                //       return MaterialPage(
-                //         key: state.pageKey,
-                //         child: RecipeEditPage(recipeId: recipeId),
-                //       );
-                //     },
-                //   ),
-                // ],
+                routes: [
+                  GoRoute(
+                    name: RecipeEditScreen.routeNameEdit,
+                    path: 'edit',
+                    pageBuilder: (context, state) {
+                      final int recipeId =
+                          int.parse(state.pathParameters['id']!);
+
+                      return MaterialPage(
+                        key: state.pageKey,
+                        child: RecipeEditScreen(recipeId: recipeId),
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           )
