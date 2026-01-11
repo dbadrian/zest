@@ -740,22 +740,34 @@ class _IngredientGroupWidgetState extends ConsumerState<IngredientGroupWidget> {
           },
           children: widget.group.ingredients
               .asMap()
-              .map((i, ingr) => MapEntry(
-                  i,
-                  buildIngredientRow(
-                      ref,
-                      ingr.copyWith(
-                          unit: ingr.unit?.copyWith(
-                              name: widget.currentLangData["units"]
-                                  [ingr.unit!.name][(ingr.amountMax != null ||
-                                      ingr.amountMin != 1)
-                                  ? "plural"
-                                  : "singular"])),
-                      widget.recipeId,
-                      isMarked[i],
-                      () => setState(() {
-                            isMarked[i] = !isMarked[i];
-                          }))))
+              .map((i, ingr) {
+                String? unitTranslationString = ingr.unit?.name;
+
+                // translate, and also choose appropiate plural/singular term
+                if (ingr.unit != null) {
+                  final data = widget.currentLangData["units"][ingr.unit!.name]
+                      as Map<String, dynamic>;
+                  if (ingr.amountMax != null || ingr.amountMin != 1) {
+                    unitTranslationString = data["plural"];
+                  } else {
+                    unitTranslationString = data["singular"];
+                  }
+                }
+
+                return MapEntry(
+                    i,
+                    buildIngredientRow(
+                        ref,
+                        ingr.copyWith(
+                          unit:
+                              ingr.unit?.copyWith(name: unitTranslationString!),
+                        ),
+                        widget.recipeId,
+                        isMarked[i],
+                        () => setState(() {
+                              isMarked[i] = !isMarked[i];
+                            })));
+              })
               .values
               .toList(),
         ),
