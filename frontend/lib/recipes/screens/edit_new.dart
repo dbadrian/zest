@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -46,12 +48,14 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   final _sourcePageController = TextEditingController();
   final _sourceUrlController = TextEditingController();
 
+  final _servingsController = TextEditingController();
+
   // ignore: unused_field
   String? _selectedLanguage = "en";
   bool _isPrivate = false;
   bool _isDraft = false;
   int _difficulty = 3;
-  int? _servings = 4;
+  // int? _servings = 4;
   int _prepTimeHours = 0;
   int _prepTimeMinutes = 0;
   int _cookTimeHours = 0;
@@ -101,7 +105,8 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
             if (data.latestRevision.difficulty != null) {
               _difficulty = data.latestRevision.difficulty!;
             }
-            _servings = data.latestRevision.servings;
+            _servingsController.text =
+                data.latestRevision.servings?.toString() ?? "";
             if (data.latestRevision.prepTime != null) {
               _prepTimeHours = data.latestRevision.prepTime! ~/ 60;
               _prepTimeMinutes = data.latestRevision.prepTime! % 60;
@@ -153,6 +158,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
     _sourceNameController.dispose();
     _sourcePageController.dispose();
     _sourceUrlController.dispose();
+    _servingsController.dispose();
     for (var group in _instructionGroups) {
       group.dispose();
     }
@@ -317,7 +323,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                   ? null
                   : _ownerCommentController.text,
               difficulty: _difficulty,
-              servings: _servings,
+              servings: int.tryParse(_servingsController.text),
               prepTime: _prepTimeHours * 60 + _prepTimeMinutes,
               cookTime: _cookTimeHours * 60 + _cookTimeMinutes,
               sourceName: _sourceNameController.text.isEmpty
@@ -622,48 +628,53 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
       children: [
         Expanded(
           child: TextFormField(
-            initialValue: _servings.toString(),
+            // initialValue: _servings.toString(),
+            controller: _servingsController,
             decoration: const InputDecoration(
-              labelText: 'Servings *',
+              labelText: 'Servings',
               border: OutlineInputBorder(),
             ),
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             validator: (v) {
-              if (v == null || v.isEmpty) return 'Required';
+              if (v == null || v.isEmpty) return null;
               final val = int.tryParse(v);
               if (val == null || val < 1 || val > 99) return '1-99';
               return null;
             },
-            onChanged: (v) {
-              final val = int.tryParse(v);
-              if (val != null) {
-                setState(() => _servings = val);
-              }
-            },
+            // onChanged: (v) {
+            //   final val = int.tryParse(v);
+            //   if (val != null) {
+            //     setState(() => _servings = val);
+            //   }
+            // },
           ),
         ),
         const SizedBox(width: 8),
         IconButton(
-          icon: const Icon(Icons.remove_circle_outline),
-          onPressed: () => setState(() {
-            if (_servings == null) {
-              _servings = 1;
-            } else if (_servings! > 1) {
-              _servings = _servings! - 1;
-            }
-          }),
-        ),
+            icon: const Icon(Icons.remove_circle_outline),
+            onPressed: () {
+              if (_servingsController.text.isNotEmpty) {
+                final val = int.tryParse(_servingsController.text) ?? 0;
+                if (val == 1) {
+                  _servingsController.text = "";
+                } else if (val > 1) {
+                  _servingsController.text = (val - 1).toString();
+                }
+              }
+            }),
         IconButton(
-          icon: const Icon(Icons.add_circle_outline),
-          onPressed: () => setState(() {
-            if (_servings == null) {
-              _servings = 1;
-            } else if (_servings! < 99) {
-              _servings = _servings! + 1;
-            }
-          }),
-        ),
+            icon: const Icon(Icons.add_circle_outline),
+            onPressed: () {
+              if (_servingsController.text.isNotEmpty) {
+                final val = int.tryParse(_servingsController.text) ?? 0;
+                if (val < 99) {
+                  _servingsController.text = (val + 1).toString();
+                }
+              } else {
+                _servingsController.text = "1";
+              }
+            }),
       ],
     );
   }
