@@ -9,7 +9,7 @@ import 'package:path/path.dart' as p;
 
 import 'package:zest/main.dart';
 import 'package:zest/recipes/controller/search_controller.dart';
-import 'package:zest/recipes/screens/edit_new.dart';
+import 'package:zest/recipes/screens/recipe_edit.dart';
 
 import 'package:zest/settings/settings_screen.dart';
 import 'package:zest/ui/login_screen.dart';

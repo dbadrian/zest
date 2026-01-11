@@ -7,7 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:number_inc_dec/number_inc_dec.dart';
 import 'package:zest/recipes/controller/search_controller.dart';
-import 'package:zest/recipes/screens/edit_new.dart' hide Ingredient;
+import 'package:zest/recipes/screens/recipe_edit.dart' hide Ingredient;
 import 'package:zest/recipes/screens/recipe_search.dart';
 
 import '../../routing/app_router.dart';
@@ -203,23 +203,6 @@ class RecipeDetailsNarrowWidget extends ConsumerWidget {
   }
 }
 
-class TagWidget extends StatelessWidget {
-  final String text;
-
-  const TagWidget({super.key, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      // shape: OutlinedBorder(side: BorderSide(color: Colors.grey)),
-      label: Text(
-        text,
-        style: const TextStyle(fontSize: 12),
-      ),
-    );
-  }
-}
-
 class RecipeMetaInfoColumn extends ConsumerWidget {
   const RecipeMetaInfoColumn({super.key, required this.recipeId});
   final int recipeId;
@@ -241,7 +224,6 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
                 ] +
                 recipe.latestRevision.categories
                     .map((e) => Chip(
-                        // TODO: TagWidget
                         backgroundColor:
                             Theme.of(context).colorScheme.secondary,
                         label: Text(
@@ -261,7 +243,6 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
               child: Text("${recipe.latestRevision.ownerComment}")),
           const Divider(),
         ],
-
         if (recipe.latestRevision.difficulty != null) ...[
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -316,7 +297,6 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
             ],
           ),
         ],
-
         if ((recipe.latestRevision.sourceName != null &&
                 recipe.latestRevision.sourceName != "") ||
             recipe.latestRevision.sourcePage != null ||
@@ -339,31 +319,6 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
                 },
                 child: Text("${recipe.latestRevision.sourceUrl}")),
         ]
-
-        // const Divider(),
-        // // Text("Date Update: ${recipe.latestRevision.dateCreated.}"),
-        // Text("Date Update: ${DateFormat.yMMMd().format(recipe.dateCreated)}"),
-
-        // Text("Is latest version: ${recipe.isUpToDate}"),
-        // Text("Is a translated recipe: ${recipe.isTranslation}"),
-
-        // const Divider(),
-        // Row(children: [
-        //   (recipe.isFavorite!)
-        //       ? const Text("Remove from favorites: ")
-        //       : const Text("Add to favorites: "),
-        //   (recipe.isFavorite!)
-        //       ? IconButton(
-        //           onPressed: ref
-        //               .read(recipeDetailsControllerProvider(recipeId).notifier)
-        //               .deleteFromFavorites,
-        //           icon: const Icon(Icons.favorite))
-        //       : IconButton(
-        //           onPressed: ref
-        //               .read(recipeDetailsControllerProvider(recipeId).notifier)
-        //               .addToFavorites,
-        //           icon: const Icon(Icons.favorite_outline)),
-        // ]),
       ],
     );
   }
@@ -375,7 +330,7 @@ class IngredientsColumn extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final SettingsState settings = ref.watch(settingsProvider.);
+    // final curr settings = ref.watch(settingsProvider.);
     // final label =
     //     ref.watch(settingsProvider.select((settings) => settings.));
     final notifier =
@@ -383,7 +338,7 @@ class IngredientsColumn extends HookConsumerWidget {
     final recipe = ref.watch(recipeDetailsControllerProvider(recipeId)).value!;
 
     final servingsCtrl = useTextEditingController();
-    servingsCtrl.text = recipe.latestRevision.servings.toString();
+    // servingsCtrl.text = recipe.latestRevision.servings.toString();
 
     void onServingsChanges(value) async {
       final oldServingsCount = recipe.latestRevision.servings;
@@ -394,11 +349,6 @@ class IngredientsColumn extends HookConsumerWidget {
         servingsCtrl.text = oldServingsCount.toString();
       }
     }
-
-    // Future<bool> reload() async {
-    //   final bool success =
-    //       await notifier.loadRecipe(servings: value.toString());
-    // }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -422,6 +372,8 @@ class IngredientsColumn extends HookConsumerWidget {
                   onChanged: onServingsChanges,
                   // incIconSize: 20,
                   // decIconSize: 20,
+                  decIcon: Icons.remove_circle_outline,
+                  incIcon: Icons.add_circle_outline,
                   incIconDecoration: const BoxDecoration(),
                   decIconDecoration: const BoxDecoration(),
                   buttonArrangement: ButtonArrangement.incRightDecLeft,
@@ -580,7 +532,8 @@ TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient, int recipeId,
     if (value % 1 == 0) {
       return value.toInt().toString();
     }
-    return value.toString();
+    return value.toStringAsFixed(3).replaceFirst(RegExp(r'\.?0+$'), '');
+    ;
   }
 
   final amountMin = ingredient.amountMin != null
@@ -636,7 +589,11 @@ TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient, int recipeId,
           onTap: markCallback,
           child: Wrap(
             children: [
-              Text(food),
+              Text(
+                food,
+                style: TextStyle(
+                    fontWeight: isMarked ? FontWeight.bold : FontWeight.normal),
+              ),
               details != null
                   ? Padding(
                       padding: const EdgeInsets.only(left: 20),

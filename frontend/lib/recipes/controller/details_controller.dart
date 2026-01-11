@@ -60,19 +60,42 @@ class RecipeDetailsController extends _$RecipeDetailsController {
   }
 
   Future<bool> loadRecipe({String? servings}) async {
-    // final servings_ = servings ?? state.valueOrNull?.servings.toString();
-    final ret = await AsyncValue.guard(() => _loadRecipe());
-    if (ret.hasError) {
-      if (ret.error is ApiException) {
-        openReauthenticationDialog(
-            onConfirm: () => loadRecipe(servings: servings));
-      } else if (ret.error is ServerNotReachableException) {
-        openServerNotAvailableDialog();
-      }
-      return false;
+    var ret = await AsyncValue.guard(() => _loadRecipe());
+    // if (ret.hasError) {
+    //   if (ret.error is ApiException) {
+    //     openReauthenticationDialog(
+    //         onConfirm: () => loadRecipe(servings: servings));
+    //   } else if (ret.error is ServerNotReachableException) {
+    //     openServerNotAvailableDialog();
+    //   }
+    //   return false;
+    // }
+
+    // recipe pulled, now we calculate the modified servings count
+    if (servings != null && ret.value!.latestRevision.servings != null) {
+      final ratio = int.parse(servings) / ret.value!.latestRevision.servings!;
+
+      ret = AsyncValue.data(ret.value!.copyWith.latestRevision(
+          ingredientGroups: ret.value!.latestRevision.ingredientGroups
+              .map((g) => g.copyWith(
+                  ingredients: g.ingredients
+                      .map((i) => i.copyWith(
+                          amountMax: tryMultiply(i.amountMax, ratio),
+                          amountMin: tryMultiply(i.amountMin, ratio)))
+                      .toList()))
+              .toList()));
     }
+
     state = ret;
     return true;
+  }
+
+  double? tryMultiply(double? a, double ratio) {
+    if (a == null) {
+      return a;
+    }
+
+    return a * ratio;
   }
 
   Future<bool> reloadRecipe() async {
