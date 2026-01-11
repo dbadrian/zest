@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:zest/core/network/api_response.dart';
+import 'package:zest/core/providers/http_client_provider.dart';
 
 part 'api_status_provider.g.dart'; // Generated file
 
@@ -8,34 +11,31 @@ class ApiStatus extends _$ApiStatus {
   Timer? _timer;
 
   @override
-  Future<({bool isOnline, bool redirects})> build() async {
-    startChecking(const Duration(seconds: 5));
+  Future<({bool isOnline})> build() async {
+    startChecking(const Duration(seconds: 10));
     return await _checkBackendStatus();
   }
 
-  Future<({bool isOnline, bool redirects})> _checkBackendStatus() async {
+  Future<({bool isOnline})> _checkBackendStatus() async {
     // final SettingsState settings = ref.read(settingsProvider);
+    final client = ref.read(apiClientProvider);
 
-    return (isOnline: true, redirects: false);
-    // try {
-    //   final response =
-    //       await http.get(getAPIUrl(settings, "/info", withPostSlash: false));
-    //   // return response.statusCode == 200; // Online if status is 200
-    //   final isOnline = response.statusCode == 200 || response.statusCode == 201;
-    //   var redirects = false;
-    //   if (isOnline) {
-    //     final response2 =
-    //         await http.post(getAPIUrl(settings, "/info", withPostSlash: false));
-    //     if ((response2.statusCode == 301 || response2.statusCode == 302) &&
-    //         response2.headers['location']?.startsWith('https://') == true) {
-    //       redirects = true; // Redirects to HTTPS
-    //     }
-    //   }
-    //   debugPrint("isOnline: $isOnline, redirects: $redirects");
-    //   return (isOnline: isOnline, redirects: redirects);
-    // } catch (_) {
-    //   return (isOnline: false, redirects: false); // Offline in case of errors
-    // }
+    try {
+      final response = await AsyncValue.guard(
+          () => client.get<Map<String, dynamic>>("/info", (e) => e));
+
+      if (response.hasValue) {
+        if (response.value is ApiSuccess) {
+          return (isOnline: true);
+        } else {
+          return (isOnline: false);
+        }
+      } else {
+        return (isOnline: false);
+      }
+    } catch (_) {
+      return (isOnline: false); // Offline in case of errors
+    }
   }
 
   // Start periodic checks
@@ -54,8 +54,7 @@ class ApiStatus extends _$ApiStatus {
   }
 
   Future<void> updateStatus(bool isOnline) async {
-    state = AsyncValue.data(
-        (isOnline: isOnline, redirects: state.valueOrNull?.redirects ?? false));
+    state = AsyncValue.data((isOnline: isOnline));
   }
 }
 

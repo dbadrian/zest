@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:zest/authentication/reauthentication_dialog.dart';
+import 'package:zest/core/network/api_exception.dart';
 import 'package:zest/recipes/controller/details_controller.dart';
 import 'package:zest/recipes/controller/providers.dart';
 import 'package:zest/recipes/models/models.dart';
@@ -346,31 +348,45 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
       // TODO: handle the form by uploading via repository.
       // await widget.handleForm(formData);
 
-      if (widget.recipeId == null) {
-        final recipe =
-            await ref.read(recipeRepositoryProvider).createRecipe(draft);
-        if (recipe != null) {
-          if (context.mounted) {
-            // reopen editor with from the now created recipe
-            // such that widget.recipeId is set
-            // ignore: use_build_context_synchronously
-            context.goNamed(RecipeEditScreen.routeNameEdit,
-                pathParameters: {'id': recipe.id.toString()});
-          }
-        }
-      } else {
-        ref
-            .read(recipeRepositoryProvider)
-            .updateRecipe(widget.recipeId!, draft);
-      }
+      final recipe = await ((widget.recipeId == null)
+          ? AsyncValue.guard(
+              () => ref.read(recipeRepositoryProvider).createRecipe(draft))
+          : AsyncValue.guard(() => ref
+              .read(recipeRepositoryProvider)
+              .updateRecipe(widget.recipeId!, draft)));
 
-      debugPrint(draft.toJson().toString());
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Recipe saved successfully!')),
-        );
-      }
+      recipe.whenOrNull(
+          data: (data) {
+            if (data != null) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Recipe saved successfully!')),
+                );
+              }
+              if (context.mounted) {
+                // reopen editor with from the now created recipe
+                // such that widget.recipeId is set
+                // ignore: use_build_context_synchronously
+                context.goNamed(RecipeEditScreen.routeNameEdit,
+                    pathParameters: {'id': data.id.toString()});
+              }
+            }
+          },
+          error: (error, stackTrace) {
+            if ((error as ApiException).isNetworkError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content:
+                        Text('Error: Network down / Backend not reached!')),
+              );
+            } else if ((error as ApiException).isUnauthorized) {
+              debugPrint("Opening reauthentication dialog");
+              openReauthenticationDialog(context);
+            }
+            return false;
+          },
+          skipLoadingOnRefresh: true,
+          skipLoadingOnReload: true);
     } catch (e) {
       success = false;
       if (mounted) {
@@ -494,9 +510,9 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            _buildBasicInfoSection(isWide),
-                            const SizedBox(height: 32),
                             _buildMetadataSection(isWide),
+                            const SizedBox(height: 32),
+                            _buildBasicInfoSection(isWide),
                             const SizedBox(height: 32),
                             _buildTimeSection(isWide),
                             const SizedBox(height: 32),
@@ -588,6 +604,14 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
             Text('Recipe Details',
                 style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(child: _buildPrivateCheckbox()),
+                Expanded(child: _buildDraftCheckbox()),
+              ],
+            ),
+            const SizedBox(height: 20),
             if (isWide)
               Row(
                 children: [
@@ -601,14 +625,6 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
               const SizedBox(height: 16),
               _buildServingsField(),
             ],
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(child: _buildPrivateCheckbox()),
-                Expanded(child: _buildDraftCheckbox()),
-              ],
-            ),
             const SizedBox(height: 20),
             _buildDifficultySelector(),
           ],

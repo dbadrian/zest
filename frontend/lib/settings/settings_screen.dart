@@ -6,7 +6,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:zest/api/api_status_provider.dart';
 import 'package:zest/authentication/auth_service.dart';
 import 'package:zest/ui/login_screen.dart';
 
@@ -24,15 +23,8 @@ class SettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return const Scaffold(
       appBar: null,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SettingsForm(),
-          ],
-        ),
-      ),
+      resizeToAvoidBottomInset: true,
+      body: SettingsForm(),
     );
   }
 }
@@ -47,21 +39,25 @@ class SettingsForm extends ConsumerStatefulWidget {
 class SettingsFormState extends ConsumerState<SettingsForm> {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [
-          buildShowAdvancedSettingsCheckbox(ref),
-          const DividerText(text: "Theme"),
-          buildThemeOption(ref),
-          buildThemeBaseColorOption(ref, context),
-          const DividerText(text: "Language"),
-          buildLanguageSelector(ref),
-          buildSearchLanguageIndicator(ref),
-          buildAdvancedSettings(ref),
-          const ElementsVerticalSpace(),
-          const ElementsVerticalSpace(),
-          buildScreenButtons(context, ref)
-        ],
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            buildShowAdvancedSettingsCheckbox(ref),
+            const DividerText(text: "Theme"),
+            buildThemeOption(ref),
+            buildThemeBaseColorOption(ref, context),
+            const DividerText(text: "Language"),
+            buildLanguageSelector(ref),
+            buildSearchLanguageIndicator(ref),
+            buildAdvancedSettings(ref),
+            const ElementsVerticalSpace(),
+            const ElementsVerticalSpace(),
+            buildScreenButtons(context, ref)
+          ],
+        ),
       ),
     );
   }
@@ -262,17 +258,17 @@ class APIFieldWidget extends HookConsumerWidget {
       errorText += "Invalid URL!";
     }
 
-    // use apiStatusProvider to check if the URL is valid
-    final redirects = ref.watch(
-        apiStatusProvider.select((s) => s.valueOrNull?.redirects ?? false));
-    debugPrint("$redirects redirect");
-    if (redirects) {
-      showErrorText = true;
-      if (errorText.isNotEmpty) {
-        errorText += "\n";
-      }
-      errorText += "The URL is redirecting! Maybe use HTTPS?";
-    }
+    // // use apiStatusProvider to check if the URL is valid
+    // final redirects = ref.watch(
+    //     apiStatusProvider.select((s) => s.valueOrNull?.redirects ?? false));
+    // debugPrint("$redirects redirect");
+    // if (redirects) {
+    //   showErrorText = true;
+    //   if (errorText.isNotEmpty) {
+    //     errorText += "\n";
+    //   }
+    //   errorText += "The URL is redirecting! Maybe use HTTPS?";
+    // }
 
     return ListTile(
       leading: const Icon(Icons.connect_without_contact),

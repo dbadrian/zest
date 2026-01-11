@@ -17,7 +17,7 @@ class AuthInterceptor extends Interceptor {
   });
 
   @override
-  Future<http.Request> onRequest(http.Request request) async {
+  Future<http.BaseRequest> onRequest(http.BaseRequest request) async {
     final token = await getAccessToken();
 
     if (token != null && token.isNotEmpty) {

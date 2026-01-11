@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -50,6 +51,7 @@ class APIService {
     int? pageSize = 50,
     List<String>? categories,
     List<String>? languages,
+    bool? favoritesOnly,
   }) async {
     final queryParameters = {
       "q": query,
@@ -57,6 +59,7 @@ class APIService {
       if (pageSize != null) 'page_size': pageSize.toString(),
       if (categories != null && categories.isNotEmpty) 'categories': categories,
       if (languages != null) 'languages': languages,
+      if (favoritesOnly != null) 'favorites_only': favoritesOnly,
     };
 
     final response = await client.get<RecipeSearchListResponse>(
@@ -223,6 +226,18 @@ class APIService {
   Future<MultilingualData> getMultilingualData() async {
     final response = await client.get<MultilingualData>(
         "/recipes/multilingual", MultilingualData.fromJson);
+
+    if (response.isSuccess) {
+      return response.dataOrNull!;
+    } else {
+      throw response.errorOrNull!;
+    }
+  }
+
+  Future<Recipe> createRecipeFromFile(File file) async {
+    final response = await client.post<Recipe>(
+        "/recipes/from_file", Recipe.fromJson,
+        files: [file], timeout: Duration(minutes: 1));
 
     if (response.isSuccess) {
       return response.dataOrNull!;

@@ -93,10 +93,19 @@ class StaticDataRepository {
     bool onlineFirst = false,
   }) async {
     // check online status
-    if (onlineFirst && true) {
+    if (onlineFirst) {
       // TODO: Handle APIException
-      return (await _client.searchFoods(query, languages: languageFilter))
-          .results;
+      final ret = await AsyncValue.guard(
+          () => _client.searchFoods(query, languages: languageFilter));
+
+      return ret.when(
+        data: (data) => data.results,
+        error: (error, stackTrace) {
+          // TODO: return local search
+          return [];
+        },
+        loading: () => [],
+      );
     } else {
       // TODO: implement some sort of fuzzy search
       return getFoods();

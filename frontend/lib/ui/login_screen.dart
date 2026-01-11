@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:zest/core/network/api_exception.dart';
 import 'package:zest/main.dart';
 
 import 'package:zest/recipes/screens/recipe_search.dart';
@@ -51,8 +52,16 @@ class LoginPageState extends ConsumerState<LoginPage> {
               'admin@test.com';
     }
 
+    String errorMsg = "";
     if (state.hasError) {
-      passwordCtrl.clear();
+      // passwordCtrl.clear();
+      if ((state.error as ApiException).isNetworkError) {
+        errorMsg = "Network Error";
+      } else if ((state.error as ApiException).isTimeout) {
+        errorMsg = "Connection Timeout";
+      } else {
+        errorMsg = "Unknown Error";
+      }
     }
     passwordCtrl.text = "changethis";
 
@@ -87,7 +96,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
                     // validator: controller.emptyValidator,
                   ),
                 ),
-                const ElementsVerticalSpace(),
+                // const ElementsVerticalSpace(),
                 Stack(
                   children: [
                     // Expanded(
@@ -138,8 +147,9 @@ class LoginPageState extends ConsumerState<LoginPage> {
                 if (state.hasError)
                   Text(
                     key: const Key('loginError_incorrect_credentials'),
-                    "Login failed: ${ref.read(authenticationServiceProvider).error.toString()}",
+                    "Login failed: $errorMsg",
                     style: const TextStyle(
+                      // TODO: Use theme color
                       color: Colors.deepOrangeAccent,
                       fontSize: 14, //TODO: dont use fixed size
                       fontWeight: FontWeight.w300,

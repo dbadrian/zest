@@ -1,11 +1,14 @@
 import 'dart:io';
 
+import 'package:camera/camera.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:updat/updat.dart';
 import 'package:downloadsfolder/downloadsfolder.dart';
 import 'package:path/path.dart' as p;
+import 'package:zest/camera/screens.dart';
 
 import 'package:zest/main.dart';
 import 'package:zest/recipes/controller/search_controller.dart';
@@ -14,6 +17,7 @@ import 'package:zest/recipes/screens/recipe_edit.dart';
 import 'package:zest/settings/settings_screen.dart';
 import 'package:zest/ui/login_screen.dart';
 import 'package:zest/ui/widgets/generics.dart';
+import 'package:zest/ui/widgets/loader_dialog.dart';
 import 'package:zest/utils/update.dart';
 
 import '../api/api_service.dart';
@@ -49,39 +53,7 @@ class MainScaffold extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         title: backendStatus.valueOrNull?.isOnline ?? false
-            ? Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (backendStatus.valueOrNull?.redirects ?? false)
-                    (Platform.isLinux ||
-                            Platform.isWindows ||
-                            Platform.isWindows)
-                        ? Tooltip(
-                            message: "API Redirects to HTTPS. Please Correct!",
-                            child: Icon(
-                              Icons.warning_rounded,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onInverseSurface,
-                            ),
-                          )
-                        : Row(children: [
-                            Icon(
-                              Icons.warning_rounded,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onInverseSurface,
-                            ),
-                            const SizedBox(width: 5),
-                            Text("Redirects to HTTPS",
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onInverseSurface,
-                                    fontWeight: FontWeight.w600)),
-                          ]),
-                ],
-              )
+            ? Text("Online")
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -99,7 +71,7 @@ class MainScaffold extends ConsumerWidget {
               ),
         centerTitle: true,
         actions: [
-          if (isAuthenticated)
+          if (isAuthenticated) ...[
             IconButton(
               icon: const Icon(
                   key: Key("appbar_addrecipe_icon"), Icons.add_card_rounded),
@@ -109,7 +81,121 @@ class MainScaffold extends ConsumerWidget {
                     }
                   : null,
             ),
-          if (isAuthenticated)
+            if (Platform.isAndroid)
+              IconButton(
+                icon: const Icon(
+                    key: Key("appbar_addrecipecamera_icon"),
+                    Icons.camera_enhance),
+                onPressed: (backendStatus.valueOrNull?.isOnline ?? false)
+                    ? () async {
+                        context.goNamed(TakePictureScreen.routeName);
+                      }
+                    : null,
+              ),
+            IconButton(
+              icon: const Icon(
+                  key: Key("appbar_addrecipefile_icon"), Icons.upload_file),
+              onPressed: (backendStatus.valueOrNull?.isOnline ?? false)
+                  ? () async {
+                      bool userIsWaiting = true;
+
+                      final result = await FilePicker.platform.pickFiles(
+                        type: FileType.custom,
+                        allowedExtensions: [
+                          'pdf',
+                          'jpg',
+                          'jpeg',
+                          'heic',
+                          'heif',
+                          'png'
+                        ],
+                      );
+                      if (result == null || result.files.isEmpty) {
+                        return;
+                      }
+
+                      final recipeFuture = ref
+                          .read(apiServiceProvider)
+                          .createRecipeFromFile(File(result.files[0].path!));
+
+                      if (!context.mounted) return;
+
+                      // Show progress dialog
+                      showDialog(
+                        context: context,
+                        barrierDismissible: true,
+                        builder: (_) {
+                          return PopScope(
+                            canPop: true,
+                            onPopInvokedWithResult: (_, __) {
+                              userIsWaiting = false;
+                            },
+                            child: AlertDialog(
+                              title: const Text("Uploading"),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  CircularProgressIndicator(),
+                                  SizedBox(height: 16),
+                                  Text(
+                                      "Uploading and processing file…\nWait to be redirected automatically, or feel free to close, you will be notified once its done."),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    userIsWaiting = false;
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text("Dismiss"),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                      try {
+                        final recipe = await recipeFuture;
+
+                        if (!context.mounted) return;
+
+                        if (userIsWaiting) {
+                          // Close dialog before navigation
+                          Navigator.of(context, rootNavigator: true).pop();
+
+                          context.goNamed(RecipeEditScreen.routeNameEdit,
+                              pathParameters: {'id': recipe.id.toString()});
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: TextButton(
+                                onPressed: () {
+                                  context.goNamed(
+                                      RecipeEditScreen.routeNameEdit,
+                                      pathParameters: {
+                                        'id': recipe.id.toString()
+                                      });
+                                },
+                                child: Text(
+                                    'Processing of "${recipe.latestRevision.title}" completed'),
+                              ),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (!context.mounted) return;
+
+                        Navigator.of(context, rootNavigator: true).pop();
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Upload failed: $e'),
+                          ),
+                        );
+                      }
+                    }
+                  : null,
+            ),
             IconButton(
               icon: const Icon(key: Key("appbar_search_icon"), Icons.search),
               onPressed: () {
@@ -118,6 +204,7 @@ class MainScaffold extends ConsumerWidget {
                 context.goNamed(RecipeSearchPage.routeName);
               },
             ),
+          ],
         ],
         iconTheme:
             IconThemeData(color: Theme.of(context).colorScheme.onPrimary),

@@ -24,7 +24,8 @@ class RecipeDetailsController extends _$RecipeDetailsController {
     final recipeValue = await AsyncValue.guard(() => _loadRecipe());
     if (recipeValue.hasError) {
       if (recipeValue.error is ApiException) {
-        openReauthenticationDialog(onConfirm: loadRecipe);
+        // TODO: handle elsewhere
+        // openReauthenticationDialog(onConfirm: loadRecipe);
       } else if (recipeValue.error is ServerNotReachableException) {
         openServerNotAvailableDialog();
       }
@@ -58,6 +59,10 @@ class RecipeDetailsController extends _$RecipeDetailsController {
 
   Future<bool> loadRecipe({String? servings, bool? toMetric}) async {
     var ret = await AsyncValue.guard(() => _loadRecipe());
+
+    if (ret.hasError) {
+      return false;
+    }
     // if (ret.hasError) {
     //   if (ret.error is ApiException) {
     //     openReauthenticationDialog(
@@ -115,19 +120,20 @@ class RecipeDetailsController extends _$RecipeDetailsController {
     return a * ratio;
   }
 
-  Future<bool> reloadRecipe() async {
-    final ret = await AsyncValue.guard(() => _loadRecipe());
-    if (ret.hasError) {
-      if (ret.error is ApiException) {
-        openReauthenticationDialog(onConfirm: () => _loadRecipe());
-      } else if (ret.error is ServerNotReachableException) {
-        openServerNotAvailableDialog();
-      }
-      return false;
-    }
-    state = ret;
-    return true;
-  }
+  // Future<bool> reloadRecipe() async {
+  //   final ret = await AsyncValue.guard(() => _loadRecipe());
+  //   if (ret.hasError) {
+  //     if (ret.error is ApiException) {
+  //       // TODO: handle reauth elsewhere...
+  //       // openReauthenticationDialog(onConfirm: () => _loadRecipe());
+  //     } else if (ret.error is ServerNotReachableException) {
+  //       openServerNotAvailableDialog();
+  //     }
+  //     return false;
+  //   }
+  //   state = ret;
+  //   return true;
+  // }
 
   // Future<bool> translateRecipe() async {
   //   if (!state.hasValue) {
@@ -283,7 +289,8 @@ class RecipeDetailsController extends _$RecipeDetailsController {
 
     if (ret.hasError) {
       if (ret.error is ApiException) {
-        openReauthenticationDialog(onConfirm: () => _deleteRecipe());
+        // TODO: handle reauth elsewhere
+        // openReauthenticationDialog(onConfirm: () => _deleteRecipe());
       } else if (ret.error is ServerNotReachableException) {
         openServerNotAvailableDialog();
       }

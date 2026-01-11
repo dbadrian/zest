@@ -66,9 +66,12 @@ class RecipeRepository {
     String query, {
     List<String>? languages,
     List<String>? categories,
+    bool? favoritesOnly,
   }) async {
     return await _client.searchRecipes(query,
-        languages: languages, categories: categories);
+        languages: languages,
+        categories: categories,
+        favoritesOnly: favoritesOnly);
   }
 }
 

@@ -74,6 +74,9 @@ dependencies:
   path: any
   flutter_riverpod: any
   url_launcher: ^6.3.2
+  camera: ^0.11.3
+  camera_linux: ^0.0.8
+  # camera_windows: ^
 
 dev_dependencies:
 

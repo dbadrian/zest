@@ -10,11 +10,11 @@ class LoggingInterceptor extends Interceptor {
   LoggingInterceptor({this.enabled = true});
 
   @override
-  Future<http.Request> onRequest(http.Request request) async {
+  Future<http.BaseRequest> onRequest(http.BaseRequest request) async {
     if (enabled) {
       debugPrint('→ ${request.method} ${request.url}');
       debugPrint('  Headers: ${request.headers}');
-      if (request.body.isNotEmpty) {
+      if (request is http.Request && request.body.isNotEmpty) {
         debugPrint('  Body: ${request.body}');
       }
     }

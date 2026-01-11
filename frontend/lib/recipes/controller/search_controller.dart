@@ -118,7 +118,7 @@ class RecipeSearchController extends _$RecipeSearchController {
   @override
   Future<RecipeSearchState> build() async {
     // state = const ;
-    final filterSettings = ref.watch(recipeSearchFilterSettingsProvider);
+    final filterSettings = ref.read(recipeSearchFilterSettingsProvider);
     final asyncState = await AsyncValue.guard(() async {
       return await _loadRecipes(
           query: "", page: 1, filterSettings: filterSettings);
@@ -136,16 +136,18 @@ class RecipeSearchController extends _$RecipeSearchController {
       required FilterSettingsState filterSettings}) async {
     final catmap = await ref.read(staticRepositoryProvider).getCategories();
     final mapcat = catmap.asMap();
+
     final ret = await ref.read(recipeRepositoryProvider).searchRecipes(
           query,
           // pagination related
           // page: page,
           // pageSize: filterSettings.pageSize,
           // query related
-          // favoritesOnly: filterSettings.favoritesOnly,
           // lcFilter: filterSettings.lcFilter.toList(),
           categories:
               filterSettings.categories.map((e) => mapcat[e]!.name).toList(),
+          // favoritesOnly: filterSettings.favoritesOnly,
+
           // searchFields: filterSettings.searchFields
           //     .map<String>((e) => API_RECIPE_SEARCH_FIELDS[e]!.left)
           //     .toList(),

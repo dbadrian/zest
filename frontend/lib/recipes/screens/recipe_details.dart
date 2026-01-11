@@ -57,9 +57,17 @@ class RecipeDetailsPage extends ConsumerWidget {
               child: const Text("Back"),
             ),
             ElevatedButton(
-              onPressed: () => ref
-                  .read(recipeDetailsControllerProvider(recipeId).notifier)
-                  .loadRecipe(),
+              onPressed: () async {
+                final success = await ref
+                    .read(recipeDetailsControllerProvider(recipeId).notifier)
+                    .loadRecipe();
+
+                if (!success && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Error: Couldn't load recipe!")),
+                  );
+                }
+              },
               child: const Text("Reload"),
             ),
           ],
@@ -434,8 +442,20 @@ class IngredientsColumn extends HookConsumerWidget {
                   ),
                   onPressed: () async {
                     toMetric = !toMetric;
-                    notifier.loadRecipe(
-                        servings: servingsCtrl.text, toMetric: toMetric);
+
+                    final success = await ref
+                        .read(
+                            recipeDetailsControllerProvider(recipeId).notifier)
+                        .loadRecipe(
+                            servings: servingsCtrl.text, toMetric: toMetric);
+
+                    if (!success && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text(
+                                "Error: Couldn't perform to metric conversion!")),
+                      );
+                    }
                   },
                   child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -997,9 +1017,15 @@ class TitleWidget extends ConsumerWidget {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             onPressed: () async {
-              await ref
+              final success = await ref
                   .read(recipeDetailsControllerProvider(recipeId).notifier)
-                  .reloadRecipe();
+                  .loadRecipe();
+
+              if (!success && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Error: Couldn't load recipe!")),
+                );
+              }
             },
           ),
         ),

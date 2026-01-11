@@ -123,10 +123,11 @@ class ReauthenticationDialog extends HookConsumerWidget {
   }
 }
 
-void openReauthenticationDialog({void Function()? onConfirm}) {
+void openReauthenticationDialog(BuildContext context,
+    {void Function()? onConfirm}) {
   showDialog<void>(
     barrierDismissible: false,
-    context: shellNavigatorKey.currentState!.overlay!.context,
+    context: context,
     builder: (BuildContext context) {
       return ReauthenticationDialog(onConfirm: onConfirm);
     },

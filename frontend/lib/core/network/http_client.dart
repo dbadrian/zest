@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
@@ -68,6 +69,7 @@ class ApiHttpClient {
     dynamic body,
     Duration? timeout,
     bool encodeJson = true,
+    List<File>? files,
   }) async {
     return _request<T>(
         method: 'POST',
@@ -76,7 +78,8 @@ class ApiHttpClient {
         body: body,
         timeout: timeout,
         fromJson: fromJson,
-        encodeJson: encodeJson);
+        encodeJson: encodeJson,
+        files: files);
   }
 
   Future<ApiResponse<T>> put<T>(
@@ -115,18 +118,20 @@ class ApiHttpClient {
         encodeJson: encodeJson);
   }
 
-  Future<ApiResponse<T>> _request<T>(
-      {required String method,
-      required String path,
-      required T Function(Map<String, dynamic>)? fromJson,
-      Map<String, String>? headers,
-      Map<String, dynamic>? queryParams,
-      dynamic body,
-      Duration? timeout,
-      int retryCount = 0,
-      int maxRedirects = 5,
-      String? absoluteUrl,
-      bool encodeJson = true}) async {
+  Future<ApiResponse<T>> _request<T>({
+    required String method,
+    required String path,
+    required T Function(Map<String, dynamic>)? fromJson,
+    Map<String, String>? headers,
+    Map<String, dynamic>? queryParams,
+    dynamic body,
+    Duration? timeout,
+    int retryCount = 0,
+    int maxRedirects = 5,
+    String? absoluteUrl,
+    bool encodeJson = true,
+    List<File>? files,
+  }) async {
     try {
       // Build URL
       Uri uri;
@@ -145,19 +150,30 @@ class ApiHttpClient {
       }
 
       // Build initial request
-      var request = http.Request(method, uri);
+      var request = files != null
+          ? http.MultipartRequest(method, uri)
+          : http.Request(method, uri);
       request.headers.addAll({
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         ...?headers,
       });
 
-      if (encodeJson) {
-        if (body != null) {
-          request.body = jsonEncode(body);
+      if (files != null && files.isNotEmpty) {
+        final filesDone = await Future.wait(files.map(
+            (f) async => (await http.MultipartFile.fromPath("file", f.path))));
+
+        (request as http.MultipartRequest).files.addAll(filesDone);
+      }
+
+      if (request is http.Request) {
+        if (encodeJson) {
+          if (body != null) {
+            request.body = jsonEncode(body);
+          }
+        } else {
+          request.bodyFields = body;
         }
-      } else {
-        request.bodyFields = body;
       }
 
       // Run request interceptors
@@ -211,7 +227,8 @@ class ApiHttpClient {
             body: body,
             timeout: timeout,
             maxRedirects: maxRedirects - 1,
-            absoluteUrl: redirectUrl);
+            absoluteUrl: redirectUrl,
+            files: files);
       } else {
         throw ApiException.fromResponse(processedResponse);
       }
