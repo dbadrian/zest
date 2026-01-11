@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:zest/recipes/models/models.dart';
 
@@ -14,8 +15,18 @@ abstract class Ingredient with _$Ingredient {
     required Unit? unit,
   }) = _Ingredient;
 
+  const Ingredient._();
   factory Ingredient.fromJson(Map<String, dynamic> json) =>
       _$IngredientFromJson(json);
+
+  bool hasMetricConversion() {
+    if (unit != null &&
+        unit!.unitSystem != "Metric" &&
+        unit!.unitSystem.isNotEmpty) {
+      return true;
+    }
+    return false;
+  }
 }
 
 @freezed
@@ -78,7 +89,19 @@ abstract class Recipe with _$Recipe {
     @JsonKey(name: 'latest_revision') required RecipeRevision latestRevision,
   }) = _Recipe;
 
+  const Recipe._();
   factory Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
+
+  bool hasMetricConversion() {
+    for (final g in latestRevision.ingredientGroups) {
+      for (final i in g.ingredients) {
+        if (i.hasMetricConversion()) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 }
 
 @freezed

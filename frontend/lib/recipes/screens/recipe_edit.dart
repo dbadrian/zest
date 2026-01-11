@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:zest/recipes/controller/details_controller.dart';
-import 'package:zest/recipes/controller/edit_providers.dart';
+import 'package:zest/recipes/controller/providers.dart';
 import 'package:zest/recipes/models/models.dart';
 import 'package:zest/recipes/models/recipe_draft.dart';
 import 'package:zest/recipes/recipe_repository.dart';

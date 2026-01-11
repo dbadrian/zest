@@ -34,9 +34,6 @@ class RecipeDetailsController extends _$RecipeDetailsController {
     }
   }
 
-  // TODO: Public getter/setter -> not recommended
-  bool toMetric = false;
-
   bool get isEditable {
     if (state.hasValue) {
       // all values should be not null if user got to this point
@@ -59,7 +56,7 @@ class RecipeDetailsController extends _$RecipeDetailsController {
     return await ref.read(recipeRepositoryProvider).getRecipeById(recipeId);
   }
 
-  Future<bool> loadRecipe({String? servings}) async {
+  Future<bool> loadRecipe({String? servings, bool? toMetric}) async {
     var ret = await AsyncValue.guard(() => _loadRecipe());
     // if (ret.hasError) {
     //   if (ret.error is ApiException) {
@@ -86,6 +83,26 @@ class RecipeDetailsController extends _$RecipeDetailsController {
               .toList()));
     }
 
+    if (toMetric != null && toMetric) {
+      ret = AsyncValue.data(ret.value!.copyWith.latestRevision(
+          ingredientGroups: ret.value!.latestRevision.ingredientGroups
+              .map((g) => g.copyWith(
+                      ingredients: g.ingredients.map((i) {
+                    if (!i.hasMetricConversion()) {
+                      return i;
+                    }
+
+                    return i.copyWith(
+                        unit: i.unit!.copyWith(
+                            name: i.unit!.baseUnit!, unitSystem: "Metric"),
+                        amountMax: tryMultiply(
+                            i.amountMax, i.unit?.conversionFactor ?? 1.0),
+                        amountMin: tryMultiply(
+                            i.amountMin, i.unit?.conversionFactor ?? 1.0));
+                  }).toList()))
+              .toList()));
+    }
+
     state = ret;
     return true;
   }
@@ -99,7 +116,6 @@ class RecipeDetailsController extends _$RecipeDetailsController {
   }
 
   Future<bool> reloadRecipe() async {
-    toMetric = false;
     final ret = await AsyncValue.guard(() => _loadRecipe());
     if (ret.hasError) {
       if (ret.error is ApiException) {

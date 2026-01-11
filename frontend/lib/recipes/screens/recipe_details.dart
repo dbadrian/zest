@@ -1,3 +1,4 @@
+import 'package:downloadsfolder/downloadsfolder.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -6,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:number_inc_dec/number_inc_dec.dart';
+import 'package:zest/recipes/controller/providers.dart';
 import 'package:zest/recipes/controller/search_controller.dart';
 import 'package:zest/recipes/screens/recipe_edit.dart' hide Ingredient;
 import 'package:zest/recipes/screens/recipe_search.dart';
@@ -280,7 +282,9 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
                     children: [
                       if (recipe.latestRevision.prepTime != null) ...[
                         const Text("Preparation Time: "),
-                        Text(recipe.latestRevision.prepTime.toString()),
+                        if (recipe.latestRevision.prepTime! > 0)
+                          Text("${recipe.latestRevision.prepTime! ~/ 60} h "),
+                        Text("${recipe.latestRevision.prepTime! % 60} m"),
                       ]
                     ],
                   ),
@@ -288,7 +292,9 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
                     children: [
                       if (recipe.latestRevision.cookTime != null) ...[
                         const Text("      Cooking Time: "),
-                        Text(recipe.latestRevision.cookTime.toString()),
+                        if (recipe.latestRevision.cookTime! > 0)
+                          Text("${recipe.latestRevision.cookTime! ~/ 60} h "),
+                        Text("${recipe.latestRevision.cookTime! % 60} m"),
                       ]
                     ],
                   ),
@@ -325,122 +331,160 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
 }
 
 class IngredientsColumn extends HookConsumerWidget {
-  const IngredientsColumn({super.key, required this.recipeId});
+  IngredientsColumn({super.key, required this.recipeId});
   final int recipeId;
+  bool toMetric = false;
+  bool toSiUnits = false;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // final curr settings = ref.watch(settingsProvider.);
     // final label =
     //     ref.watch(settingsProvider.select((settings) => settings.));
+    // TODO: get language settings
+    // TODO: get default to metric setting
+
+    final staticData = ref.watch(recipeStaticDataProvider);
+
     final notifier =
         ref.read(recipeDetailsControllerProvider(recipeId).notifier);
     final recipe = ref.watch(recipeDetailsControllerProvider(recipeId)).value!;
 
     final servingsCtrl = useTextEditingController();
-    // servingsCtrl.text = recipe.latestRevision.servings.toString();
 
     void onServingsChanges(value) async {
       final oldServingsCount = recipe.latestRevision.servings;
-      final bool success =
-          await notifier.loadRecipe(servings: value.toString());
+      final bool success = await notifier.loadRecipe(
+          servings: value.toString(), toMetric: toMetric);
       if (!success) {
         // // reset counter to account for the unsuccesful load
         servingsCtrl.text = oldServingsCount.toString();
       }
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const ElementsVerticalSpace(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+    return staticData.when(
+      data: (data) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (recipe.latestRevision.servings != null) ...[
-              SizedBox(
-                width: 90.0,
-                height: 30.0,
-                child: NumberInputWithIncrementDecrement(
-                  controller: servingsCtrl,
-                  initialValue: recipe.latestRevision.servings!,
-                  min: 1,
-                  max: 99,
-                  onIncrement: onServingsChanges,
-                  onDecrement: onServingsChanges,
-                  onChanged: onServingsChanges,
-                  // incIconSize: 20,
-                  // decIconSize: 20,
-                  decIcon: Icons.remove_circle_outline,
-                  incIcon: Icons.add_circle_outline,
-                  incIconDecoration: const BoxDecoration(),
-                  decIconDecoration: const BoxDecoration(),
-                  buttonArrangement: ButtonArrangement.incRightDecLeft,
-                  numberFieldDecoration: const InputDecoration(
-                    contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
-                    border: OutlineInputBorder(
-                        // borderRadius:
-                        //     BorderRadius.circular(8.0),
-                        ),
-                  ),
-                  widgetContainerDecoration: const BoxDecoration(
-                      // border: Border.all(
-                      //     // color: Colors.pink,
-                      //     ),
+            const ElementsVerticalSpace(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (recipe.latestRevision.servings != null) ...[
+                  SizedBox(
+                    width: 90.0,
+                    height: 30.0,
+                    child: NumberInputWithIncrementDecrement(
+                      controller: servingsCtrl,
+                      initialValue: recipe.latestRevision.servings!,
+                      min: 1,
+                      max: 99,
+                      onIncrement: onServingsChanges,
+                      onDecrement: onServingsChanges,
+                      onChanged: onServingsChanges,
+                      // incIconSize: 20,
+                      // decIconSize: 20,
+                      decIcon: Icons.remove_circle_outline,
+                      incIcon: Icons.add_circle_outline,
+                      incIconDecoration: const BoxDecoration(),
+                      decIconDecoration: const BoxDecoration(),
+                      buttonArrangement: ButtonArrangement.incRightDecLeft,
+                      numberFieldDecoration: const InputDecoration(
+                        contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
+                        border: OutlineInputBorder(
+                            // borderRadius:
+                            //     BorderRadius.circular(8.0),
+                            ),
                       ),
+                      widgetContainerDecoration: const BoxDecoration(
+                          // border: Border.all(
+                          //     // color: Colors.pink,
+                          //     ),
+                          ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  const Text(" servings",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(
+                    width: 25,
+                  ),
+                ],
+                // if (recipe.hasMetricConversion())
+                TextButton(
+                  style: TextButton.styleFrom(
+                    textStyle: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  onPressed: () async {
+                    toMetric = !toMetric;
+                    notifier.loadRecipe(
+                        servings: servingsCtrl.text, toMetric: toMetric);
+                  },
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        IconTheme(
+                          data: IconThemeData(
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 12,
+                          ),
+                          child: const FaIcon(FontAwesomeIcons.rightLeft),
+                        ),
+                        Text(" Metric"),
+                      ]),
                 ),
-              ),
-              const SizedBox(
-                width: 5,
-              ),
-              const SizedBox(
-                width: 5,
-              ),
-              const Text(" servings",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(
-                width: 25,
-              ),
-            ]
-            // if (recipe.hasMetricConversion())
-            //   TextButton(
-            //     style: TextButton.styleFrom(
-            //       textStyle: Theme.of(context).textTheme.labelLarge,
-            //     ),
-            //     onPressed: () async {
-            //       notifier.toMetric = !notifier.toMetric;
-            //       notifier.loadRecipe(servings: servingsCtrl.text);
-            //     },
-            //     child: Row(
-            //         crossAxisAlignment: CrossAxisAlignment.center,
-            //         children: [
-            //           IconTheme(
-            //             data: IconThemeData(
-            //               color: Theme.of(context).colorScheme.primary,
-            //               size: 12,
-            //             ),
-            //             child: const FaIcon(FontAwesomeIcons.rightLeft),
-            //           ),
-            //           Text(
-            //             notifier.toMetric ? " To original units" : " To Metric",
-            //           ),
-            //         ]),
-            //   ),
-            // IconButton(
-            //     onPressed: () async {
-            //       notifier.translateRecipe();
-            //     },
-            //     icon: FaIcon(FontAwesomeIcons.octopusDeploy)),
+                // TextButton(
+                //   style: TextButton.styleFrom(
+                //     textStyle: Theme.of(context).textTheme.labelLarge,
+                //   ),
+                //   onPressed: () async {
+                //     toMetric = !toMetric;
+                //     notifier.loadRecipe(
+                //         servings: servingsCtrl.text, toMetric: toMetric);
+                //   },
+                //   child:
+                //       Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                //     IconTheme(
+                //       data: IconThemeData(
+                //         color: Theme.of(context).colorScheme.primary,
+                //         size: 12,
+                //       ),
+                //       child: const FaIcon(FontAwesomeIcons.rightLeft),
+                //     ),
+                //     Text(" SI"),
+                //   ]),
+                // ),
+                // IconButton(
+                //     onPressed: () async {
+                //       notifier.translateRecipe();
+                //     },
+                //     icon: FaIcon(FontAwesomeIcons.octopusDeploy)),
 
-            // icon: Icon(Icons.translate)),
+                // icon: Icon(Icons.translate)),
+              ],
+            ),
+            IngredientGroupsWidget(
+              groups: recipe.latestRevision.ingredientGroups,
+              recipeId: recipeId,
+              currentLangData: data.currentLanguageData,
+            )
           ],
-        ),
-        IngredientGroupsWidget(
-          groups: recipe.latestRevision.ingredientGroups,
-          recipeId: recipeId,
-        )
-      ],
+        );
+      },
+      error: (error, stackTrace) {
+        return Text(
+            "An error loading resources occured, try refreshing the window.");
+      },
+      loading: () {
+        return CircularProgressIndicator();
+      },
     );
   }
 }
@@ -653,9 +697,13 @@ TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient, int recipeId,
 
 class IngredientGroupWidget extends ConsumerStatefulWidget {
   const IngredientGroupWidget(
-      {super.key, required this.recipeId, required this.group});
+      {super.key,
+      required this.recipeId,
+      required this.group,
+      required this.currentLangData});
   final int recipeId;
   final IngredientGroup group;
+  final Map<String, dynamic> currentLangData;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -692,11 +740,17 @@ class _IngredientGroupWidgetState extends ConsumerState<IngredientGroupWidget> {
           },
           children: widget.group.ingredients
               .asMap()
-              .map((i, ingredient) => MapEntry(
+              .map((i, ingr) => MapEntry(
                   i,
                   buildIngredientRow(
                       ref,
-                      ingredient,
+                      ingr.copyWith(
+                          unit: ingr.unit?.copyWith(
+                              name: widget.currentLangData["units"]
+                                  [ingr.unit!.name][(ingr.amountMax != null ||
+                                      ingr.amountMin != 1)
+                                  ? "plural"
+                                  : "singular"])),
                       widget.recipeId,
                       isMarked[i],
                       () => setState(() {
@@ -712,9 +766,13 @@ class _IngredientGroupWidgetState extends ConsumerState<IngredientGroupWidget> {
 
 class IngredientGroupsWidget extends StatelessWidget {
   final List<IngredientGroup> groups;
+  final Map<String, dynamic> currentLangData;
 
   const IngredientGroupsWidget(
-      {super.key, required this.groups, required this.recipeId});
+      {super.key,
+      required this.groups,
+      required this.recipeId,
+      required this.currentLangData});
   final int recipeId;
 
   @override
@@ -728,9 +786,9 @@ class IngredientGroupsWidget extends StatelessWidget {
             .map((e) => Padding(
                 padding: const EdgeInsets.only(top: 10),
                 child: IngredientGroupWidget(
-                  group: e,
-                  recipeId: recipeId,
-                )))
+                    group: e,
+                    recipeId: recipeId,
+                    currentLangData: currentLangData)))
             .toList(),
       ),
     );
