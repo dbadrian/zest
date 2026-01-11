@@ -276,30 +276,40 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
                 child: FaIcon(FontAwesomeIcons.clock,
                     color: Theme.of(context).colorScheme.primary),
               ),
-              Column(
+              // TODO: The manual alignment is dogshit.
+              Table(
+                columnWidths: const {
+                  0: IntrinsicColumnWidth(), // label column adapts to widest label
+                  1: FixedColumnWidth(8), // small gap between colon and time
+                  2: IntrinsicColumnWidth(), // time column fills remaining space
+                },
                 children: [
-                  Row(
-                    children: [
-                      if (recipe.latestRevision.prepTime != null) ...[
-                        const Text("Preparation Time: "),
-                        if (recipe.latestRevision.prepTime! > 0)
-                          Text("${recipe.latestRevision.prepTime! ~/ 60} h "),
-                        Text("${recipe.latestRevision.prepTime! % 60} m"),
-                      ]
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      if (recipe.latestRevision.cookTime != null) ...[
-                        const Text("      Cooking Time: "),
-                        if (recipe.latestRevision.cookTime! > 0)
-                          Text("${recipe.latestRevision.cookTime! ~/ 60} h "),
-                        Text("${recipe.latestRevision.cookTime! % 60} m"),
-                      ]
-                    ],
-                  ),
+                  if (recipe.latestRevision.prepTime != null)
+                    TableRow(children: [
+                      const Text("Preparation Time"),
+                      const Text(":"), // colon aligned in its own column
+                      Text(
+                        "${recipe.latestRevision.prepTime! ~/ 60} h ${recipe.latestRevision.prepTime! % 60} m",
+                      ),
+                    ]),
+                  if (recipe.latestRevision.cookTime != null)
+                    TableRow(children: [
+                      const Text("Cooking Time"),
+                      const Text(":"),
+                      Text(
+                        "${recipe.latestRevision.cookTime! ~/ 60} h ${recipe.latestRevision.cookTime! % 60} m",
+                      ),
+                    ]),
+                  if (recipe.latestRevision.totalTime() != null)
+                    TableRow(children: [
+                      const Text("Total Time"),
+                      const Text(":"),
+                      Text(
+                        "${recipe.latestRevision.totalTime()! ~/ 60} h ${recipe.latestRevision.totalTime()! % 60} m",
+                      ),
+                    ]),
                 ],
-              ),
+              )
             ],
           ),
         ],
@@ -746,11 +756,13 @@ class _IngredientGroupWidgetState extends ConsumerState<IngredientGroupWidget> {
                 // translate, and also choose appropiate plural/singular term
                 if (ingr.unit != null) {
                   final data = widget.currentLangData["units"][ingr.unit!.name]
-                      as Map<String, dynamic>;
-                  if (ingr.amountMax != null || ingr.amountMin != 1) {
-                    unitTranslationString = data["plural"];
-                  } else {
-                    unitTranslationString = data["singular"];
+                      as Map<String, dynamic>?;
+                  if (data != null) {
+                    if (ingr.amountMax != null || ingr.amountMin != 1) {
+                      unitTranslationString = data["plural"];
+                    } else {
+                      unitTranslationString = data["singular"];
+                    }
                   }
                 }
 

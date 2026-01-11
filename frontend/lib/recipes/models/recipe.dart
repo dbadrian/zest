@@ -71,8 +71,18 @@ abstract class RecipeRevision with _$RecipeRevision {
     required List<IngredientGroup> ingredientGroups,
   }) = _RecipeRevision;
 
+  const RecipeRevision._();
+
   factory RecipeRevision.fromJson(Map<String, dynamic> json) =>
       _$RecipeRevisionFromJson(json);
+
+  int? totalTime() {
+    if (prepTime == null && cookTime == null) {
+      return null;
+    }
+
+    return (prepTime ?? 0) + (cookTime ?? 0);
+  }
 }
 
 @freezed

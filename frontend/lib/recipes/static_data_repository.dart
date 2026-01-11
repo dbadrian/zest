@@ -95,7 +95,8 @@ class StaticDataRepository {
     // check online status
     if (onlineFirst && true) {
       // TODO: Handle APIException
-      return (await _client.searchFoods(query)).results;
+      return (await _client.searchFoods(query, languages: languageFilter))
+          .results;
     } else {
       // TODO: implement some sort of fuzzy search
       return getFoods();

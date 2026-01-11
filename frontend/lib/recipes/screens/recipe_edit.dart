@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -601,9 +602,13 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
               _buildServingsField(),
             ],
             const SizedBox(height: 20),
-            _buildPrivateCheckbox(),
-            const SizedBox(height: 20),
-            _buildDraftCheckbox(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(child: _buildPrivateCheckbox()),
+                Expanded(child: _buildDraftCheckbox()),
+              ],
+            ),
             const SizedBox(height: 20),
             _buildDifficultySelector(),
           ],
@@ -614,7 +619,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
 
   Widget _buildLanguageDropdown() {
     return DropdownButtonFormField<String>(
-      initialValue: _selectedLanguage = "en",
+      initialValue: _selectedLanguage,
       decoration: const InputDecoration(
         labelText: 'Language *',
         border: OutlineInputBorder(),
@@ -635,6 +640,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
       onChanged: (v) {
         setState(() => _selectedLanguage = v);
       },
+
       validator: (v) => v == null ? 'Language is required' : null,
     );
   }
@@ -1077,6 +1083,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
             const SizedBox(height: 16),
             ReorderableListView.builder(
               shrinkWrap: true,
+              buildDefaultDragHandles: false,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _ingredientGroups.length,
               onReorder: (oldIndex, newIndex) {
@@ -1105,7 +1112,11 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                     searchFoods: (String query) async {
                       final ret = await ref
                           .read(staticRepositoryProvider)
-                          .searchFoods(query, onlineFirst: true);
+                          .searchFoods(query,
+                              onlineFirst: true,
+                              languageFilter: _selectedLanguage != null
+                                  ? [_selectedLanguage!]
+                                  : null);
                       return ret;
                     },
                     canMoveUp: i > 0,
@@ -1296,7 +1307,7 @@ class _InstructionGroupWidget extends StatelessWidget {
                 Icon(Icons.drag_indicator, color: Colors.grey[600]),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text('Step ${index + 1}',
+                  child: Text('Instruction Group ${index + 1}',
                       style: const TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 if (canMoveUp)
@@ -1322,8 +1333,8 @@ class _InstructionGroupWidget extends StatelessWidget {
             const SizedBox(height: 12),
             TextFormField(
               controller: group.nameController,
-              decoration: const InputDecoration(
-                labelText: 'Step Title',
+              decoration: InputDecoration(
+                labelText: 'Instruction Group ${index + 1} Title',
                 border: OutlineInputBorder(),
                 filled: true,
                 fillColor: Colors.white,
@@ -1537,13 +1548,16 @@ class _IngredientGroupWidgetState extends State<_IngredientGroupWidget> {
             const SizedBox(height: 16),
             ReorderableListView.builder(
               shrinkWrap: true,
+              buildDefaultDragHandles:
+                  !(defaultTargetPlatform == TargetPlatform.windows ||
+                      defaultTargetPlatform == TargetPlatform.linux ||
+                      defaultTargetPlatform == TargetPlatform.macOS),
               physics: const NeverScrollableScrollPhysics(),
               itemCount: widget.group.ingredients.length,
               onReorder: widget.onReorderIngredients,
               itemBuilder: (context, i) {
-                return Padding(
-                  key: ValueKey('ingredient_${widget.index}_$i'),
-                  padding: const EdgeInsets.only(bottom: 12),
+                final child = Padding(
+                  padding: const EdgeInsets.only(bottom: 12, right: 8),
                   child: _IngredientWidget(
                     ingredient: widget.group.ingredients[i],
                     units: widget.units,
@@ -1570,6 +1584,20 @@ class _IngredientGroupWidgetState extends State<_IngredientGroupWidget> {
                             setState(() => widget.group.ingredients.removeAt(i))
                         : null,
                   ),
+                );
+
+                return Row(
+                  key: ValueKey('ingredient_${widget.index}_$i'),
+                  children: [
+                    Expanded(child: child),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 2),
+                      child: ReorderableDragStartListener(
+                        index: i,
+                        child: const Icon(Icons.drag_handle),
+                      ),
+                    ),
+                  ],
                 );
               },
             ),
@@ -1621,13 +1649,15 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
   Unit? _currentUnitSelection;
   Food? _currentFoodSelection;
 
+  bool showComment = false;
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isWide = constraints.maxWidth > 600;
         return Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(8),
@@ -1638,13 +1668,24 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
               if (isWide)
                 Row(
                   children: [
-                    Expanded(flex: 2, child: _buildUnitDropdown()),
-                    const SizedBox(width: 8),
-                    Expanded(flex: 2, child: _buildFoodField()),
-                    const SizedBox(width: 8),
                     Expanded(child: _buildAmountMinField()),
                     const SizedBox(width: 8),
                     Expanded(child: _buildAmountMaxField()),
+                    const SizedBox(width: 8),
+                    Expanded(flex: 2, child: _buildUnitDropdown()),
+                    const SizedBox(width: 8),
+                    Expanded(flex: 2, child: _buildFoodField()),
+                    if (!showComment) ...[
+                      const SizedBox(width: 8),
+                      IconButton(
+                          onPressed: () {
+                            setState(() {
+                              showComment = true;
+                            });
+                          },
+                          icon: Icon(Icons.comment))
+                    ],
+                    const SizedBox(width: 8),
                     if (widget.onRemove != null)
                       IconButton(
                         icon: const Icon(Icons.close, size: 20),
@@ -1674,8 +1715,10 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
                   ],
                 ),
               ],
-              const SizedBox(height: 8),
-              _buildCommentField(),
+              if (showComment) ...[
+                const SizedBox(height: 8),
+                _buildCommentField(),
+              ],
             ],
           ),
         );
@@ -1816,8 +1859,8 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
   Widget _buildAmountMaxField() {
     return TextFormField(
       controller: widget.ingredient.amountMaxController,
-      decoration: const InputDecoration(
-        labelText: 'Max',
+      decoration: InputDecoration(
+        labelText: 'Max (opt.)',
         border: OutlineInputBorder(),
         isDense: true,
       ),
