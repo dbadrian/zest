@@ -308,7 +308,10 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
 
     setState(() => _isSubmitting = true);
     var success = true;
+
     try {
+      final prepTime = _prepTimeHours * 60 + _prepTimeMinutes;
+      final cookTime = _cookTimeHours * 60 + _cookTimeMinutes;
       final draft = RecipeDraft(
           language: _selectedLanguage = "en",
           isPrivate: _isPrivate,
@@ -324,8 +327,8 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                   : _ownerCommentController.text,
               difficulty: _difficulty,
               servings: int.tryParse(_servingsController.text),
-              prepTime: _prepTimeHours * 60 + _prepTimeMinutes,
-              cookTime: _cookTimeHours * 60 + _cookTimeMinutes,
+              prepTime: prepTime > 0 ? prepTime : null,
+              cookTime: cookTime > 0 ? cookTime : null,
               sourceName: _sourceNameController.text.isEmpty
                   ? null
                   : _sourceNameController.text,

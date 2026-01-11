@@ -81,9 +81,13 @@ class RecipeListTile extends ConsumerWidget {
       ),
       visualDensity: const VisualDensity(horizontal: 0, vertical: -4),
       title: Row(children: [
-        Text(title ?? "Untitled",
-            style: const TextStyle(
-                fontWeight: FontWeight.w600)), // TODO: if null remove widget
+        Expanded(
+          child: Text(
+            title ?? "Untitled",
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
         if (isDraft) ...[
           SizedBox(
             width: 5,

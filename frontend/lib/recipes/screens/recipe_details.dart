@@ -953,9 +953,10 @@ class TitleWidget extends ConsumerWidget {
           padding: const EdgeInsets.only(left: 20),
           child: TextButton(
             child: Text(
-                recipe!.latestRevision.title ??
-                    "Untitled", // TODO: if null remove widget
-                style: const TextStyle(fontSize: 20)),
+              recipe!.latestRevision.title ??
+                  "Untitled", // TODO: if null remove widget
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
             onPressed: () async {
               await ref
                   .read(recipeDetailsControllerProvider(recipeId).notifier)
