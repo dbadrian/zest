@@ -2,16 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:http/http.dart' as http;
-import 'package:http_interceptor/http_interceptor.dart';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/api/responses/multilingual_data_response.dart';
 import 'package:zest/api/responses/recipe_category_list_response.dart';
 import 'package:zest/core/network/http_client.dart';
 import 'package:zest/core/providers/http_client_provider.dart';
 import 'package:zest/recipes/models/recipe_draft.dart';
-
-import 'package:zest/utils/networking.dart';
 
 import '../recipes/models/models.dart';
 import 'responses/responses.dart';
@@ -258,76 +255,60 @@ APIService apiService(Ref ref) => APIService(
 // //////////////////////////////////////////////////////////////////////////////
 
 class GithubService {
-  final Client client;
+  final ApiHttpClient client;
   final Ref ref;
 
   GithubService({required this.ref, required this.client});
 
   Future<String?> getLatestVersion({bool withoutLeadingV = true}) async {
-    const url = "https://api.github.com/repos/dbadrian/zest/releases/latest";
     const headers = {
       "Accept": "application/vnd.github.v3+json",
       "X-GitHub-Api-Version": "2022-11-28",
     };
 
-    // final ret = await client.get(Uri.parse(url), headers: headers);
-    try {
-      return genericResponseHandler(
-        requestCallback: () async =>
-            client.get(Uri.parse(url), headers: headers),
-        create: (json) {
-          // check if tag_name is in the json
-          if (json.containsKey("tag_name")) {
-            if (withoutLeadingV) {
-              return json["tag_name"].toString().substring(1);
-            }
-            return json["tag_name"].toString();
-          }
-          return null;
-        },
-      );
+    final response = await client.get<Map<String, dynamic>>(
+        "/releases/latest", (e) => e,
+        headers: headers);
 
-      // on AuthException {
-      //   developer.log("Triggered an auth exception",
-      //       name: 'APIservice.updateRecipeRemote');
-      //   // Get.offNamed(Get.currentRoute);
-      //   throw AuthException();
-      // } on ResourceNotFoundException catch (e) {
-      //   developer.log("ResourceNotFound: ${e.message}");
-      //   return null;
-    } on Exception {
-      // developer.log("BadRequest: ${e.message}");
+    if (response.isSuccess) {
+      final json = response.dataOrNull ?? {};
+      if (json.containsKey("tag_name")) {
+        if (withoutLeadingV) {
+          return json["tag_name"].toString().substring(1);
+        }
+        return json["tag_name"].toString();
+      }
       return null;
+    } else {
+      // Handle error outside.
+      throw response.errorOrNull!;
     }
   }
 
   Future<List<Map<String, dynamic>>?> getLatestAssetList(
       {bool withoutLeadingV = true}) async {
-    const url = "https://api.github.com/repos/dbadrian/zest/releases/latest";
     const headers = {
       "Accept": "application/vnd.github.v3+json",
       "X-GitHub-Api-Version": "2022-11-28",
     };
 
-    // final ret = await client.get(Uri.parse(url), headers: headers);
-    try {
-      return genericResponseHandler(
-        requestCallback: () async =>
-            client.get(Uri.parse(url), headers: headers),
-        create: (json) {
-          // check if tag_name is in the json
-          if (json.containsKey("assets")) {
-            final ret = (json["assets"] as List)
-                .map((e) => e as Map<String, dynamic>)
-                .toList();
-            return ret;
-          }
-          return null;
-        },
-      );
-    } on Exception {
-      // developer.log("BadRequest: ${e.message}");
+    final response = await client.get<Map<String, dynamic>>(
+        "/releases/latest", (e) => e,
+        headers: headers);
+
+    if (response.isSuccess) {
+      final json = response.dataOrNull ?? {};
+      // check if tag_name is in the json
+      if (json.containsKey("assets")) {
+        final ret = (json["assets"] as List)
+            .map((e) => e as Map<String, dynamic>)
+            .toList();
+        return ret;
+      }
       return null;
+    } else {
+      // Handle error outside.
+      throw response.errorOrNull!;
     }
   }
 }
@@ -335,5 +316,6 @@ class GithubService {
 @Riverpod(keepAlive: true)
 GithubService githubService(Ref ref) => GithubService(
       ref: ref,
-      client: http.Client(),
+      client:
+          ApiHttpClient(baseUrl: "https://api.github.com/repos/dbadrian/zest"),
     );
