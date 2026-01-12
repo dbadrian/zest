@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -269,7 +270,6 @@ class GithubService {
     final response = await client.get<Map<String, dynamic>>(
         "/releases/latest", (e) => e,
         headers: headers);
-
     if (response.isSuccess) {
       final json = response.dataOrNull ?? {};
       if (json.containsKey("tag_name")) {
@@ -317,5 +317,6 @@ class GithubService {
 GithubService githubService(Ref ref) => GithubService(
       ref: ref,
       client:
+          // TODO: LOW currently broken, as repo is private...lol
           ApiHttpClient(baseUrl: "https://api.github.com/repos/dbadrian/zest"),
     );
