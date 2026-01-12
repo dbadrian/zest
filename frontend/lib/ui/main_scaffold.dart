@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:camera/camera.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -17,7 +16,6 @@ import 'package:zest/recipes/screens/recipe_edit.dart';
 import 'package:zest/settings/settings_screen.dart';
 import 'package:zest/ui/login_screen.dart';
 import 'package:zest/ui/widgets/generics.dart';
-import 'package:zest/ui/widgets/loader_dialog.dart';
 import 'package:zest/utils/update.dart';
 
 import '../api/api_service.dart';
@@ -199,7 +197,7 @@ class MainScaffold extends ConsumerWidget {
             IconButton(
               icon: const Icon(key: Key("appbar_search_icon"), Icons.search),
               onPressed: () {
-                // TODO: ref.read(recipeSearchFilterSettingsProvider.notifier).reset();
+                ref.read(recipeSearchFilterSettingsProvider.notifier).reset();
                 ref.invalidate(recipeSearchControllerProvider);
                 context.goNamed(RecipeSearchPage.routeName);
               },
@@ -359,7 +357,7 @@ class MainScaffold extends ConsumerWidget {
                     if (Platform.isWindows || Platform.isLinux)
                       UpdatWidget(
                         currentVersion: packageInfo
-                            .version, // TODO: set to current version ${packageInfo.version}
+                            .version, // TODO: LOW set to current version ${packageInfo.version}
                         getLatestVersion: () async {
                           final ret = await ref
                               .read(githubServiceProvider)
@@ -407,8 +405,9 @@ class MainScaffold extends ConsumerWidget {
                         context: context,
                         applicationName: packageInfo.appName,
                         applicationVersion:
-                            "${packageInfo.version} (${packageInfo.buildNumber})", // TODO: FIX
-                        applicationLegalese: "Copyright David B. Adrian 2024");
+                            "${packageInfo.version} (${packageInfo.buildNumber})", // TODO: LOW FIX
+                        applicationLegalese:
+                            "Copyright David B. Adrian 2023-${DateTime.now().year}");
                   }
                 },
               ),

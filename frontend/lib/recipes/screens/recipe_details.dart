@@ -1,4 +1,3 @@
-import 'package:downloadsfolder/downloadsfolder.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -47,7 +46,7 @@ class RecipeDetailsPage extends ConsumerWidget {
       );
     }
     if (state.value == null) {
-      // TODO : handle this better
+      // TODO : LOW handle this better
       return Center(
         child: Row(
           children: [
@@ -284,7 +283,6 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
                 child: FaIcon(FontAwesomeIcons.clock,
                     color: Theme.of(context).colorScheme.primary),
               ),
-              // TODO: The manual alignment is dogshit.
               Table(
                 columnWidths: const {
                   0: IntrinsicColumnWidth(), // label column adapts to widest label
@@ -348,6 +346,7 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
   }
 }
 
+// ignore: must_be_immutable // TODO: LOW Should be a stateful widget
 class IngredientsColumn extends HookConsumerWidget {
   IngredientsColumn({super.key, required this.recipeId});
   final int recipeId;
@@ -356,11 +355,7 @@ class IngredientsColumn extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final curr settings = ref.watch(settingsProvider.);
-    // final label =
-    //     ref.watch(settingsProvider.select((settings) => settings.));
-    // TODO: get language settings
-    // TODO: get default to metric setting
+    // TODO: LOW get default to metric setting
 
     final staticData = ref.watch(recipeStaticDataProvider);
 
@@ -519,87 +514,6 @@ class IngredientsColumn extends HookConsumerWidget {
   }
 }
 
-// class IngredientWidget extends ConsumerWidget {
-//   final Ingredient ingredient;
-
-//   const IngredientWidget(
-//       {super.key, required this.ingredient, required this.recipeId});
-
-//   final String recipeId;
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     final amount = ingredient.getAmount();
-//     final unit = ingredient.getUnitAbbreviation(
-//         matchLanguage: ref.read(settingsProvider).language);
-//     final food = ingredient.food;
-//     final details = ingredient.details;
-
-//     // return Row(
-//     // crossAxisAlignment: CrossAxisAlignment.start,
-//     // return Wrap(
-//     //   children: [
-//     //     Text("$amount "),
-//     //     Tooltip(
-//     //       message:
-//     //           "${ingredient.unit.name.value()}, ${ingredient.unit.namePlural?.value() ?? "-"} [ ${ingredient.unit.unitSystem ?? "No Unit System"} ]",
-//     //       child: Text("$unit "),
-//     //     ),
-//     //     TranslatableField(
-//     //       field: food.name,
-//     //       onConfirm: (String value) async {
-//     //         final translatedName = TranslatedField(values: [
-//     //           TranslatedValue(
-//     //               value: value, lang: ref.read(settingsProvider).language)
-//     //         ]);
-//     //         final translatedFood = food.copyWith(name: translatedName);
-//     //         final json = translatedFood.toJson(); // toJsonExplicit();
-//     //         final foodJson = jsonEncode(json);
-//     //         // TODO: WE dont handle if the food translation already exists...
-//     //         final food_ = await ref
-//     //             .read(apiServiceProvider)
-//     //             .updateFood(translatedFood.id, foodJson);
-//     //         if (food_ != null) {
-//     //           final notifier =
-//     //               ref.read(recipeDetailsControllerProvider(recipeId).notifier);
-//     //           notifier.loadRecipe();
-//     //         }
-//     //       },
-//     //     ),
-//     //     if (details != null)
-//     //       Padding(
-//     //         padding: const EdgeInsets.only(left: 20),
-//     //         child: Text(
-//     //           "... $details",
-//     //           style: const TextStyle(fontStyle: FontStyle.italic),
-//     //         ),
-//     //       ),
-//     //   ],
-//     // );
-
-//     return TableRow(
-//       children: <Widget>[
-//         Container(
-//           height: 32,
-//           color: Colors.green,
-//         ),
-//         TableCell(
-//           verticalAlignment: TableCellVerticalAlignment.top,
-//           child: Container(
-//             height: 32,
-//             width: 32,
-//             color: Colors.red,
-//           ),
-//         ),
-//         Container(
-//           height: 64,
-//           color: Colors.blue,
-//         ),
-//       ],
-//     );
-//   }
-// }
-
 TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient, int recipeId,
     bool isMarked, Function() markCallback) {
   String formatDouble(double value) {
@@ -607,7 +521,6 @@ TableRow buildIngredientRow(WidgetRef ref, Ingredient ingredient, int recipeId,
       return value.toInt().toString();
     }
     return value.toStringAsFixed(3).replaceFirst(RegExp(r'\.?0+$'), '');
-    ;
   }
 
   final amountMin = ingredient.amountMin != null
@@ -758,7 +671,7 @@ class _IngredientGroupWidgetState extends ConsumerState<IngredientGroupWidget> {
         Container(
           margin: const EdgeInsets.only(bottom: 5),
           child: Text(
-            widget.group.name ?? "", // TODO: if null, remove widget?
+            widget.group.name ?? "", // TODO: LOW if null, remove widget?
             style: Theme.of(context).textTheme.titleLarge,
           ),
         ),
@@ -917,7 +830,7 @@ class _InstructionGroupWidgetState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.group.name ?? "", // TODO: if null remove widget
+            widget.group.name ?? "", // TODO: LOW if null remove widget
             style: Theme.of(context).textTheme.titleLarge!.copyWith(
                   color: Theme.of(context).colorScheme.primary,
                 ),
@@ -1013,7 +926,7 @@ class TitleWidget extends ConsumerWidget {
           child: TextButton(
             child: Text(
               recipe!.latestRevision.title ??
-                  "Untitled", // TODO: if null remove widget
+                  "Untitled", // TODO: LOW if null remove widget
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             onPressed: () async {

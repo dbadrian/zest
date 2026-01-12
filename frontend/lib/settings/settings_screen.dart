@@ -369,7 +369,7 @@ Widget buildScreenButtons(context, ref) {
       ElevatedButton(
         onPressed: () {
           settings.persistSettings();
-          // TODO: In the future, we would like to just pop the settings route,
+          // TODO: LOW In the future, we would like to just pop the settings route,
           // however, this will require more logic to force a reload of data,
           // such as recipes which might require a refresh due to language changes.
           // GoRouter.of(context).goNamed(HomePage.routeName);

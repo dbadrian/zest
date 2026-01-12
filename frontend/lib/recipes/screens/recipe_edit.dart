@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:zest/authentication/reauthentication_dialog.dart';
+import 'package:zest/config/constants.dart';
 import 'package:zest/core/network/api_exception.dart';
 import 'package:zest/recipes/controller/details_controller.dart';
 import 'package:zest/recipes/controller/providers.dart';
@@ -12,6 +13,8 @@ import 'package:zest/recipes/models/recipe_draft.dart';
 import 'package:zest/recipes/recipe_repository.dart';
 import 'package:zest/recipes/screens/recipe_details.dart';
 import 'package:zest/recipes/static_data_repository.dart';
+
+import 'package:zest/ui/widgets/debounced_autocomplete.dart';
 
 class RecipeEditScreen extends ConsumerStatefulWidget {
   static String get routeNameEdit => 'recipe_edit';
@@ -265,40 +268,6 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   //   });
   // }
 
-  // TODO: Use 3rd party here...
-  String _getFlagEmoji(String languageCode) {
-    final flags = {
-      'de': '🇩🇪',
-      'en': '🇬🇧',
-      'jp': '🇯🇵',
-      'es': '🇪🇸',
-      'fr': '🇫🇷',
-      'it': '🇮🇹',
-      'pt': '🇵🇹',
-      'ru': '🇷🇺',
-      'zh': '🇨🇳',
-      'kr': '🇰🇷',
-    };
-    return flags[languageCode] ?? '🌐';
-  }
-
-  // TODO: Get from settings
-  String _getLanguageName(String code) {
-    final names = {
-      'de': 'German',
-      'en': 'English',
-      'jp': 'Japanese',
-      'es': 'Spanish',
-      'fr': 'French',
-      'it': 'Italian',
-      'pt': 'Portuguese',
-      'ru': 'Russian',
-      'zh': 'Chinese',
-      'kr': 'Korean',
-    };
-    return names[code] ?? code.toUpperCase();
-  }
-
   Future<bool> _submitForm() async {
     if (!_isDraft && !_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -345,9 +314,6 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
               ingredientGroups:
                   _ingredientGroups.map((g) => g.toModel()).toList()));
 
-      // TODO: handle the form by uploading via repository.
-      // await widget.handleForm(formData);
-
       final recipe = await ((widget.recipeId == null)
           ? AsyncValue.guard(
               () => ref.read(recipeRepositoryProvider).createRecipe(draft))
@@ -379,7 +345,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                     content:
                         Text('Error: Network down / Backend not reached!')),
               );
-            } else if ((error as ApiException).isUnauthorized) {
+            } else if (error.isUnauthorized) {
               debugPrint("Opening reauthentication dialog");
               openReauthenticationDialog(context);
             }
@@ -405,7 +371,6 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   Widget build(BuildContext context) {
     if (_isLoadingRecipe) {
       debugPrint("Loading recipe data");
-      // TODO: cooler circularprogreesinidicator with text
 
       return Center(
         child: CircularProgressIndicator(),
@@ -640,23 +605,15 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
         labelText: 'Language *',
         border: OutlineInputBorder(),
       ),
-      // TODO: Handle the language source on whats supported
-      items: ["de", "en", "jp"].map((lang) {
+      items: AVAILABLE_LANGUAGES.entries.map((e) {
         return DropdownMenuItem(
-          value: lang,
-          child: Row(
-            children: [
-              Text(_getFlagEmoji(lang), style: const TextStyle(fontSize: 20)),
-              const SizedBox(width: 8),
-              Text(_getLanguageName(lang)),
-            ],
-          ),
+          value: e.key,
+          child: Text(e.value),
         );
       }).toList(),
       onChanged: (v) {
         setState(() => _selectedLanguage = v);
       },
-
       validator: (v) => v == null ? 'Language is required' : null,
     );
   }
@@ -1201,6 +1158,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                 if (context.mounted) {
                   // ignore: use_build_context_synchronously
                   context.pop();
+                  // ignore: use_build_context_synchronously
                   context.goNamed(
                     RecipeDetailsPage.routeName,
                     pathParameters: {'id': widget.recipeId.toString()},
@@ -1666,6 +1624,14 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
   Food? _currentFoodSelection;
 
   bool showComment = false;
+  late final Debounceable<List<Food>, String> _debouncedSearch;
+
+  @override
+  void initState() {
+    super.initState();
+    _debouncedSearch = debounce<List<Food>, String>(widget.searchFoods,
+        duration: Duration(milliseconds: 250)); // TODO: LOW tune debounce timer
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1802,8 +1768,9 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
       initialValue:
           TextEditingValue(text: widget.ingredient.foodController.text),
       optionsBuilder: (textEditingValue) async {
-        return await widget.searchFoods(
-            textEditingValue.text.isEmpty ? " " : textEditingValue.text);
+        return (await _debouncedSearch(
+                textEditingValue.text.isEmpty ? "" : textEditingValue.text)) ??
+            [];
       },
       displayStringForOption: (option) => option.name,
       onSelected: (selection) {
@@ -1825,10 +1792,7 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
             return null;
           },
           onChanged: (v) {
-            if (!widget.foods.contains(v)) {
-              // TODO: broken
-              widget.ingredient.selectedFood = null;
-            }
+            widget.ingredient.selectedFood = null;
           },
           onFieldSubmitted: (_) {
             if (_currentFoodSelection != null &&

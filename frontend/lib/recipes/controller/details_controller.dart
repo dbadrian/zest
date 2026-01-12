@@ -5,7 +5,6 @@ import 'package:zest/recipes/recipe_repository.dart';
 import 'package:zest/settings/settings_provider.dart';
 
 import '../../authentication/auth_service.dart';
-import '../../authentication/reauthentication_dialog.dart';
 import '../../utils/networking.dart';
 import '../models/recipe.dart';
 
@@ -24,7 +23,7 @@ class RecipeDetailsController extends _$RecipeDetailsController {
     final recipeValue = await AsyncValue.guard(() => _loadRecipe());
     if (recipeValue.hasError) {
       if (recipeValue.error is ApiException) {
-        // TODO: handle elsewhere
+        // TODO: HIGH handle elsewhere?
         // openReauthenticationDialog(onConfirm: loadRecipe);
       } else if (recipeValue.error is ServerNotReachableException) {
         openServerNotAvailableDialog();
@@ -120,105 +119,6 @@ class RecipeDetailsController extends _$RecipeDetailsController {
     return a * ratio;
   }
 
-  // Future<bool> reloadRecipe() async {
-  //   final ret = await AsyncValue.guard(() => _loadRecipe());
-  //   if (ret.hasError) {
-  //     if (ret.error is ApiException) {
-  //       // TODO: handle reauth elsewhere...
-  //       // openReauthenticationDialog(onConfirm: () => _loadRecipe());
-  //     } else if (ret.error is ServerNotReachableException) {
-  //       openServerNotAvailableDialog();
-  //     }
-  //     return false;
-  //   }
-  //   state = ret;
-  //   return true;
-  // }
-
-  // Future<bool> translateRecipe() async {
-  //   if (!state.hasValue) {
-  //     return false;
-  //   }
-
-  //   final oldState = state.value!;
-  //   state = AsyncValue.loading();
-
-  //   await ref.read(geminiRequestProvider.notifier).translateRecipe(
-  //         GeminiTranslateRequest(
-  //           recipeData: state.value!,
-  //           targetLanguage: "cz", // TODO: Hardcoded
-  //           schema: recipeTranslationSchema,
-  //         ),
-  //       );
-
-  //   final response = ref.read(geminiRequestProvider).asData?.value;
-  //   if (response?.structuredData != null) {
-  //     try {
-  //       final cleanedData = response!.structuredData!;
-  //       cleanedData.remove("categories");
-  //       // manually remove the categories
-  //       // TODO: Fix this, when the backend API is less shit
-
-  //       final newRecipeJson = mergeMaps(state.value!.toJson(), cleanedData);
-  //       final newRecipe = Recipe.fromJson(newRecipeJson);
-
-  //       // patch in categories from before...
-  //       final finalRecipe =
-  //           newRecipe.copyWith(categories: state.value!.categories);
-
-  //       state = AsyncValue.data(finalRecipe);
-  //       // state = AsyncValue.data(oldState);
-  //     } catch (e) {
-  //       debugPrint("Invalid JSON: $e");
-  //     }
-  //   } else {
-  //     debugPrint("Failed to translate recipe");
-  //     // TODO: SnackBar
-  //     state = AsyncValue.data(oldState);
-  //   }
-
-  //   // // Process the result
-  //   // final response = ref.read(geminiRequestProvider).asData?.value;
-  //   // if (response?.structuredData != null) {
-  //   //   try {
-  //   //     final instructionGroups =
-  //   //         (response?.structuredData?["instruction_groups"] as List<dynamic>)
-  //   //             .map((e) => InstructionGroup.fromJson(e))
-  //   //             .toList();
-  //   //     //      ??
-  //   //     // List<InstructionGroup>.empty();
-
-  //   //     if (response?.structuredData?.containsKey("ingredient_groups") !=
-  //   //         null) {
-  //   //       final translated_ingredients =
-  //   //           response!.structuredData!["ingredient_groups"];
-  //   //       final ingredientGroups =
-  //   //           state.value!.ingredientGroups.asMap().map((idx, value) {
-  //   //         value.copyWith(name: translated_ingredients[idx]["name"]);
-  //   //       });
-  //   //     }
-
-  //   //     final recipeCopy = state.value!.copyWith(
-  //   //         title: response?.structuredData?["title"] ?? state.value!.title,
-  //   //         subtitle:
-  //   //             response?.structuredData?["subtitle"] ?? state.value!.subtitle,
-  //   //         ownerComment: response?.structuredData?["owner_comment"] ??
-  //   //             state.value!.language,
-  //   //         language:
-  //   //             response?.structuredData?["language"] ?? state.value!.language,
-  //   //         isTranslation: true,
-  //   // //         instructionGroups: instructionGroups);
-  //   //     state = AsyncValue.data(recipeCopy);
-  //   //   } catch (e) {
-  //   //     debugPrint("Invalid JSON: $e");
-  //   //   }
-  //   // } else {
-  //   //   debugPrint("Failed to translate recipe");
-  //   // }
-
-  //   return true;
-  // }
-
   Future<Recipe?> _addRecipeToFavorite() async {
     return await ref
         .read(recipeRepositoryProvider)
@@ -227,27 +127,8 @@ class RecipeDetailsController extends _$RecipeDetailsController {
 
   void addToFavorites() async {
     final ret = await AsyncValue.guard(() => _addRecipeToFavorite());
+    // TODO: HIGH handle errors
     state = ret;
-
-    // if (ret.hasError) {
-    //   if (ret.error is ApiException) {
-    //     openReauthenticationDialog(onConfirm: () => _addRecipeToFavorite());
-    //   } else if (ret.error is ServerNotReachableException) {
-    //     openServerNotAvailableDialog();
-    //   }
-    // }
-
-    // final servings_ = state.valueOrNull?.servings.toString();
-    // final ret2 = await AsyncValue.guard(() => _loadRecipe(servings: servings_));
-    // if (ret2.hasError) {
-    //   if (ret2.error is ApiException) {
-    //     openReauthenticationDialog(
-    //         onConfirm: () => loadRecipe(servings: servings_));
-    //   } else if (ret2.error is ServerNotReachableException) {
-    //     openServerNotAvailableDialog();
-    //   }
-    // }
-    // state = ret2;
   }
 
   Future<Recipe?> _deleteFromFavorites() async {
@@ -289,7 +170,7 @@ class RecipeDetailsController extends _$RecipeDetailsController {
 
     if (ret.hasError) {
       if (ret.error is ApiException) {
-        // TODO: handle reauth elsewhere
+        // TODO: HIGH handle reauth elsewhere
         // openReauthenticationDialog(onConfirm: () => _deleteRecipe());
       } else if (ret.error is ServerNotReachableException) {
         openServerNotAvailableDialog();

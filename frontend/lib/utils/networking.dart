@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
-import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_interceptor/http_interceptor.dart';
-
 
 import '../routing/app_router.dart';
 
@@ -66,6 +64,8 @@ Map<String, dynamic> jsonDecodeResponse(http.Response data) {
 
 /// Response handler that does basic decoding and error handling for http
 /// request
+///
+/// TODO: HIGH HIGH HIGH DEPRECATE
 Future<T> genericResponseHandler<T>(
     {required Future<http.Response> Function() requestCallback,
     required T Function(Map<String, dynamic>) create}) async {
@@ -178,26 +178,6 @@ class NotAuthorizedInterceptor extends InterceptorContract {
   }
 }
 
-class JSONHeaderInterceptor extends InterceptorContract {
-  @override
-  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
-    try {
-      request.headers["Content-Type"] = "application/json";
-      request.headers["Accept"] = "application/json";
-    } catch (e) {
-      developer.log(e.toString(),
-          name: 'AuthenticationInterceptor.interceptRequest'); // TODO: handle?
-    }
-    return request;
-  }
-
-  @override
-  Future<BaseResponse> interceptResponse(
-          {required BaseResponse response}) async =>
-      response;
-}
-
-// TODO: Rewrite as provider or without getx at least
 void openServerNotAvailableDialog({void Function()? onPressed}) {
   showDialog<void>(
     context: shellNavigatorKey.currentState!.overlay!.context,

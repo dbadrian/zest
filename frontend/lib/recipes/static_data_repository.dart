@@ -4,7 +4,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/api/api_service.dart';
 import 'package:zest/api/responses/multilingual_data_response.dart';
 import 'package:zest/recipes/models/models.dart';
-import 'package:zest/settings/settings_provider.dart';
 
 part 'static_data_repository.g.dart';
 
@@ -33,7 +32,7 @@ class StaticDataRepository {
   Future<List<Unit>> getUnits({bool forceRefresh = false}) async {
     if (_units == null || forceRefresh) {
       final units = await _client.getRecipeUnits();
-      // TODO: Handle APIException
+      // TODO: HIGH Handle APIException
       _units = units.results;
     }
 
@@ -45,7 +44,7 @@ class StaticDataRepository {
   }) async {
     if (_categories == null || forceRefresh) {
       final categories = await _client.getRecipeCategories();
-      // TODO: Handle APIException
+      // TODO: HIGH  Handle APIException
 
       _categories = categories.results;
     }
@@ -58,7 +57,7 @@ class StaticDataRepository {
   }) async {
     if (_foods == null || forceRefresh) {
       final foods = await _client.getRecipeFoodCandidates();
-      // TODO: Handle APIException
+      // TODO: HIGH Handle APIException
 
       _foods = foods.results;
     }
@@ -70,7 +69,7 @@ class StaticDataRepository {
     bool forceRefresh = false,
   }) async {
     if (_multilingualData == null || forceRefresh) {
-      // TODO: Handle APIException
+      // TODO: HIGH Handle APIException
       _multilingualData = await _client.getMultilingualData();
     }
 
@@ -94,20 +93,20 @@ class StaticDataRepository {
   }) async {
     // check online status
     if (onlineFirst) {
-      // TODO: Handle APIException
+      // TODO: HIGH Handle APIException
       final ret = await AsyncValue.guard(
           () => _client.searchFoods(query, languages: languageFilter));
 
       return ret.when(
         data: (data) => data.results,
         error: (error, stackTrace) {
-          // TODO: return local search
+          // TODO: MID return local search
           return [];
         },
         loading: () => [],
       );
     } else {
-      // TODO: implement some sort of fuzzy search
+      // TODO: MID implement some sort of fuzzy search
       return getFoods();
     }
   }

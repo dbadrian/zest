@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:country_flags/country_flags.dart';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:zest/config/constants.dart';
 import 'package:zest/settings/settings_provider.dart';
 import 'package:zest/utils/duration.dart';
 
@@ -152,8 +153,7 @@ class RecipeListTile extends ConsumerWidget {
           "Prep time: ${durationToHourMinuteString(Duration(minutes: prepTime ?? 0), verbose: true)}");
     }
     if (difficulty != null && difficulty! > 0) {
-      meta.add(
-          "Difficulty: $difficulty / 5"); // TODO: Max value should be provided via the API
+      meta.add("Difficulty: $difficulty / $MAX_DIFFICULTY_INT");
     }
     if (categories != null && categories!.isNotEmpty) {
       meta.add(categories!.join(", "));

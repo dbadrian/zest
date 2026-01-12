@@ -26,7 +26,6 @@ class LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     userCtrl.text =
         ref.read(authenticationServiceProvider).value?.user.username ??
@@ -148,10 +147,9 @@ class LoginPageState extends ConsumerState<LoginPage> {
                   Text(
                     key: const Key('loginError_incorrect_credentials'),
                     "Login failed: $errorMsg",
-                    style: const TextStyle(
-                      // TODO: Use theme color
-                      color: Colors.deepOrangeAccent,
-                      fontSize: 14, //TODO: dont use fixed size
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 14, //TODO: LOW dont use fixed size
                       fontWeight: FontWeight.w300,
                       fontFamily: "Montserrat",
                     ),

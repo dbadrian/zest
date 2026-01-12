@@ -2,9 +2,9 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../routing/app_router.dart';
 import '../ui/widgets/generics.dart';
 import 'auth_service.dart';
 
@@ -18,7 +18,6 @@ class ReauthenticationDialog extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // TODO: Read out user and stored password from database
     final user = ref.watch(authenticationServiceProvider).value?.user;
     final userCtrl = useTextEditingController(text: user?.username ?? '');
     final passwordCtrl = useTextEditingController(text: '');
@@ -82,8 +81,8 @@ class ReauthenticationDialog extends HookConsumerWidget {
                 Text(
                   "Login failed: ${ref.read(authenticationServiceProvider).error}",
                   style: const TextStyle(
-                    color: Colors.deepOrangeAccent, // TODO: Fix color
-                    fontSize: 12, //TODO: dont use fixed size
+                    color: Colors.deepOrangeAccent, // TODO: LOW // Fix color
+                    fontSize: 12, //TODO: LOW // dont use fixed size
                     fontWeight: FontWeight.w300,
                     fontFamily: "Montserrat",
                   ),
@@ -109,8 +108,7 @@ class ReauthenticationDialog extends HookConsumerWidget {
                 log("Trying to pop context");
                 // Navigator.of(context).pop();
                 if (context.mounted) {
-                  // TODO: should this be even navigator?
-                  Navigator.of(context).pop();
+                  GoRouter.of(context).pop();
                 }
               } else {
                 showErrorState.value = true;

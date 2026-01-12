@@ -2,7 +2,7 @@
 
 import 'package:zest/utils/utils.dart';
 
-// TODO: Set to empty string for (v.1.0.0) release
+// TODO: LOW RELEASE Set to empty string for (v.1.0.0) release
 const String DEFAULT_API_URL = 'https://dbadrian.com/api/v1';
 
 ///

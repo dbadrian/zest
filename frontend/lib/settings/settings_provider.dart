@@ -28,7 +28,7 @@ const _baseColor = Color.fromARGB(255, 7, 228, 255);
 class SettingsStateData with _$SettingsStateData {
   const factory SettingsStateData({
     // Language: UI and Content
-    // TODO Default language should be infered based on system language
+    // TODO: LOW: Default language should be infered based on system language
     @Default(DEFAULT_LANGUAGE) String language,
     @Default(false) bool searchAllLanguages,
 

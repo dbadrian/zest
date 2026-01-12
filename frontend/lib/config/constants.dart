@@ -2,8 +2,8 @@
 const AVAILABLE_LANGUAGES = {
   "en": "English",
   "de": "German",
-  "it": "Italian",
-  "fr": "French",
+  // "it": "Italian",
+  // "fr": "French",
   "cz": "Czech"
 };
 
@@ -25,3 +25,6 @@ const int INGREDIENT_SEARCH_PAGE_SIZE = 5;
 const int RECIPE_SEARCH_DEFAULT_PAGE_SIZE = 50;
 
 const String RECIPE_DRAFT_DB_KEY = "recipedrafts";
+
+// TODO: LOW Max value should be provided via the API
+const int MAX_DIFFICULTY_INT = 5;

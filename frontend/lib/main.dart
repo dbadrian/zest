@@ -74,7 +74,7 @@ Future<void> main() async {
   packageInfo = await PackageInfo.fromPlatform();
 
   // Configure headers
-  // TODO: Remove for public version
+  // TODO: LOW RELEASE Remove for public version
   UpdatGlobalOptions.downloadReleaseHeaders = {
     "Accept": "application/octet-stream",
   };
