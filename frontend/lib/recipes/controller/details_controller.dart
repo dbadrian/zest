@@ -1,11 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:zest/core/network/api_exception.dart';
 import 'package:zest/recipes/recipe_repository.dart';
 import 'package:zest/settings/settings_provider.dart';
 
 import '../../authentication/auth_service.dart';
-import '../../utils/networking.dart';
 import '../models/recipe.dart';
 
 part 'details_controller.g.dart';
@@ -15,22 +13,13 @@ class RecipeDetailsController extends _$RecipeDetailsController {
   // you can add named or positional parameters to the build method
   @override
   FutureOr<Recipe?> build(int recipeId) async {
-    // set state to loading only for the initial page build
-    // afterwards we want silent updates?
-    state = const AsyncValue.loading();
-
     String _ = ref.watch(settingsProvider).current.language;
-    final recipeValue = await AsyncValue.guard(() => _loadRecipe());
-    if (recipeValue.hasError) {
-      if (recipeValue.error is ApiException) {
-        // TODO: HIGH handle elsewhere?
-        // openReauthenticationDialog(onConfirm: loadRecipe);
-      } else if (recipeValue.error is ServerNotReachableException) {
-        openServerNotAvailableDialog();
-      }
-      return null;
+    final recipe = await AsyncValue.guard(() => _loadRecipe());
+    if (recipe.hasError) {
+      // hand it out to the screen to deal with.
+      throw recipe.error!;
     } else {
-      return Future<Recipe>.value(recipeValue.value);
+      return recipe.value;
     }
   }
 
@@ -115,67 +104,31 @@ class RecipeDetailsController extends _$RecipeDetailsController {
     if (a == null) {
       return a;
     }
-
     return a * ratio;
   }
 
-  Future<Recipe?> _addRecipeToFavorite() async {
-    return await ref
-        .read(recipeRepositoryProvider)
-        .addRecipeToFavorites(recipeId);
-  }
-
   void addToFavorites() async {
-    final ret = await AsyncValue.guard(() => _addRecipeToFavorite());
-    // TODO: HIGH handle errors
-    state = ret;
-  }
-
-  Future<Recipe?> _deleteFromFavorites() async {
-    return await ref
-        .read(recipeRepositoryProvider)
-        .removeRecipeFromFavorites(recipeId);
+    state = await AsyncValue.guard(() =>
+        ref.read(recipeRepositoryProvider).addRecipeToFavorites(recipeId));
   }
 
   void deleteFromFavorites() async {
-    final ret = await AsyncValue.guard(() => _deleteFromFavorites());
-    state = ret;
-    // if (ret.hasError) {
-    //   if (ret.error is ApiException) {
-    //     openReauthenticationDialog(onConfirm: () => _deleteFromFavorites());
-    //   } else if (ret.error is ServerNotReachableException) {
-    //     openServerNotAvailableDialog();
-    //   }
-    // }
-
-    // final servings_ = state.valueOrNull?.servings.toString();
-    // final ret2 = await AsyncValue.guard(() => _loadRecipe(servings: servings_));
-    // if (ret2.hasError) {
-    //   if (ret2.error is ApiException) {
-    //     openReauthenticationDialog(
-    //         onConfirm: () => loadRecipe(servings: servings_));
-    //   } else if (ret2.error is ServerNotReachableException) {
-    //     openServerNotAvailableDialog();
-    //   }
-    // }
-    // state = ret2;
-  }
-
-  Future<bool> _deleteRecipe() async {
-    return await ref.read(recipeRepositoryProvider).deleteRecipeById(recipeId);
+    state = await AsyncValue.guard(() =>
+        ref.read(recipeRepositoryProvider).removeRecipeFromFavorites(recipeId));
   }
 
   Future<bool> deleteRecipe() async {
-    final ret = await AsyncValue.guard(() => _deleteRecipe());
+    final ret = await AsyncValue.guard(
+        () => ref.read(recipeRepositoryProvider).deleteRecipeById(recipeId));
 
-    if (ret.hasError) {
-      if (ret.error is ApiException) {
-        // TODO: HIGH handle reauth elsewhere
-        // openReauthenticationDialog(onConfirm: () => _deleteRecipe());
-      } else if (ret.error is ServerNotReachableException) {
-        openServerNotAvailableDialog();
-      }
-    }
-    return ret.value ?? false;
+    // if (ret.hasError) {
+    //   // if (ret.error is ApiException) {
+    //   //   // TODO: HIGH handle reauth elsewhere
+    //   //   // openReauthenticationDialog(onConfirm: () => _deleteRecipe());
+    //   // } else if (ret.error is ServerNotReachableException) {
+    //   //   openServerNotAvailableDialog();
+    //   // }
+    // }
+    return ret.valueOrNull ?? false;
   }
 }

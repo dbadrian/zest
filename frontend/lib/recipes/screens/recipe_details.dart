@@ -6,44 +6,80 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:number_inc_dec/number_inc_dec.dart';
+import 'package:zest/authentication/reauthentication_dialog.dart';
+import 'package:zest/core/network/api_exception.dart';
 import 'package:zest/recipes/controller/providers.dart';
 import 'package:zest/recipes/controller/search_controller.dart';
 import 'package:zest/recipes/screens/recipe_edit.dart' hide Ingredient;
 import 'package:zest/recipes/screens/recipe_search.dart';
+import 'package:zest/utils/networking.dart';
 
 import '../../routing/app_router.dart';
 import '../../ui/widgets/generics.dart';
 import '../controller/details_controller.dart';
 import '../models/models.dart';
 
-class RecipeDetailsPage extends ConsumerWidget {
+class RecipeDetailsPage extends ConsumerStatefulWidget {
   static String get routeName => 'recipe';
 
-  const RecipeDetailsPage({super.key, required this.recipeId});
   final int recipeId;
+  const RecipeDetailsPage({required this.recipeId, super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.read(recipeDetailsControllerProvider(recipeId));
-    // ignore: no_leading_underscores_for_local_identifiers
-    final _recipeId =
-        ref.watch(recipeDetailsControllerProvider(recipeId).select(
-      (value) {
-        if (value.hasError || value.isLoading) {
-          return value;
-        } else {
-          return AsyncValue.data(value.value?.id);
+  ConsumerState<RecipeDetailsPage> createState() => _RecipeDetailsPageState();
+}
+
+class _RecipeDetailsPageState extends ConsumerState<RecipeDetailsPage> {
+  bool dialogOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Ensure to open a reauth dialog if somehow the login expired before loading
+    // the state fully.
+    ref.listen<AsyncValue<Recipe?>>(
+      recipeDetailsControllerProvider(widget.recipeId),
+      (previous, next) {
+        if (next.hasError && next.error is ApiException && !dialogOpen) {
+          final error = next.error as ApiException;
+
+          if (error.isUnauthorized) {
+            dialogOpen = true; // mark it so we don’t open again
+
+            // Schedule dialog for **after build** to be extra safe
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              openReauthenticationDialog(
+                context,
+                onConfirm: () {
+                  ref.invalidate(
+                    recipeDetailsControllerProvider(widget.recipeId),
+                  );
+                },
+              );
+            });
+          } else if (error.isOffline) {
+            openServerNotAvailableDialog(context, onPressed: () {
+              context.goNamed(RecipeSearchPage.routeName);
+            },
+                content:
+                    "Server not reachable and recipe not yet in cache. Returning to the search.");
+          }
         }
       },
-    ));
+    );
+
+    final state = ref.watch(recipeDetailsControllerProvider(widget.recipeId));
+
     // map all its states to widgets and return the result
-    if (_recipeId.isLoading) {
+    if (state.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (_recipeId.hasError) {
-      return Text(
-        _recipeId.error.toString(),
-      );
+    if (state.hasError) {
+      return Container();
     }
     if (state.value == null) {
       // TODO : LOW handle this better
@@ -58,7 +94,8 @@ class RecipeDetailsPage extends ConsumerWidget {
             ElevatedButton(
               onPressed: () async {
                 final success = await ref
-                    .read(recipeDetailsControllerProvider(recipeId).notifier)
+                    .read(recipeDetailsControllerProvider(widget.recipeId)
+                        .notifier)
                     .loadRecipe();
 
                 if (!success && context.mounted) {
@@ -74,12 +111,13 @@ class RecipeDetailsPage extends ConsumerWidget {
       );
     }
 
+    dialogOpen = false;
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         if (constraints.maxWidth > 650) {
-          return RecipeDetailsWideWidget(recipeId: recipeId);
+          return RecipeDetailsWideWidget(recipeId: widget.recipeId);
         } else {
-          return RecipeDetailsNarrowWidget(recipeId: recipeId);
+          return RecipeDetailsNarrowWidget(recipeId: widget.recipeId);
         }
       },
     );
@@ -984,9 +1022,14 @@ class TitleWidget extends ConsumerWidget {
               final isDeleted = await ref
                   .read(recipeDetailsControllerProvider(recipeId).notifier)
                   .deleteRecipe();
+
               if (isDeleted && context.mounted) {
                 ref.invalidate(recipeSearchControllerProvider);
                 context.goNamed(RecipeSearchPage.routeName);
+              } else if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Error: Couldn't delete recipe!")),
+                );
               }
             },
             icon: Icon(

@@ -114,7 +114,7 @@ GoRouter getRouter(Ref ref) {
 
                       return MaterialPage(
                         key: ValueKey(
-                            "${RecipeEditScreen.routeNameEdit}_$recipeId"),
+                            "${RecipeEditScreen.routeNameEdit}_${recipeId}_${state.extra}"),
                         child: RecipeEditScreen(recipeId: recipeId),
                       );
                     },

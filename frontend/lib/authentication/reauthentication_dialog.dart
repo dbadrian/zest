@@ -106,7 +106,6 @@ class ReauthenticationDialog extends HookConsumerWidget {
                 showErrorState.value = false;
                 onConfirm?.call();
                 log("Trying to pop context");
-                // Navigator.of(context).pop();
                 if (context.mounted) {
                   GoRouter.of(context).pop();
                 }
@@ -124,7 +123,7 @@ class ReauthenticationDialog extends HookConsumerWidget {
 void openReauthenticationDialog(BuildContext context,
     {void Function()? onConfirm}) {
   showDialog<void>(
-    barrierDismissible: false,
+    barrierDismissible: true,
     context: context,
     builder: (BuildContext context) {
       return ReauthenticationDialog(onConfirm: onConfirm);

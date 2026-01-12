@@ -3,34 +3,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_interceptor/http_interceptor.dart';
-
-import '../routing/app_router.dart';
-
-// part 'networking.g.dart';
-
-// @riverpod
-// InterceptedClient httpJSONClient(HttpJSONClientRef ref,
-//     {bool withAuthenticationInterceptor = false}) {
-//   final client = InterceptedClient.build(
-//     interceptors: [
-//       JSONHeaderInterceptor(),
-//       if (withAuthenticationInterceptor)
-//         AuthenticationInterceptor(
-//             ref.read(authenticationServiceProvider.notifier)),
-//       if (kDebugMode) LoggingInterceptor(),
-//       ResourceNotFoundInterceptor(),
-//       BadRequestInterceptor()
-//     ],
-//     client: kIsWeb
-//         ? null
-//         : IOClient(
-//             HttpClient()..connectionTimeout = const Duration(seconds: 1),
-//           ),
-//   );
-//   return client;
-// }
 
 class InvalidJSONDataException implements Exception {
   final String? message;
@@ -178,14 +153,16 @@ class NotAuthorizedInterceptor extends InterceptorContract {
   }
 }
 
-void openServerNotAvailableDialog({void Function()? onPressed}) {
+void openServerNotAvailableDialog(BuildContext context,
+    {void Function()? onPressed, String? title, String? content}) {
   showDialog<void>(
-    context: shellNavigatorKey.currentState!.overlay!.context,
+    context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text('Server timeout!'),
-        content: const Text("Sorry, server can't be reached at the moment.\n\n"
-            "Please try again in a moment."),
+        title: Text(title ?? 'Server unreachable!'),
+        content: Text(content ??
+            "Sorry, server can't be reached at the moment.\n\n"
+                "Please try again in a moment."),
         actions: <Widget>[
           TextButton(
             style: TextButton.styleFrom(
@@ -193,8 +170,13 @@ void openServerNotAvailableDialog({void Function()? onPressed}) {
             ),
             child: const Text("Okay... I'll wait a moment!"),
             onPressed: () {
-              if (onPressed != null) onPressed();
-              Navigator.of(context).pop();
+              if (onPressed != null) {
+                onPressed();
+              }
+
+              if (context.mounted) {
+                GoRouter.of(context).pop();
+              }
             },
           ),
         ],

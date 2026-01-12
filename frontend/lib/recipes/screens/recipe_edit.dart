@@ -12,9 +12,11 @@ import 'package:zest/recipes/models/models.dart';
 import 'package:zest/recipes/models/recipe_draft.dart';
 import 'package:zest/recipes/recipe_repository.dart';
 import 'package:zest/recipes/screens/recipe_details.dart';
+import 'package:zest/recipes/screens/recipe_search.dart';
 import 'package:zest/recipes/static_data_repository.dart';
 
 import 'package:zest/ui/widgets/debounced_autocomplete.dart';
+import 'package:zest/utils/networking.dart';
 
 class RecipeEditScreen extends ConsumerStatefulWidget {
   static String get routeNameEdit => 'recipe_edit';
@@ -72,12 +74,6 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   bool _isLoadingRecipe = false;
   bool _isInitialized = false;
 
-  // Undo/Redo system
-  // final List<FormSnapshot> _undoStack = [];
-  // final List<FormSnapshot> _redoStack = [];
-  // bool _isUndoRedoOperation = false;
-  // int _rebuildKey = 0;
-
   @override
   void initState() {
     super.initState();
@@ -88,9 +84,38 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
           _isLoadingRecipe = true;
         });
 
-        final data = await ref
-            .read(recipeRepositoryProvider)
-            .getRecipeById(widget.recipeId!);
+        final asyncdata = await AsyncValue.guard(() =>
+            ref.read(recipeRepositoryProvider).getRecipeById(widget.recipeId!));
+
+        if (asyncdata.hasError && asyncdata.error is ApiException) {
+          final error = asyncdata.error as ApiException;
+
+          if (error.isUnauthorized) {
+            // Schedule dialog for **after build** to be extra safe
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              openReauthenticationDialog(
+                context,
+                onConfirm: () {
+                  context.goNamed(RecipeEditScreen.routeNameEdit,
+                      extra: DateTime.now().toString(),
+                      pathParameters: {
+                        'id': widget.recipeId.toString(),
+                      });
+                },
+              );
+            });
+          } else if (error.isOffline) {
+            if (context.mounted) {
+              openServerNotAvailableDialog(context, onPressed: () {
+                context.goNamed(RecipeSearchPage.routeName);
+              },
+                  content:
+                      "Server not reachable and recipe not yet in cache. Returning to the search.");
+            }
+          }
+        }
+
+        final data = asyncdata.valueOrNull;
 
         setState(() {
           if (data != null) {
@@ -173,100 +198,8 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   }
 
   void _saveSnapshot() {
-    // if (_isUndoRedoOperation) return;
-
-    // final snapshot = FormSnapshot(
-    //   title: _titleController.text,
-    //   subtitle: _subtitleController.text,
-    //   comment: _commentController.text,
-    //   selectedLanguage: _selectedLanguage,
-    //   isPrivate: _isPrivate,
-    //   difficulty: _difficulty,
-    //   servings: _servings,
-    //   prepTimeHours: _prepTimeHours,
-    //   prepTimeMinutes: _prepTimeMinutes,
-    //   cookTimeHours: _cookTimeHours,
-    //   cookTimeMinutes: _cookTimeMinutes,
-    //   sourceName: _sourceNameController.text,
-    //   sourcePage: _sourcePageController.text,
-    //   sourceUrl: _sourceUrlController.text,
-    //   selectedCategories: Set.from(_selectedCategories),
-    //   instructionGroups: _instructionGroups.map((g) => g.clone()).toList(),
-    //   ingredientGroups: _ingredientGroups.map((g) => g.clone()).toList(),
-    // );
-
-    // _undoStack.add(snapshot);
-    // debugPrint("Adding on top of stack");
-    // if (_undoStack.length > widget.undoHistoryLimit) {
-    //   debugPrint("Dropping oldest stack entry");
-    //   _undoStack.removeAt(0);
-    // }
-    // _redoStack.clear();
+    // MAYBE: maybe in the future it will do some bookkeeping...but not today
   }
-
-  // void _undo() {
-  //   if (_undoStack.length <= 1) return;
-
-  //   setState(() {
-  //     _isUndoRedoOperation = true;
-
-  //     final current = _undoStack.removeLast();
-  //     _redoStack.add(current);
-
-  //     final previous = _undoStack.last;
-  //     _restoreSnapshot(previous);
-
-  //     _rebuildKey++; // Force widget tree rebuild
-  //   });
-
-  //   // Delay resetting flag
-  //   Future.microtask(() {
-  //     _isUndoRedoOperation = false;
-  //   });
-  // }
-
-  // void _redo() {
-  //   if (_redoStack.isEmpty) return;
-
-  //   _isUndoRedoOperation = true;
-  //   final snapshot = _redoStack.removeLast();
-  //   _undoStack.add(snapshot);
-  //   _restoreSnapshot(snapshot);
-  //   _isUndoRedoOperation = false;
-  // }
-
-  // void _restoreSnapshot(FormSnapshot snapshot) {
-  //   setState(() {
-  //     _titleController.text = snapshot.title;
-  //     _subtitleController.text = snapshot.subtitle;
-  //     _commentController.text = snapshot.comment;
-  //     _selectedLanguage = snapshot.selectedLanguage;
-  //     _isPrivate = snapshot.isPrivate;
-  //     _difficulty = snapshot.difficulty;
-  //     _servings = snapshot.servings;
-  //     _prepTimeHours = snapshot.prepTimeHours;
-  //     _prepTimeMinutes = snapshot.prepTimeMinutes;
-  //     _cookTimeHours = snapshot.cookTimeHours;
-  //     _cookTimeMinutes = snapshot.cookTimeMinutes;
-  //     _sourceNameController.text = snapshot.sourceName;
-  //     _sourcePageController.text = snapshot.sourcePage;
-  //     _sourceUrlController.text = snapshot.sourceUrl;
-  //     _selectedCategories = Set.from(snapshot.selectedCategories);
-
-  //     // Dispose old groups
-  //     for (var group in _instructionGroups) {
-  //       group.dispose();
-  //     }
-  //     for (var group in _ingredientGroups) {
-  //       group.dispose();
-  //     }
-
-  //     _instructionGroups =
-  //         snapshot.instructionGroups.map((g) => g.clone()).toList();
-  //     _ingredientGroups =
-  //         snapshot.ingredientGroups.map((g) => g.clone()).toList();
-  //   });
-  // }
 
   Future<bool> _submitForm() async {
     if (!_isDraft && !_formKey.currentState!.validate()) {
@@ -399,7 +332,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
         debugPrint("error...");
 
         return Center(
-          child: Text('ERRRRRRRORRRRRR: $error'),
+          child: Text('ERROR: Could not load static date. [ $error ]'),
         );
       },
       data: (data) {
