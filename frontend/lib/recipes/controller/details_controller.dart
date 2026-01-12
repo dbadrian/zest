@@ -120,15 +120,8 @@ class RecipeDetailsController extends _$RecipeDetailsController {
   Future<bool> deleteRecipe() async {
     final ret = await AsyncValue.guard(
         () => ref.read(recipeRepositoryProvider).deleteRecipeById(recipeId));
-
-    // if (ret.hasError) {
-    //   // if (ret.error is ApiException) {
-    //   //   // TODO: HIGH handle reauth elsewhere
-    //   //   // openReauthenticationDialog(onConfirm: () => _deleteRecipe());
-    //   // } else if (ret.error is ServerNotReachableException) {
-    //   //   openServerNotAvailableDialog();
-    //   // }
-    // }
+    // TODO: Mid: pretty unclear error snackbar as consequence.
+    // fovoriting kills the whole detail view. maybe align?
     return ret.valueOrNull ?? false;
   }
 }

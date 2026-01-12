@@ -106,6 +106,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
             });
           } else if (error.isOffline) {
             if (context.mounted) {
+              // ignore: use_build_context_synchronously
               openServerNotAvailableDialog(context, onPressed: () {
                 context.goNamed(RecipeSearchPage.routeName);
               },
