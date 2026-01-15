@@ -23,6 +23,16 @@ tasks:
     cmds:
       - docker compose up -w --build
 
+  dev:detach:
+    desc: "Run development environment in background"
+    dotenv:
+      - .env.dev
+    vars:
+      ZEST_ENV: dev
+      CODE_VERSION:
+        sh: date +%s%N
+    cmds:
+      - docker compose up -d --build
   dev:down:
     desc: "Stop development environment"
     cmds:

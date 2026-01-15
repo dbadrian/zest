@@ -25,29 +25,12 @@ jobs:
       - uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}} # Only required for Organizations, not personal accounts.
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }} # Only required for Organizations, not personal accounts.
   
-  build-backend-docker:
-    uses: dbadrian/zest/.github/workflows/build-docker.yaml@main
-
   test-backend:
     runs-on: ubuntu-latest
-    needs: [build-backend-docker]
     env:
-      DJANGO_SETTINGS_MODULE: zest.settings.dev
-      DJANGO_SECRET_KEY: "JASIDJ*@ioda89dY2hdaiophd80a23p06i%8-4ods3"
-      DJANGO_ALLOWED_HOSTS: localhost,0.0.0.0,127.0.0.1
-      DJANGO_AUTH_MODE: jwt
-      TESTFLAGS: "--with-coverage --cover-xml --cover-erase"
-      SQL_ENGINE: django.db.backends.postgresql
-      SQL_DATABASE: zest
-      SQL_USER: zest
-      SQL_PASSWORD: zest
-      SQL_HOST: db
-      SQL_PORT: 5432
-      UID: 1001
-      GID: 121
-      REDIS_ADDRESS: redis://cache:6379/1
+      ZEST_ENV: test
     steps:
       - name: Install Task
         uses: arduino/setup-task@v2
@@ -62,22 +45,13 @@ jobs:
           name: docker
           path: /tmp
 
-      - name: "📦 load tag"
-        run: |
-          docker load --input /tmp/docker.tar
-          docker image ls -a
-
-      # - name: Initialize backend
-      #   run: |
-      #     task backend-init-ci
-
       - name: Test
-        run: task backend-test
+        run: task backend:test
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
-          files: backend/coverage.xml
+          files: backend/coverage/coverage.xml
           flags: backend
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -116,21 +90,6 @@ jobs:
   qa-frontend:
     runs-on: ubuntu-latest
     needs: [prepare-frontend-environment]
-    env:
-      DJANGO_SETTINGS_MODULE: zest.settings.dev
-      DJANGO_SECRET_KEY: "JASIDJ*@ioda89dY2hdaiophd80a23p06i%8-4ods3"
-      DJANGO_ALLOWED_HOSTS: localhost,0.0.0.0,127.0.0.1
-      DJANGO_AUTH_MODE: jwt
-      TESTFLAGS: "--with-coverage --cover-xml --cover-erase"
-      SQL_ENGINE: django.db.backends.postgresql
-      SQL_DATABASE: zest
-      SQL_USER: zest
-      SQL_PASSWORD: zest
-      SQL_HOST: db
-      SQL_PORT: 5432
-      UID: 1001
-      GID: 121
-      REDIS_ADDRESS: redis://cache:6379/1
     defaults:
       run:
         working-directory: frontend
@@ -168,25 +127,9 @@ jobs:
 
   test-frontend:
     runs-on: ubuntu-latest
-    needs: [build-backend-docker, prepare-frontend-environment]
+    needs: [prepare-frontend-environment]
     env:
-      DJANGO_SETTINGS_MODULE: zest.settings.dev
-      DJANGO_SECRET_KEY: "JASIDJ*@ioda89dY2hdaiophd80a23p06i%8-4ods3"
-      DJANGO_ALLOWED_HOSTS: localhost,0.0.0.0,127.0.0.1
-      DJANGO_AUTH_MODE: jwt
-      TESTFLAGS: "--with-coverage --cover-xml --cover-erase"
-      SQL_ENGINE: django.db.backends.postgresql
-      SQL_DATABASE: zest
-      SQL_USER: zest
-      SQL_PASSWORD: zest
-      SQL_HOST: db
-      SQL_PORT: 5432
-      UID: 1001
-      GID: 121
-      REDIS_ADDRESS: redis://cache:6379/1
-    defaults:
-      run:
-        working-directory: frontend
+      ZEST_ENV: test
     steps:
       - uses: actions/checkout@v3
 
@@ -221,24 +164,13 @@ jobs:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "📂 download docker artifacts"
-        uses: actions/download-artifact@v4
-        with:
-          name: docker
-          path: /tmp
-  
-      - name: "📦 load tag"
-        run: |
-          docker load --input /tmp/docker.tar
-          docker image ls -a
-
       - name: Initialize backend
         run: |
-          task backend-init-ci
+          task backend:dev:init
+          task backend:dev:detach
 
       - name: Tests
         run: |
-          task docker-start
           flutter test --coverage --concurrency 1
 
       - name: Generate Coverage
