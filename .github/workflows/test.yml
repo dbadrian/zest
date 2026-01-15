@@ -49,37 +49,37 @@ jobs:
           flags: backend
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  prepare-frontend-environment:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
-    steps:
-      - uses: actions/checkout@v3
+  # prepare-frontend-environment:
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: frontend
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          # flutter-version: 3.27.0
-          cache: true
+  #     - uses: subosito/flutter-action@v2
+  #       with:
+  #         channel: stable
+  #         # flutter-version: 3.27.0
+  #         cache: true
 
-      - name: "???"
-        run: |
-          echo $(pwd)
+  #     - name: "???"
+  #       run: |
+  #         echo $(pwd)
 
-      - name: Prepare environment.
-        run: flutter pub get
+  #     - name: Prepare environment.
+  #       run: flutter pub get
 
-      - uses: actions/cache@v4
-        name: Build Runner Cache
-        id: flutter_build_runner_cache
-        with:
-          path: ./frontend/lib/
-          key: flutter_build_runner_cache_${{ runner.os }}_${{ github.sha }}
+  #     - uses: actions/cache@v4
+  #       name: Build Runner Cache
+  #       id: flutter_build_runner_cache
+  #       with:
+  #         path: ./frontend/lib/
+  #         key: flutter_build_runner_cache_${{ runner.os }}_${{ github.sha }}
 
-      - name: Build Runner
-        if: steps.flutter_build_runner_cache.outputs.cache-hit != 'true'
-        run: flutter pub run build_runner build --delete-conflicting-outputs
+  #     - name: Build Runner
+  #       if: steps.flutter_build_runner_cache.outputs.cache-hit != 'true'
+  #       run: flutter pub run build_runner build --delete-conflicting-outputs
 
   # qa-frontend:
   #   runs-on: ubuntu-latest
