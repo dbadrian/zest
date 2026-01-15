@@ -1,0 +1,65 @@
+services:
+  db:
+    # Override production settings for tests
+    restart: "no"
+    volumes:
+      - ./init-test:/docker-entrypoint-initdb.d
+    env_file:
+      - .env.test
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
+      - POSTGRES_USER=${POSTGRES_USER?Variable not set}
+      - POSTGRES_DB=${POSTGRES_DB?Variable not set}
+    healthcheck:
+      # Use test database credentials
+      test: ["CMD-SHELL", "pg_isready -U postgres -d zesttest"]
+      interval: 5s
+      retries: 5
+      timeout: 5s
+      start_period: 10s
+
+  # prestart:
+  #   # This service doesn't exist in production, so we define it completely
+  #   # build:
+  #   #   context: .
+  #   #   dockerfile: Dockerfile -
+  #   #   args:
+  #   #     - CODE_VERSION=${CODE_VERSION:-dev}
+  #   env_file:
+  #     - .env.test
+  #   environment:
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
+  #     - POSTGRES_USER=${POSTGRES_USER?Variable not set}
+  #     - POSTGRES_DB=${POSTGRES_DB?Variable not set}
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   command: bash scripts/prestart-test.sh
+  #   restart: "no"
+
+  backend:
+    # Override production image with build for tests
+    image: null  # Clear the production image setting
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - CODE_VERSION=${CODE_VERSION:-dev}
+    restart: "no"
+    env_file:
+      - .env.test
+    depends_on:
+      db:
+        condition: service_healthy
+      # prestart:
+      #   condition: service_completed_successfully
+    command: pytest -v
+    # Disable healthcheck for tests
+    healthcheck:
+      disable: true
+    # Override environment to use test database
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
+      - POSTGRES_USER=${POSTGRES_USER?Variable not set}
+      - POSTGRES_DB=${POSTGRES_DB?Variable not set}

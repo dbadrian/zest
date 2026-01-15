@@ -1,0 +1,80 @@
+version: "3"
+
+vars:
+  ZEST_ENV: dev
+
+env:
+  ZEST_ENV: "{{.ZEST_ENV}}"
+
+tasks:
+  dev:rebuild:
+    desc: "Rebuild docker image"
+    cmds:
+      - docker compose up -w --build
+
+  dev:init:
+    desc: "Init development environment with hot reload"
+    dotenv:
+      - .env.dev
+    vars:
+      ZEST_ENV: dev
+      CODE_VERSION:
+        sh: date +%s%N
+    cmds:
+      - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend alembic upgrade head
+      - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python install_fixtures.py --fixture fixtures/recipe_categories.json
+      - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python install_fixtures.py --fixture fixtures/units.json
+      - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python install_fixtures.py --fixture fixtures/foods.json
+
+  dev:
+    desc: "Run development environment with hot reload"
+    dotenv:
+      - .env.dev
+    vars:
+      ZEST_ENV: dev
+      CODE_VERSION:
+        sh: date +%s%N
+    cmds:
+      - docker compose up -w --build
+
+  dev:down:
+    desc: "Stop development environment"
+    cmds:
+      - docker stop $(docker ps -aq) && docker rm $(docker ps -aq) && docker volume rm $(docker volume ls -q)
+      # - docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+
+  dev:fixtures:
+    desc: "Install Fixtures (units, categories, etc.)"
+    shell: bash
+    cmds:
+      - .venv/bin/python install_fixtures.py --fixture fixtures/recipe_categories.json
+      - .venv/bin/python install_fixtures.py --fixture fixtures/units.json
+      - .venv/bin/python install_fixtures.py --fixture fixtures/foods.json
+
+  dev:index:
+    desc: "Indexes recipes and food in meilisearch"
+    shell: bash
+    cmds:
+      - export ZEST_ENV=local; uv run python index_recipes.py
+      - export ZEST_ENV=local; uv run python index_recipes.py
+
+
+  db:psql:
+    desc: "Connect to database with psql"
+    cmds:
+      - docker compose exec db psql -U postgres -d app
+
+  test:
+    dotenv:
+      - .env.test
+    vars:
+      ZEST_ENV: test
+      CODE_VERSION:
+        sh: date +%s%N
+    cmds:
+      - docker compose -f docker-compose.yml -f docker-compose.test.yml down -v --remove-orphans
+      - docker compose -f docker-compose.yml -f docker-compose.test.yml up -d db
+      - docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm backend alembic upgrade head
+      - docker compose -f docker-compose.yml -f docker-compose.test.yml up --build --exit-code-from backend
+      - docker compose -f docker-compose.yml -f docker-compose.test.yml down -v
+

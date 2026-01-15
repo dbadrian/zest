@@ -1,0 +1,653 @@
+[
+  {
+    "model": "units.unit",
+    "id": 1,
+    "fields": {
+      "name": "kilogram",
+      "base_unit": "kg",
+      "conversion_factor": "1.000000",
+      "unit_system": "Metric"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": 2,
+    "fields": {
+      "name": "gram",
+      "base_unit": "kg",
+      "conversion_factor": "0.001000",
+      "unit_system": "Metric"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": 3,
+    "fields": {
+      "name": "decagram",
+      "base_unit": "kg",
+      "conversion_factor": "0.010000",
+      "unit_system": "Metric"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "milligram",
+      "base_unit": "kg",
+      "conversion_factor": "0.000001",
+      "unit_system": "Metric"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "microgram",
+      "base_unit": "kg",
+      "conversion_factor": "0.000000001",
+      "unit_system": "Metric"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "liter",
+      "base_unit": "l",
+      "conversion_factor": "0.142060",
+      "unit_system": "Metric"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "milliliter",
+      "base_unit": "l",
+      "conversion_factor": "0.001000",
+      "unit_system": "Metric"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "centiliter",
+      "base_unit": "l",
+      "conversion_factor": "0.010000",
+      "unit_system": "Metric"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "deciliter",
+      "base_unit": "l",
+      "conversion_factor": "0.100000",
+      "unit_system": "Metric"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "gill",
+      "base_unit": "l",
+      "conversion_factor": "0.142070",
+      "unit_system": "imp."
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "gill",
+      "base_unit": "l",
+      "conversion_factor": "0.118290",
+      "unit_system": "US"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "pound",
+      "base_unit": "kg",
+      "conversion_factor": "0.453592",
+      "unit_system": "US"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "teaspoon",
+      "base_unit": "l",
+      "conversion_factor": "0.005000",
+      "unit_system": "Metric"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "tablespoon",
+      "base_unit": "l",
+      "conversion_factor": "0.015000",
+      "unit_system": "Metric"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "piece",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "pinch",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "tub",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "bundle",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "handful",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "bag",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "cup",
+      "base_unit": "l",
+      "conversion_factor": "0.2365882365",
+      "unit_system": "US"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "cup",
+      "base_unit": "l",
+      "conversion_factor": "250.000000",
+      "unit_system": "Metric"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "can",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "bottle",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "knife tip",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "stick",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "stem",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "package",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "dash",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "drop",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "coffeespoon",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "grain",
+      "base_unit": "kg",
+      "conversion_factor": "0.000065",
+      "unit_system": "US"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "slice",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "splash",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "clove",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "bulb",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "fluid ounce",
+      "base_unit": "l",
+      "conversion_factor": "0.028400",
+      "unit_system": "imp."
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "fluid ounce",
+      "base_unit": "l",
+      "conversion_factor": "0.029754",
+      "unit_system": "US"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "gallon",
+      "base_unit": "l",
+      "conversion_factor": "4.546090",
+      "unit_system": "imp."
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "gallon",
+      "base_unit": "l",
+      "conversion_factor": "3.785411",
+      "unit_system": "US"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "saltspoon",
+      "base_unit": "l",
+      "conversion_factor": "0.001000",
+      "unit_system": "Metric"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "tea cup",
+      "base_unit": "l",
+      "conversion_factor": "0.200000",
+      "unit_system": "Metric"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "pound (dt.)",
+      "base_unit": "kg",
+      "conversion_factor": "0.500000",
+      "unit_system": "Metric"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "pound",
+      "base_unit": "kg",
+      "conversion_factor": "0.453592",
+      "unit_system": "imp."
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "shaku 勺",
+      "base_unit": "l",
+      "conversion_factor": "0.018039",
+      "unit_system": "Shakkanhou"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "gō 合",
+      "base_unit": "l",
+      "conversion_factor": "0.180390",
+      "unit_system": "Shakkanhou"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "shō 升",
+      "base_unit": "l",
+      "conversion_factor": "1.803900",
+      "unit_system": "Shakkanhou"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "to 斗",
+      "base_unit": "l",
+      "conversion_factor": "18.039000",
+      "unit_system": "Shakkanhou"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "koku 石",
+      "base_unit": "l",
+      "conversion_factor": "180.390000",
+      "unit_system": "Shakkanhou"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "fun 分",
+      "base_unit": "kg",
+      "conversion_factor": "0.000375",
+      "unit_system": "Shakkanhou"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "monme 匁",
+      "base_unit": "kg",
+      "conversion_factor": "0.003750",
+      "unit_system": "Shakkanhou"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "ryō 両",
+      "base_unit": "kg",
+      "conversion_factor": "0.037500",
+      "unit_system": "Shakkanhou"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "kin 斤",
+      "base_unit": "kg",
+      "conversion_factor": "0.600000",
+      "unit_system": "Shakkanhou"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "kan 貫(目)",
+      "base_unit": "kg",
+      "conversion_factor": "3.750000",
+      "unit_system": "Shakkanhou"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "shō 鍾",
+      "base_unit": "kg",
+      "conversion_factor": "37.500000",
+      "unit_system": "Shakkanhou"
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "specific gravity",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "brix",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "iternational unit",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "calorie",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "kilojoule",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name": "parts per million",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name_en": "head",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name_en": "to taste",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name_en": "sheet",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  },
+  {
+    "model": "units.unit",
+    "id": null,
+    "fields": {
+      "name_en": "block",
+      "base_unit": null,
+      "conversion_factor": null,
+      "unit_system": ""
+    }
+  }
+]
+

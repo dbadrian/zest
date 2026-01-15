@@ -1,0 +1,19 @@
+services:
+  backend:
+    build: 
+      context: .
+      # NO CODE_VERSION - full layer caching for speed!
+    volumes:
+      - ./app:/app/app # Mount source code
+    command: fastapi dev --host 0.0.0.0 app/main.py
+
+# pgadmin:
+#   image: dpage/pgadmin4:latest
+#   container_name: pgadmin
+#   environment:
+#     PGADMIN_DEFAULT_EMAIL: admin@example.com
+#     PGADMIN_DEFAULT_PASSWORD: admin
+#   ports:
+#     - "8080:80"  # Access via http://localhost:8080
+#   depends_on:
+#     - db

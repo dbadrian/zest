@@ -1,0 +1,1 @@
+AUTH_ROUTER_PREFIX = "auth"
