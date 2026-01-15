@@ -147,3 +147,6 @@ dmypy.json
 secrets.md
 *.pfx
 base64pfx
+zest.crt
+zest.pem
+.env.dev
