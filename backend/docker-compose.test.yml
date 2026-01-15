@@ -38,6 +38,10 @@ services:
   #   command: bash scripts/prestart-test.sh
   #   restart: "no"
 
+  meilisearch:
+    logging:
+      driver: "none"
+
   backend:
     # Override production image with build for tests
     image: null  # Clear the production image setting
@@ -54,7 +58,7 @@ services:
         condition: service_healthy
       # prestart:
       #   condition: service_completed_successfully
-    command: pytest -v
+    command: pytest -v --cov=app --cov-report=term --cov-report=html:/coverage/htmlcov --cov-report=xml:/coverage/coverage.xml
     # Disable healthcheck for tests
     healthcheck:
       disable: true
@@ -63,3 +67,5 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_DB=${POSTGRES_DB?Variable not set}
+    volumes:
+      - ./coverage:/coverage

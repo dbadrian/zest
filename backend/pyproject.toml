@@ -27,5 +27,6 @@ dependencies = [
 dev = [
     "alembic>=1.17.2",
     "grequests>=0.7.0",
+    "pytest-cov>=7.0.0",
     "wikidata>=0.9.0",
 ]

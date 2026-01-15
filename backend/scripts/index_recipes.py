@@ -53,7 +53,7 @@ async def index_all_recipes():
         foods = await session.execute(select(FoodCandidate))
         foods = foods.scalars().all()
         print(f"Indexing {len(foods)} foods...")
-        for chunk in tqdm(batched(foods, 1000)):
+        for chunk in tqdm(batched(foods, 10000)):
             await search_service.index_food_bulk(chunk)
         print("Done!")
 

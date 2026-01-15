@@ -18,28 +18,6 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_DB=${POSTGRES_DB?Variable not set}
-
-  # prestart:
-  #   # This service doesn't exist in production, so we define it completely
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #     args:
-  #       - CODE_VERSION=${CODE_VERSION:-dev}
-  #   env_file:
-  #     - .env.${ZEST_ENV}
-  #   environment:
-  #     # Ensure connection to Docker db service
-  #     - POSTGRES_SERVER=db
-  #     - POSTGRES_USER=${POSTGRES_USER?Variable not set}
-  #     - POSTGRES_DB=${POSTGRES_DB?Variable not set}
-  #     - POSTGRE_PASSWORD=${POSTGRES_DB?Variabel not set}
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   command: bash scripts/prestart.sh
-  #   restart: "no"
-  # ... your existing services ...
   
   meilisearch:
     image: getmeili/meilisearch:v1.6
@@ -72,9 +50,6 @@ services:
         condition: service_healthy
       meilisearch:
         condition: service_healthy
-        # prestart:
-        #
-      #   condition: service_completed_successfully
     env_file:
       - .env.${ZEST_ENV}
     environment:
