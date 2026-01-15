@@ -39,12 +39,6 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/checkout@v3
 
-      - name: "📂 download docker artifacts"
-        uses: actions/download-artifact@v4
-        with:
-          name: docker
-          path: /tmp
-
       - name: Test
         run: task backend:test
 
