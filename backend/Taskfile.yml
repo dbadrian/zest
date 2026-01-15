@@ -22,9 +22,9 @@ tasks:
         sh: date +%s%N
     cmds:
       - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend alembic upgrade head
-      - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python install_fixtures.py --fixture fixtures/recipe_categories.json
-      - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python install_fixtures.py --fixture fixtures/units.json
-      - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python install_fixtures.py --fixture fixtures/foods.json
+      - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python scripts/install_fixtures.py --fixture fixtures/recipe_categories.json
+      - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python scripts/install_fixtures.py --fixture fixtures/units.json
+      - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python scripts/install_fixtures.py --fixture fixtures/foods.json
 
   dev:
     desc: "Run development environment with hot reload"
@@ -47,9 +47,9 @@ tasks:
     desc: "Install Fixtures (units, categories, etc.)"
     shell: bash
     cmds:
-      - .venv/bin/python install_fixtures.py --fixture fixtures/recipe_categories.json
-      - .venv/bin/python install_fixtures.py --fixture fixtures/units.json
-      - .venv/bin/python install_fixtures.py --fixture fixtures/foods.json
+      - .venv/bin/python scripts/install_fixtures.py --fixture fixtures/recipe_categories.json
+      - .venv/bin/python scripts/install_fixtures.py --fixture fixtures/units.json
+      - .venv/bin/python scripts/install_fixtures.py --fixture fixtures/foods.json
 
   dev:index:
     desc: "Indexes recipes and food in meilisearch"

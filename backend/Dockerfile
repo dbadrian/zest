@@ -30,7 +30,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 ENV PYTHONPATH=/app
 
 # cOPY CONFIGURATION FILES (LESS FREQUENTLY CHANGED - WILL BE CACHED)
-COPY ./pyproject.toml ./uv.lock ./alembic.ini ./install_fixtures.py ./generate_recipes.py ./index_recipes.py /app/
+COPY ./pyproject.toml ./uv.lock ./alembic.ini /app/
 
 # Build arg to control cache busting for code changes
 ARG CODE_VERSION=dev
@@ -43,10 +43,8 @@ COPY ./fixtures /app/fixtures
 COPY ./alembic /app/alembic
 COPY ./tests /app/tests
 COPY ./static /app/static
+COPY ./scripts /app/scripts
 
-# Sync the project (will run when CODE_VERSION changes)
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync
+RUN --mount=type=cache,target=/root/.cache/uv uv sync
 
 CMD ["fastapi", "dev", "--workers", "4", "app/main.py"]
