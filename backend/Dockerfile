@@ -29,7 +29,6 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 ENV PYTHONPATH=/app
 
-# cOPY CONFIGURATION FILES (LESS FREQUENTLY CHANGED - WILL BE CACHED)
 COPY ./pyproject.toml ./uv.lock ./alembic.ini /app/
 
 # Build arg to control cache busting for code changes

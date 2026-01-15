@@ -124,6 +124,9 @@ jobs:
     needs: [prepare-frontend-environment]
     env:
       ZEST_ENV: test
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v3
 
@@ -160,6 +163,7 @@ jobs:
 
       - name: Initialize backend
         run: |
+          cd ..
           task backend:dev:init
           task backend:dev:detach
 
