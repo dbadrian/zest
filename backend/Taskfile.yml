@@ -33,6 +33,7 @@ tasks:
         sh: date +%s%N
     cmds:
       - docker compose up -d --build
+
   dev:down:
     desc: "Stop development environment"
     cmds:
