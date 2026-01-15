@@ -73,39 +73,19 @@ else
     exit
 fi
 
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-SCR="/home/$USER/miniforge3/bin/conda"
-__conda_setup="$($SCR 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/home/$USER/miniforge3/etc/profile.d/conda.sh" ]; then
-        . "/home/$USER/miniforge3/etc/profile.d/conda.sh"
-    else
-        export PATH="/home/$USER/miniforge3/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-
-if [ -f "/home/$USER/miniforge3/etc/profile.d/mamba.sh" ]; then
-    . "/home/$USER/miniforge3/etc/profile.d/mamba.sh"
-fi
-# <<< conda initialize <<<
-
-
-mamba activate zest
+source ./backend/.venv/bin/activate
 on_failure $? "Couldn't activate zest environment"
+
 cd $SCRIPT_DIR
 cd backend
-poetry version ${VERSION}
-echo "__version__ = '${VERSION}'" > zest/version.py
+uv version ${VERSION}
+echo "__version__ = '${VERSION}'" > app/version.py
 cd ../frontend
 cider version ${VERSION}+$(($(git rev-list --count HEAD) + 1148))
 sed -i "s/pkgver=.*$/pkgver=${VERSION}/g" PKGBUILD
 cd ..
 git add backend/pyproject.toml
-git add backend/zest/version.py
+git add backend/app/version.py
 git add frontend/pubspec.yaml
 git add frontend/PKGBUILD
 git commit -m "Bumping version to ${VERSION}" --no-verify
