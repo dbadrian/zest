@@ -453,6 +453,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                 style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 20),
             TextFormField(
+              key: Key("recipeTitleField"),
               controller: _titleController,
               decoration: const InputDecoration(
                 labelText: 'Title *',
@@ -463,6 +464,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
             ),
             const SizedBox(height: 16),
             TextFormField(
+              key: Key("recipeSubtitleField"),
               controller: _subtitleController,
               decoration: const InputDecoration(
                 labelText: 'Subtitle',
@@ -472,6 +474,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
             ),
             const SizedBox(height: 16),
             TextFormField(
+              key: Key("recipeCommentField"),
               controller: _ownerCommentController,
               decoration: const InputDecoration(
                 labelText: 'Comment',
@@ -527,6 +530,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
 
   Widget _buildLanguageDropdown() {
     return DropdownButtonFormField<String>(
+      key: Key("recipeLanguageDropdown"),
       initialValue: _selectedLanguage,
       decoration: const InputDecoration(
         labelText: 'Language *',
@@ -550,6 +554,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
       children: [
         Expanded(
           child: TextFormField(
+            key: Key("recipeServingsField"),
             // initialValue: _servings.toString(),
             controller: _servingsController,
             decoration: const InputDecoration(
@@ -603,6 +608,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
 
   Widget _buildPrivateCheckbox() {
     return CheckboxListTile(
+      key: Key("recipeIsPrivateCheckbox"),
       title: const Text('Private Recipe'),
       subtitle: const Text('Only visible to you'),
       value: _isPrivate,
@@ -615,6 +621,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
 
   Widget _buildDraftCheckbox() {
     return CheckboxListTile(
+      key: Key("recipeDraftCheckbox"),
       title: const Text('Draft Recipe'),
       subtitle: const Text('Only visible to you until released'),
       value: _isDraft,
@@ -627,6 +634,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
 
   Widget _buildDifficultySelector() {
     return Column(
+      key: Key("recipeDifficultySelector"),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Difficulty',
@@ -701,6 +709,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
           children: [
             Expanded(
               child: TextFormField(
+                key: Key("recipe$label-hour"),
                 initialValue: hours.toString(),
                 decoration: const InputDecoration(
                   labelText: 'Hours',
@@ -719,9 +728,9 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                   final val = int.tryParse(v) ?? 0;
                   setState(() {
                     if (isPrep) {
-                      _prepTimeMinutes = val;
+                      _prepTimeHours = val;
                     } else {
-                      _cookTimeMinutes = val;
+                      _cookTimeHours = val;
                     }
                   });
                 },
@@ -730,6 +739,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
             const SizedBox(width: 8),
             Expanded(
               child: TextFormField(
+                key: Key("recipe$label-minutes"),
                 initialValue: minutes.toString(),
                 decoration: const InputDecoration(
                   labelText: 'Minutes',
@@ -773,6 +783,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                 style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 20),
             TextFormField(
+              key: Key("recipeSourceNameField"),
               controller: _sourceNameController,
               onChanged: (_) => _saveSnapshot(),
               decoration: const InputDecoration(
@@ -786,6 +797,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                 children: [
                   Expanded(
                     child: TextFormField(
+                      key: Key("recipeSourcePageField"),
                       controller: _sourcePageController,
                       onChanged: (_) => _saveSnapshot(),
                       decoration: const InputDecoration(
@@ -797,6 +809,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: TextFormField(
+                      key: Key("recipeSourceUrlField"),
                       controller: _sourceUrlController,
                       onChanged: (_) => _saveSnapshot(),
                       decoration: const InputDecoration(
@@ -817,6 +830,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
               )
             else ...[
               TextFormField(
+                key: Key("recipeSourcePageField"),
                 controller: _sourcePageController,
                 onChanged: (_) => _saveSnapshot(),
                 decoration: const InputDecoration(
@@ -826,6 +840,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
               ),
               const SizedBox(height: 16),
               TextFormField(
+                key: Key("recipeSourceUrlField"),
                 controller: _sourceUrlController,
                 onChanged: (_) => _saveSnapshot(),
                 decoration: const InputDecoration(
@@ -850,6 +865,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
 
   Widget _buildCategoriesSection(List<RecipeCategory> categories) {
     return Card(
+      key: Key("recipeCategoriesSelector"),
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
