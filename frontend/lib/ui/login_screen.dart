@@ -155,8 +155,8 @@ class LoginPageState extends ConsumerState<LoginPage> {
                     ),
                   ),
                 const ElementsVerticalSpace(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Wrap(
+                  // mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
                       key: const Key('login'),

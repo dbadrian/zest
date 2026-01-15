@@ -33,7 +33,7 @@ GoRouter getRouter(Ref ref) {
       ShellRoute(
         navigatorKey: localShellNavigatorKey,
         builder: (BuildContext context, GoRouterState state, Widget child) {
-          return MainScaffold(key: UniqueKey(), child: child);
+          return MainScaffold(key: ValueKey("MainScaffold"), child: child);
         },
         routes: [
           GoRoute(

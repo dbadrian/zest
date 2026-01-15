@@ -17,13 +17,14 @@ void main() async {
   group('end-to-end test', () {
     testWidgets('Create Recipe Integration Test', (tester) async {
       await tester.runAsync(() async {
-        // Assume a reasonably large screen
-        final dpi = tester.view.devicePixelRatio;
-        tester.view.physicalSize = Size(904 * dpi, 1000 * dpi);
-
         await startAppDefault(tester,
             sharedPrefs: sharedPrefs, database: database);
+        // advance time and pretend animation is done
+        await tester.pump(const Duration(seconds: 3));
+        await tester.pumpAndSettle();
+
         await performLogin(tester);
+
         final addRecipeButton = find.byKey(const Key('appbar_addrecipe_icon'));
         expect(addRecipeButton, findsOneWidget);
 

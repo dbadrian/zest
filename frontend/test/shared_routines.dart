@@ -116,9 +116,9 @@ Future<void> performLogin(tester) async {
   final loginKey = const Key('login');
   final loginButton = find.byKey(loginKey);
 
-  await tester.enterText(find.byKey(passwordKey), 'admin'); // why the fuck
-  await tester.enterText(find.byKey(usernameKey), 'admin');
-  await tester.enterText(find.byKey(passwordKey), 'admin');
+  await tester.enterText(find.byKey(passwordKey), 'changethis'); // why the fuck
+  await tester.enterText(find.byKey(usernameKey), 'admin@test.com');
+  await tester.enterText(find.byKey(passwordKey), 'changethis');
   await tester.tap(loginButton);
   await tester.pumpAndSettle();
 }

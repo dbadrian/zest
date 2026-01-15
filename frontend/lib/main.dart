@@ -193,8 +193,8 @@ class HomePage extends ConsumerWidget {
           Text(
               "Hello ${ref.watch(authenticationServiceProvider).value?.user.username}"),
           if (authNotifier.isAuthenticated)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            Wrap(
+              // mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
                   onPressed: () {

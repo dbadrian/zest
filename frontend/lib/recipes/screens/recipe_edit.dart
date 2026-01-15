@@ -25,13 +25,6 @@ class RecipeEditScreen extends ConsumerStatefulWidget {
 
   final int? recipeId;
   final int undoHistoryLimit;
-  // final List<String> availableLanguages;
-  // final Map<int, String> validCategories;
-  // final List<String> units;
-  // final List<String> foods;
-  // final Future<List<String>> Function(String query) searchUnits;
-  // final Future<List<String>> Function(String query) searchFoods;
-  // final Future<void> Function(Map<String, dynamic> formData) handleForm;
 
   const RecipeEditScreen({
     super.key,

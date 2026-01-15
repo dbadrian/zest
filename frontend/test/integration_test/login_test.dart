@@ -7,6 +7,9 @@ import '../shared_routines.dart';
 void main() async {
   var (sharedPrefs, database) = await prepareAppForIntegrationTest();
 
+  final username = "admin@test.com";
+  final password = "changethis";
+
   group('end-to-end test', () {
     testWidgets('Check if main scaffold is rendered', (tester) async {
       await tester.runAsync(() async {
@@ -17,9 +20,22 @@ void main() async {
     });
 
     testWidgets('Test login functionality via real API', (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 3.0;
+
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
       await tester.runAsync(() async {
         await startAppDefault(tester,
             sharedPrefs: sharedPrefs, database: database);
+
+        // advance time and pretend animation is done
+        await tester.pump(const Duration(seconds: 3));
+        await tester.pumpAndSettle();
+
         final usernameKey = const Key('username');
         final passwordKey = const Key('password');
         expect(find.byKey(usernameKey), findsOneWidget);
@@ -45,8 +61,8 @@ void main() async {
         expect(find.byKey(loginError), findsOneWidget);
         expect(find.byKey(const Key('appbar_search_icon')), findsNothing);
 
-        await tester.enterText(find.byKey(usernameKey), 'admin');
-        await tester.enterText(find.byKey(passwordKey), 'admin');
+        await tester.enterText(find.byKey(usernameKey), username);
+        await tester.enterText(find.byKey(passwordKey), password);
         await tester.tap(loginButton);
         await tester.pumpAndSettle();
         expect(find.byKey(loginError), findsNothing);
@@ -58,11 +74,16 @@ void main() async {
       await tester.runAsync(() async {
         FlutterSecureStorage.setMockInitialValues({
           "authentication_service_user":
-              '{"pk":"...","username":"admin","email":"..","first_name":"...","last_name":"..."}'
+              '{"pk":"...","username":"$username","email":"..","first_name":"...","last_name":"..."}'
         });
 
         await startAppDefault(tester,
             sharedPrefs: sharedPrefs, database: database);
+
+        // advance time and pretend animation is done
+        await tester.pump(const Duration(seconds: 3));
+        await tester.pumpAndSettle();
+
         final usernameKey = const Key('username');
         final passwordKey = const Key('password');
         expect(find.byKey(usernameKey), findsOneWidget);
@@ -74,9 +95,9 @@ void main() async {
         final TextFormField formfield =
             tester.widget<TextFormField>(find.byKey(usernameKey));
 
-        expect(formfield.controller!.text, "admin");
+        expect(formfield.controller!.text, username);
 
-        await tester.enterText(find.byKey(passwordKey), 'admin');
+        await tester.enterText(find.byKey(passwordKey), password);
         await tester.tap(loginButton);
         await tester.pumpAndSettle();
 
