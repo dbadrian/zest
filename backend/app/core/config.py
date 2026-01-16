@@ -40,7 +40,7 @@ from pydantic import (
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing_extensions import Self
 
-SHOW_DOCS_IN_ENVS = ("local", "staging")
+SHOW_DOCS_IN_ENVS = ("local", "dev", "staging")
 
 APP_DIR = Path(__file__).parent
 
@@ -60,7 +60,7 @@ class Settings(BaseSettings):
     # General Options
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: str = "changethis"
-    ENVIRONMENT: Literal["local", "test", "staging", "production"] = "local"
+    ENVIRONMENT: Literal["local", "test", "staging", "production"]
     PROJECT_NAME: str
     HOST_DOMAIN: str = "localhost:8000"
 

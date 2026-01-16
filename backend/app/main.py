@@ -1,7 +1,7 @@
 from typing import Annotated
 from pathlib import Path
 
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 # from . import auth

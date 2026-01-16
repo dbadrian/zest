@@ -22,7 +22,7 @@ ln -sfn $APP_DIR/shared/logs $APP_DIR/releases/$LATEST/logs
 # Setup and activate venv
 echo "Create venv"
 cd $APP_DIR/releases/$LATEST/backend
-uv sync --extra dev
+uv sync
 source .venv/bin/activate
 
 cd $APP_DIR/releases/$LATEST/backend
