@@ -22,6 +22,7 @@
 # SOFTWARE.
 
 import secrets
+from urllib.parse import quote_plus
 import warnings
 from typing import Annotated, Any, Literal
 import os
@@ -97,10 +98,12 @@ class Settings(BaseSettings):
     @computed_field  # type: ignore[prop-decorator]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
+        password_encoded = quote_plus(self.POSTGRES_PASSWORD)
+        
         return PostgresDsn.build(
             scheme="postgresql+psycopg",
             username=self.POSTGRES_USER,
-            password=self.POSTGRES_PASSWORD,
+            password=password_encoded,
             host=self.POSTGRES_SERVER,
             port=self.POSTGRES_PORT,
             path=self.POSTGRES_DB,
@@ -142,7 +145,7 @@ class Settings(BaseSettings):
             "SECRET_KEY_ACCESS_TOKENS", self.SECRET_KEY_ACCESS_TOKENS
         )
         self._check_default_secret(
-            "SECRET_KEY_REFRESH_TOKENS_DEB", self.SECRET_KEY_REFRESH_TOKENS_DB
+            "SECRET_KEY_REFRESH_TOKENS_DB", self.SECRET_KEY_REFRESH_TOKENS_DB
         )
         self._check_default_secret("POSTGRES_PASSWORD", self.POSTGRES_PASSWORD)
         self._check_default_secret(

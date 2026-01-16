@@ -79,14 +79,13 @@ sudo certbot --nginx -d yourdomain.com
 sudo ufw allow 'Nginx Full'
 ```
 
-Configure python
+Install `uv` to manage python and venvs later on.
 ```bash
-curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
-bash Miniforge3-$(uname)-$(uname -m).sh -b
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
+# to refresh PATH
 source ~/.bashrc
-mamba create -n zest python=3.11
-mamba activate zest
+
 ```
 
 Prepare postgresql
@@ -100,31 +99,71 @@ psql
 
 psql# ALTER USER postgres WITH PASSWORD 'TYPE STRONG PASSWORD HERE';
 ```
-
-Last, we install redis
+## Setup github token if your repo is private
 ```bash
-sudo apt install redis
-```
+cat > ~/.netrc<< EOF
+machine github.com
+login dbadrian
+password <your_PAT_token>
+EOF
 
-And only allow local connections `nano /etc/redis/redis.conf`
-
-```
-# uncomment the following line
-# bind 127.0.0.1 ::1
-```
-and restart redis
-```
-systemctl restart redis
+chmod 600 ~/.netrc
 ```
 
 ## Setup zest
+Create folder for bin files, if it does not yet exist.
 ```bash
-mkdir bin
+mkdir -p bin
 echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+echo 'export ZEST_ENV="production"' >> ~/.bashrc
 source　~/.bashrc
-git clone https://github.com/yourdomain/zest.git zest-git
-ln -s ~/zest-git/server/bin/* ~/bin/
-deploy_zest # to trigger an initial deployment
+```
+
+We now bootstrap the folder layout for zest and its releases.
+- TODO: Explain layout
+```
+mkdir -p zest/upstream
+git clone https://github.com/yourdomain/zest.git zest/upstream
+ln -s ~/zest/upstream/server/bin/* ~/bin/
+```
+
+Next we prepare the environment files that will be shared across all the releases, and we symlink in
+```
+mkdir -p ~/zest/shared/logs
+mkdir -p ~/zest/releases
+cat > ~/zest/shared/env.production<< EOF
+PROJECT_NAME="zest"
+ENVIRONMENT=production
+
+# Backend
+SECRET_KEY=secret-test-key
+FIRST_SUPERUSER=admin@test.com
+FIRST_SUPERUSER_PASSWORD=changethis
+
+# Emails
+SMTP_HOST=
+SMTP_USER=
+SMTP_PASSWORD=
+EMAILS_FROM_EMAIL=info@example.com
+SMTP_TLS=True
+SMTP_SSL=False
+SMTP_PORT=587
+
+# Postgres
+POSTGRES_SERVER=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=zest
+POSTGRES_USER=zest
+POSTGRES_PASSWORD=changethis
+
+MEILISEARCH_URL=http://meilisearch:7700
+MEILISEARCH_MASTER_KEY=your-secure-master-key-here-min-16-chars
+
+GEMINI_API_KEY=your-gemini-key-here
+
+# Configure these with your own Docker registry images
+DOCKER_IMAGE_BACKEND=backend
+EOF
 ```
 
 For the first time and initial setup, we need to perform a few small updates to postgres and to the database.
@@ -142,50 +181,18 @@ PASSWORD 'GENERATE SECURE PASSWORD';
 CREATE DATABASE zest
 WITH
 OWNER zest;
+```
+Then connect to the database
+```
 \c zest;
+```
+
+And install extensions if desired.
+```
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE EXTENSION IF NOT EXISTS btree_gin;
 ```
 
-Next, we create an .env in the deployed zest, 
-
-```bash
-nano ~/zest/env.json
-```
-
-```json
-{
-    "DJANGO_SETTINGS_MODULE": "zest.settings.production",
-    "DJANGO_SECRET_KEY": "$(python3 -c 'import secrets; print(secrets.token_urlsafe(100))')",
-    "DJANGO_ALLOWED_HOSTS": "yourdomain.com",
-    "DJANGO_AUTH_MODE": "jwt",
-    "CORS_ALLOWED_ORIGINS": "https://0.0.0.0:8000,http://0.0.0.0:8000,https://yourdomain.com",
-    "CSRF_TRUSTED_ORIGINS": "https://0.0.0.0:8000,http://0.0.0.0:8000,https://yourdomain.com",
-    "SQL_ENGINE": "django.db.backends.postgresql",
-    "SQL_HOST": "localhost",
-    "SQL_PORT": "5432",
-    "SQL_DATABASE": "zest",
-    "SQL_USER": "zest",
-    "SQL_PASSWORD": "SET POSTGRES PASSWORD FOR ROLE zest",
-    "MEDIA_ROOT": "/var/www/html/zest/media",
-    "STATIC_ROOT": "/var/www/html/zest/static",
-    "REDIS_ADDRESS": "redis://127.0.0.1:6379"
-}
-```
-
-Now we can make the migrations, migrate, and install the fixtures
-```bash
-./zest --env env.json manage makemigrations users shared units foods tags recipes shopping_lists favorites
-./zest --env env.json manage migrate
-./zest --env env.json manage loaddata users.json units.json foods.json foods_synonyms.json tags.json recipes.json recipe_categories.json shoppinglists.json
-
-# create folder for statics and media
-sudo mkdir -p /var/www/html/zest/media
-sudo mkdir -p /var/www/html/zest/static
-sudo chown -R www-data:www-data /var/www/html/zest/static /var/www/html/zest/media
-sudo chmod -R 755 /var/www/html/zest/static /var/www/html/zest/media
-./zest --env env.json manage collectstatic
-```
 
 Adjust the nginx config as follows
 ```nginx
@@ -291,9 +298,8 @@ http {
     listen 80;
     server_name yourdomain.com www.yourdomain.com;
     return 404; # managed by Certbot
-
-
-}}
+  }
+}
 ```
 
 ```bash
