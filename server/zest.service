@@ -7,7 +7,7 @@ User=zest
 Group=zest
 
 # Path to your script directory
-WorkingDirectory=/home/zest/current/backend
+WorkingDirectory=/home/zest/zest/current/backend
 
 # The command to run
 ExecStart=/home/zest/zest/current/backend/.venv/bin/gunicorn app.main:app -config gunicorn.conf.py
