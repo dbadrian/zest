@@ -1,33 +1,34 @@
 #!/usr/bin/env bash
 set -e
-PYTHON=/home/$USER/miniforge3/envs/zest/bin/python3.11
-ZEST_DEPLOYMENT_DIR=~/zest
-ENV_PATH=${ZEST_DEPLOYMENT_DIR}/env.json
-mkdir -p ${ZEST_DEPLOYMENT_DIR}
-cd ~/zest-git/backend
+
+REPO=https://github.com/dbadrian/zest.git
+APP_DIR=/home/zest/zest
+
+# get the latest version of zest to get the tags
+cd $APP_DIR/upstream
 git pull
-${PYTHON} build_shiv.py --python ${PYTHON} --release --output-path $ZEST_DEPLOYMENT_DIR
-cd ~/zest
-ln -sf $(ls -td zest-*.pyz | head -1) zest
+git fetch --tags
+LATEST=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
 
-# clear the shiv cache -> gets huge quickly
-echo "Deleting shiv cache"
-rm -rf /home/$USER/.shiv
+# now clone that specific tag again
+cd $APP_DIR
+git clone --branch $LATEST --depth 1 $REPO $APP_DIR/releases/$LATEST
 
-# and delete the latest versions
-echo "Linking latest pyz"
-cd ~/zest
-ls -t zest-v*.pyz | tail -n +3 | xargs -r -d '\n' rm --
+# Symlink shared files like .env
+echo "Link shared resources"
+ln -sfn $APP_DIR/shared/.env.production $APP_DIR/releases/$LATEST/.env.production
+ln -sfn $APP_DIR/shared/logs $APP_DIR/releases/$LATEST/logs
 
-echo 'Looking for running server and restarting'
-tmux has-session -t zest-live 2>/dev/null
-if [ $? == 0 ]; then
-        echo " # Killing Zest Backend"
-    tmux list-panes -t zest-live -s -F "#{pane_pid} #{pane_current_command}" | grep -v tmux | awk '{print $1}' | xargs kill -9
-else
-    echo " # Zest Backend is not running"
-fi
-sleep 3
-echo " # Starting Zest Backend"
-tmux new-session -s "zest-live" -d "${ZEST_DEPLOYMENT_DIR}/zest --env ${ENV_PATH} production"
+# Setup and activate venv
+cd $REPO $APP_DIR/releases/$LATEST/backend
+uv install
+source .venv/bin/activate
 
+# cd $APP_DIR/releases/$RELEASE
+# alembic upgrade head
+
+# echo "Switch current symlink"
+# ln -sfn $APP_DIR/releases/$RELEASE $APP_DIR/current
+
+# echo "Graceful reload"
+# sudo systemctl reload myapp
