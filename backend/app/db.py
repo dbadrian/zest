@@ -15,7 +15,7 @@ from app.core.config import settings
 # Create async engine with recommended settings
 engine: AsyncEngine = create_async_engine(
     settings.SQLALCHEMY_DATABASE_URI.unicode_string(),
-    echo=True,  # Set to False in production
+    echo=(settings.ENVIRONMENT != "production"),  # Set to False in production
     future=True,  # Use SQLAlchemy 2.0 style
     pool_pre_ping=True,  # Verify connections before using
 )
