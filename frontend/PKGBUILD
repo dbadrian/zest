@@ -2,7 +2,7 @@
 # _pkgname=zest
 _pkgname=zest
 pkgname=$_pkgname
-pkgver=0.1.50
+pkgver=0.1.51
 pkgrel=1
 pkgdesc="A recipe app"
 url="https://github.com/dbadrian/zest"
