@@ -68,14 +68,14 @@ GoRouter getRouter(Ref ref) {
               child: const SettingsPage(),
             ),
           ),
-          // GoRoute(
-          //   path: TakePictureScreen.routeLocation,
-          //   name: TakePictureScreen.routeName,
-          //   pageBuilder: (context, state) => MaterialPage(
-          //     key: ValueKey(TakePictureScreen.routeLocation),
-          //     child: const TakePictureScreen(),
-          //   ),
-          // ),
+          GoRoute(
+            path: TakePictureScreen.routeLocation,
+            name: TakePictureScreen.routeName,
+            pageBuilder: (context, state) => MaterialPage(
+              key: ValueKey(TakePictureScreen.routeLocation),
+              child: const TakePictureScreen(),
+            ),
+          ),
           GoRoute(
             path: RecipeSearchPage.routeLocation,
             name: RecipeSearchPage.routeName,
