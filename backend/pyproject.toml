@@ -9,6 +9,7 @@ dependencies = [
     "fastapi[standard]>=0.124.0,<0.125.0",
     "google-auth>=2.43.0",
     "google-genai>=1.55.0",
+    "gunicorn>=23.0.0",
     "meilisearch>=0.38.0",
     "psycopg>=3.3.2",
     "pydantic-settings>=2.12.0",

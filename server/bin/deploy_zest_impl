@@ -27,7 +27,7 @@ cd $APP_DIR/releases/$LATEST/backend
 PYTHONPATH=. alembic upgrade head
 
 echo "Switch current symlink"
-ln -sfn $APP_DIR/releases/$RELEASE $APP_DIR/current
+ln -sfn $APP_DIR/releases/$LATEST $APP_DIR/current
 
 # echo "Graceful reload"
 # sudo systemctl reload myapp
