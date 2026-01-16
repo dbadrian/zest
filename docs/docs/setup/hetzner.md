@@ -354,3 +354,9 @@ Add to .bashrc for convenience
 ```
 alias startbackend='tmux new-session -s "zest-live" -d "/home/zest/zest/zest --env /home/zest/zest/env.json production"'
 ```
+
+
+
+zest@zest-backend:~/zest/upstream$ sudo cp /home/zest/zest/upstream/server/zest.service /etc/systemd/system/
+zest@zest-backend:~/zest/upstream$ sudo systemctl daemon-reload
+zest@zest-backend:~/zest/upstream$ sudo systemctl restart zest.serviceS

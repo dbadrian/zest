@@ -10,7 +10,7 @@ Group=zest
 WorkingDirectory=/home/zest/zest/current/backend
 
 # The command to run
-ExecStart=/home/zest/zest/current/backend/.venv/bin/gunicorn app.main:app -config gunicorn.conf.py
+ExecStart=/home/zest/zest/current/backend/.venv/bin/gunicorn app.main:app --config gunicorn.conf.py
 
 # Restart policy
 Restart=on-failure
