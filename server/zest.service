@@ -5,6 +5,7 @@ After=network.target
 [Service]
 User=zest
 Group=zest
+Environment="ZEST_ENV=production"
 
 # Path to your script directory
 WorkingDirectory=/home/zest/zest/current/backend
