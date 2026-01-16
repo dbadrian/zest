@@ -388,3 +388,26 @@ log_level = WARN
 max_indexing_memory = "1 GiB"
 max_indexing_threads = 2
 ```
+
+And finally create a service:
+```bash
+cat << EOF > /etc/systemd/system/meilisearch.service
+[Unit]
+Description=Meilisearch
+After=systemd-user-sessions.service
+
+[Service]
+Type=simple
+WorkingDirectory=/var/lib/meilisearch
+ExecStart=/usr/local/bin/meilisearch --config-file-path /etc/meilisearch.toml
+User=meilisearch
+Group=meilisearch
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+# Install and index fixtures
+

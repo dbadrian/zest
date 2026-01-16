@@ -1241,7 +1241,7 @@ wheels = [
 
 [[package]]
 name = "zest-backend"
-version = "0.1.58"
+version = "0.1.59"
 source = { virtual = "." }
 dependencies = [
     { name = "argon2-cffi" },
