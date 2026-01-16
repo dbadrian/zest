@@ -196,109 +196,106 @@ CREATE EXTENSION IF NOT EXISTS btree_gin;
 
 Adjust the nginx config as follows
 ```nginx
-worker_processes 1;
+worker_processes auto;
 
 user nobody nogroup;
-# 'user nobody nobody;' for systems with 'nobody' as a group instead
 error_log  /var/log/nginx/error.log warn;
 pid /var/run/nginx.pid;
 
 events {
-  worker_connections 1024; # increase if you have lots of clients
-  accept_mutex off; # set to 'on' if nginx worker_processes > 1
-  # 'use epoll;' to enable for Linux 2.6+
-  # 'use kqueue;' to enable for FreeBSD, OSX
+    worker_connections 1024;
+    accept_mutex off;
 }
 
 http {
-  include mime.types;
-  # fallback in case we can't determine a type
-  default_type application/octet-stream;
-  access_log /var/log/nginx/access.log combined;
-  sendfile on;
+    include mime.types;
+    default_type application/octet-stream;
 
-  upstream app_server {
-    # fail_timeout=0 means we always retry an upstream even if it failed
-    # to return a good HTTP response
+    access_log /var/log/nginx/access.log combined;
+    sendfile on;
 
-    # for UNIX domain socket setups
-    server 127.0.0.1:8000 fail_timeout=0;
+    #################################
+    # UPSTREAM BACKENDS
+    #################################
 
-    # for a TCP configuration
-    # server 192.168.0.7:8000 fail_timeout=0;
-  }
-
-  server {
-    # if no Host match, close the connection to prevent host spoofing
-    listen 80 default_server;
-    return 444;
-  }
-
-  server {
-    # use 'listen 80 deferred;' for Linux
-    # use 'listen 80 accept_filter=httpready;' for FreeBSD
-    client_max_body_size 4G;
-
-    # set the correct host(s) for your site
-    server_name yourdomain.com www.yourdomain.com;
-
-    keepalive_timeout 5;
-
-    # path for static files
-#    root /var/www/html/zest/static;
-
-    location /static/ {
-        alias /var/www/html/zest/static/;
+    upstream zest_server {
+        server 127.0.0.1:8000 fail_timeout=0;
     }
 
-    location /media/ {
-        alias /var/www/html/zest/media/;
+    #################################
+    # DEFAULT DENY (ANTI HOST-SPOOF)
+    #################################
+
+    server {
+        listen 80 default_server;
+        return 444;
     }
 
-    location / {
-      # check if backend is alive
-      auth_request /api/v1/info; # should yield 2xx http status code
+    #################################
+    # ZEST — HTTPS
+    #################################
 
-      error_page 500 =503 @status_offline;
+    server {
+        listen 443 ssl;
+        server_name zest.dbadrian.com;
 
-      # checks for static file, if not found proxy to app
-      try_files $uri @proxy_to_app;
+        client_max_body_size 4G;
+        keepalive_timeout 5;
+
+        # Static files
+        location /static/ {
+            alias /var/www/html/zest/static/;
+        }
+
+        location /media/ {
+            alias /var/www/html/zest/media/;
+        }
+
+        # Proxy backend
+        location / {
+            auth_request /api/v1/info; # optional health check
+            error_page 500 =503 @status_offline;
+            try_files $uri @proxy_to_app;
+        }
+
+        location @proxy_to_app {
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header Host $host;
+            proxy_redirect off;
+            proxy_pass http://zest_server;
+        }
+
+        # Optional error page
+        error_page 500 502 503 504 /500.html;
+        location = /500.html {
+            root /path/to/app/current/public;
+        }
+
+        ssl_certificate /etc/letsencrypt/live/dbadrian.com/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/dbadrian.com/privkey.pem;
+        include /etc/letsencrypt/options-ssl-nginx.conf;
+        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
     }
 
-    location @proxy_to_app {
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header X-Forwarded-Proto $scheme;
-      proxy_set_header Host $http_host;
-      # we don't want nginx trying to do something clever with
-      # redirects, we set the Host: header above already.
-      proxy_redirect off;
-      proxy_pass http://app_server;
-    }
+    #################################
+    # ZEST — HTTP → HTTPS
+    #################################
 
-    error_page 500 502 503 504 /500.html;
-    location = /500.html {
-      root /path/to/app/current/public;
-    }
-  
-    listen 443 ssl; # managed by Certbot
-    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem; # managed by Certbot
-    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem; # managed by Certbot
-    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
-
-}
-
-
-  server {
-    if ($host = yourdomain.com) {
+    server {
+        listen 80;
+        server_name zest.dbadrian.com;
         return 301 https://$host$request_uri;
-    } # managed by Certbot
+    }
 
 
-    listen 80;
-    server_name yourdomain.com www.yourdomain.com;
-    return 404; # managed by Certbot
-  }
+    server {
+        listen 443 ssl;
+        server_name dbadrian.com www.dbadrian.com;
+
+        return 301 https://dbadrian.github.io$request_uri;
+        #return 444;   # block everything
+    }
 }
 ```
 
@@ -347,16 +344,10 @@ and add
 ```
 
 
-
-
-
-Add to .bashrc for convenience
+To just  update the service file do the follow
 ```
-alias startbackend='tmux new-session -s "zest-live" -d "/home/zest/zest/zest --env /home/zest/zest/env.json production"'
-```
-
-
 git pull
 sudo cp /home/zest/zest/upstream/server/zest.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl restart zest.service
+```

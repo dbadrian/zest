@@ -20,6 +20,7 @@ ln -sfn $APP_DIR/shared/logs $APP_DIR/releases/$LATEST/logs
 # Setup and activate venv
 echo "Create venv"
 cd $APP_DIR/releases/$LATEST/backend
+. "$HOME/.local/bin/env" # to source uv if necessary
 uv sync
 source .venv/bin/activate
 
@@ -29,5 +30,8 @@ PYTHONPATH=. alembic upgrade head
 echo "Switch current symlink"
 ln -sfn $APP_DIR/releases/$LATEST $APP_DIR/current
 
-# echo "Graceful reload"
-# sudo systemctl reload myapp
+# Graceful reload of workers
+sudo systemctl reload zest
+
+# Check status
+sudo systemctl status zest
