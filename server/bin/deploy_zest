@@ -11,4 +11,4 @@ git fetch --tags
 
 # since the actual deploy script has maybe changed 
 # call the second part now that does the actual deployment with the latest updates
-bash server/bin/deploy_zest_impl
+bash server/deploy_zest_impl
