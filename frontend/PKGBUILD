@@ -8,9 +8,8 @@ pkgdesc="A recipe app"
 url="https://github.com/dbadrian/zest"
 arch=('x86_64')
 license=('-')
-# makedepends=('git' 'flutter' 'libsecret')
-# source=("$_pkgname::git+git@github.com:dbadrian/fluttertest.git")
-source=("git+https://github.com/dbadrian/zest.git")
+makedepends=('libsecret')
+source=("git+https://${GH_TOKEN}@github.com/dbadrian/zest.git")
 sha1sums=('SKIP')
 
 provides=('zest')

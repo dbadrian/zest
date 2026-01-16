@@ -1,6 +1,10 @@
+## Only used for CI builds
+
 FROM archlinux:latest
 
 ARG GPGKEY=""
+ARG GH_TOKEN
+ENV GH_TOKEN=$GH_TOKEN
 
 RUN pacman -Sy \
     && pacman -S --noconfirm base-devel git go npm yarn sudo

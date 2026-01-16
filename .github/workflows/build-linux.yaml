@@ -21,10 +21,8 @@ jobs:
           driver-opts: network=host
 
       - name: Build docker images
-        env:
-          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
         run: |
-          docker build  --network=host -t archdev --build-arg GPGKEY="$GPG_SIGNING_KEY" .
+          docker build  --network=host -t archdev --build-arg GPGKEY="${{ secrets.GPG_SIGNING_KEY }}" --build-arg GH_TOKEN="${{ secrets.GH_TOKEN }}" .
           chmod 777 ${{ runner.temp }}
           docker run -v ${{ runner.temp }}:/build --rm archdev /bin/bash -c "cp /home/builduser/*.pkg.tar.* /build"
 
