@@ -32,6 +32,3 @@ ln -sfn $APP_DIR/releases/$LATEST $APP_DIR/current
 
 # Graceful reload of workers
 sudo systemctl reload zest
-
-# Check status
-sudo systemctl status zest
