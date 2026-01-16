@@ -351,3 +351,40 @@ sudo cp /home/zest/zest/upstream/server/zest.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl restart zest.service
 ```
+
+
+# Setting up Meilisearch Engine
+
+```bash
+sudo apt update
+sudo apt install curl -y
+curl -L https://install.meilisearch.com | sh
+sudo mv ./meilisearch /usr/local/bin/
+```
+
+Next we create a user and deploy some initial config
+```bash
+sudo useradd -d /var/lib/meilisearch -s /bin/false -m -r meilisearch
+sudo chown meilisearch:meilisearch /usr/local/bin/meilisearch
+
+sudo mkdir /var/lib/meilisearch/data /var/lib/meilisearch/dumps /var/lib/meilisearch/snapshots
+sudo chown -R meilisearch:meilisearch /var/lib/meilisearch
+sudo chmod 750 /var/lib/meilisearch
+
+sudo curl https://raw.githubusercontent.com/meilisearch/meilisearch/latest/config.toml > /etc/meilisearch.toml
+```
+
+Now update the config for some final config steps.
+Make sure the master_key matches what you gave the `.env.production` file.
+```bash
+env = "production"
+master_key = "MASTER_KEY"
+db_path = "/var/lib/meilisearch/data"
+dump_dir = "/var/lib/meilisearch/dumps"
+snapshot_dir = "/var/lib/meilisearch/snapshots"
+no_analytics = true
+log_level = WARN
+
+max_indexing_memory = "1 GiB"
+max_indexing_threads = 2
+```
