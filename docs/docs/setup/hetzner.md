@@ -356,7 +356,7 @@ alias startbackend='tmux new-session -s "zest-live" -d "/home/zest/zest/zest --e
 ```
 
 
-
-zest@zest-backend:~/zest/upstream$ sudo cp /home/zest/zest/upstream/server/zest.service /etc/systemd/system/
-zest@zest-backend:~/zest/upstream$ sudo systemctl daemon-reload
-zest@zest-backend:~/zest/upstream$ sudo systemctl restart zest.serviceS
+git pull
+sudo cp /home/zest/zest/upstream/server/zest.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl restart zest.service
