@@ -8,28 +8,7 @@ APP_DIR=/home/zest/zest
 cd $APP_DIR/upstream
 git pull
 git fetch --tags
-LATEST=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
 
-# now clone that specific tag again
-cd $APP_DIR
-git clone --branch $LATEST --depth 1 $REPO $APP_DIR/releases/$LATEST
-
-# Symlink shared files like .env
-echo "Link shared resources"
-ln -sfn $APP_DIR/shared/.env.production $APP_DIR/releases/$LATEST/backend/.env.production
-ln -sfn $APP_DIR/shared/logs $APP_DIR/releases/$LATEST/logs
-
-# Setup and activate venv
-echo "Create venv"
-cd $APP_DIR/releases/$LATEST/backend
-uv sync
-source .venv/bin/activate
-
-cd $APP_DIR/releases/$LATEST/backend
-alembic upgrade head
-
-# echo "Switch current symlink"
-# ln -sfn $APP_DIR/releases/$RELEASE $APP_DIR/current
-
-# echo "Graceful reload"
-# sudo systemctl reload myapp
+# since the actual deploy script has maybe changed 
+# call the second part now that does the actual deployment with the latest updates
+bash server/bin/deploy_zest_impl
