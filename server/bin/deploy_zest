@@ -16,10 +16,11 @@ git clone --branch $LATEST --depth 1 $REPO $APP_DIR/releases/$LATEST
 
 # Symlink shared files like .env
 echo "Link shared resources"
-ln -sfn $APP_DIR/shared/.env.production $APP_DIR/releases/$LATEST/.env.production
+ln -sfn $APP_DIR/shared/.env.production $APP_DIR/releases/$LATEST/backend/.env.production
 ln -sfn $APP_DIR/shared/logs $APP_DIR/releases/$LATEST/logs
 
 # Setup and activate venv
+echo "Create venv"
 cd $REPO $APP_DIR/releases/$LATEST/backend
 uv install
 source .venv/bin/activate
