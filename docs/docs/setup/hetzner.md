@@ -352,6 +352,19 @@ sudo systemctl daemon-reload
 sudo systemctl restart zest.service
 ```
 
+### allow pwless reload
+```
+sudo visudo
+```
+
+and add
+
+```
+zest ALL=NOPASSWD: /bin/systemctl restart zest.service
+zest ALL=NOPASSWD: /bin/systemctl reload zest.service
+zest ALL=NOPASSWD: /bin/systemctl start zest.service
+zest ALL=NOPASSWD: /bin/systemctl stop zest.service
+```
 
 # Setting up Meilisearch Engine
 
