@@ -41,7 +41,7 @@ class SettingsFormState extends ConsumerState<SettingsForm> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -53,9 +53,8 @@ class SettingsFormState extends ConsumerState<SettingsForm> {
             buildLanguageSelector(ref),
             buildSearchLanguageIndicator(ref),
             buildAdvancedSettings(ref),
-            const ElementsVerticalSpace(),
-            const ElementsVerticalSpace(),
-            buildScreenButtons(context, ref)
+            const SizedBox(height: 20),
+            buildScreenButtons(context, ref),
           ],
         ),
       ),
@@ -197,27 +196,26 @@ Widget buildShowAdvancedSettingsCheckbox(ref) {
   final settings = ref.read(settingsProvider.notifier);
   final bool showAdvancedSettings = ref.watch(settingsProvider
       .select((settings) => settings.dirty.showAdvancedSettings));
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      const Padding(
-        padding: EdgeInsets.only(left: 10, right: 10),
-        child: Text(
-          'Settings',
-          style: TextStyle(fontSize: 20),
-        ),
-      ),
-      SizedBox(
-        width: 205,
-        child: CheckboxListTile(
-          value: showAdvancedSettings,
-          onChanged: (bool? value) {
-            settings.setShowAdvancedSettings(value!);
-          },
-          title: const Text("Show Advanced"),
-        ),
-      ),
-    ],
+
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final isSmall = constraints.maxWidth < 360;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Settings', style: const TextStyle(fontSize: 20)),
+          CheckboxListTile(
+            value: showAdvancedSettings,
+            onChanged: (bool? value) {
+              settings.setShowAdvancedSettings(value!);
+            },
+            title: const Text("Show Advanced"),
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.trailing,
+          ),
+        ],
+      );
+    },
   );
 }
 
@@ -229,69 +227,25 @@ class APIFieldWidget extends HookConsumerWidget {
     final settings = ref.watch(settingsProvider.notifier);
     final apiUrl = ref.watch(settingsProvider.select((s) => s.dirty.apiUrl));
     final TextEditingController apiUrlCtrl = useTextEditingController();
+    apiUrlCtrl.text = apiUrl;
 
-    final double screenWidth = MediaQuery.of(context).size.width;
-
-    // The following updates the text-editing controller with the current value
-    // but it will also reset the cursor position to the end of the text
-    // hence we need to cache the position -> seleciton
-    final cacheSelection = apiUrlCtrl.selection;
-    apiUrlCtrl.text = apiUrl; // to refresh the text on changes
-    apiUrlCtrl.selection = TextSelection.fromPosition(TextPosition(
-        offset: min(apiUrlCtrl.text.length, cacheSelection.baseOffset)));
-
-    final isValidURL = Uri.tryParse(apiUrl)?.hasAbsolutePath ?? false;
-    var showErrorText = false;
+    final bool isValidURL = Uri.tryParse(apiUrl)?.hasAbsolutePath ?? false;
     var errorText = "";
     if (ref.watch(settingsProvider.select((s) => s.dirty.apiUrlDirty))) {
-      showErrorText = true;
-      if (errorText.isNotEmpty) {
-        errorText += "\n";
-      }
       errorText = "The API URL is changed, if saved you will be logged out.";
     }
-    if (!isValidURL) {
-      showErrorText = true;
-      if (errorText.isNotEmpty) {
-        errorText += "\n";
-      }
-      errorText += "Invalid URL!";
-    }
-
-    // // use apiStatusProvider to check if the URL is valid
-    // final redirects = ref.watch(
-    //     apiStatusProvider.select((s) => s.valueOrNull?.redirects ?? false));
-    // debugPrint("$redirects redirect");
-    // if (redirects) {
-    //   showErrorText = true;
-    //   if (errorText.isNotEmpty) {
-    //     errorText += "\n";
-    //   }
-    //   errorText += "The URL is redirecting! Maybe use HTTPS?";
-    // }
+    if (!isValidURL)
+      errorText += errorText.isEmpty ? "Invalid URL!" : "\nInvalid URL!";
 
     return ListTile(
       leading: const Icon(Icons.connect_without_contact),
       title: const Text("API"),
-      trailing: ConstrainedBox(
-        constraints:
-            BoxConstraints(minWidth: 40, maxWidth: max(250, screenWidth * 0.5)),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                controller: apiUrlCtrl,
-                onChanged: ((value) => settings.setApiUrl(value)),
-                // controller: ref.apiAddressCtrl,
-                decoration: InputDecoration(
-                  // border: OutlineInputBorder(),
-                  hintText: 'https://your-domain.com/api/v1',
-                  errorText: showErrorText ? errorText : null,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
+      subtitle: TextFormField(
+        controller: apiUrlCtrl,
+        onChanged: settings.setApiUrl,
+        decoration: InputDecoration(
+          hintText: 'https://your-domain.com/api/v1',
+          errorText: errorText.isEmpty ? null : errorText,
         ),
       ),
     );
@@ -322,58 +276,76 @@ Widget buildAdvancedSettings(ref) {
   );
 }
 
+class GeminiAPIKeyField extends HookConsumerWidget {
+  const GeminiAPIKeyField({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider.notifier);
+    final chatGPTKey =
+        ref.watch(settingsProvider.select((s) => s.dirty.geminiApiKey));
+    final TextEditingController chatGPTKeyCtrl = useTextEditingController();
+
+    // The following updates the text-editing controller with the current value
+    // but it will also reset the cursor position to the end of the text
+    // hence we need to cache the position -> seleciton
+    final cacheSelection = chatGPTKeyCtrl.selection;
+    chatGPTKeyCtrl.text = chatGPTKey; // to refresh the text on changes
+    chatGPTKeyCtrl.selection = TextSelection.fromPosition(TextPosition(
+        offset: min(chatGPTKeyCtrl.text.length, cacheSelection.baseOffset)));
+
+    return ListTile(
+      leading: const Icon(Icons.vpn_key),
+      title: const Text("Gemini API Key"),
+      subtitle: TextFormField(
+        controller: chatGPTKeyCtrl,
+        onChanged: settings.setGeminiApiKey,
+        decoration: const InputDecoration(hintText: 'Gemini API Key'),
+      ),
+    );
+  }
+}
+
 Widget buildScreenButtons(context, ref) {
   final settings = ref.read(settingsProvider.notifier);
 
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
+  return Wrap(
+    spacing: 12,
+    runSpacing: 12,
+    alignment: WrapAlignment.center,
     children: [
       OutlinedButton(
-        onPressed: () async {
+        onPressed: () {
           settings.discardChanges();
           GoRouter.of(context).pop();
         },
         child: const Text("Back"),
       ),
-      const SizedBox(
-        width: 25,
-      ),
       OutlinedButton(
         onPressed: settings.restoreDefaultSettings,
         style: OutlinedButton.styleFrom(
-            side: BorderSide(color: Theme.of(ref).colorScheme.error),
-            backgroundColor: Theme.of(ref).colorScheme.errorContainer),
+          side: BorderSide(color: Theme.of(ref).colorScheme.error),
+          backgroundColor: Theme.of(ref).colorScheme.errorContainer,
+        ),
         child: Text(
           "Restore Defaults",
           style:
               TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
         ),
       ),
-      const SizedBox(
-        width: 25,
-      ),
       OutlinedButton(
         onPressed: settings.discardChanges,
         style: OutlinedButton.styleFrom(
           side: BorderSide(color: Theme.of(ref).colorScheme.error),
-          // backgroundColor: Theme.of(ref).colorScheme.onErrorContainer,
         ),
         child: Text(
           "Discard Changes",
           style: TextStyle(color: Theme.of(context).colorScheme.error),
         ),
       ),
-      const SizedBox(
-        width: 25,
-      ),
       ElevatedButton(
         onPressed: () {
           settings.persistSettings();
-          // TODO: LOW In the future, we would like to just pop the settings route,
-          // however, this will require more logic to force a reload of data,
-          // such as recipes which might require a refresh due to language changes.
-          // GoRouter.of(context).goNamed(HomePage.routeName);
-
           if (ref.read(settingsProvider.select((s) => s.dirty.apiUrlDirty))) {
             ref
                 .read(authenticationServiceProvider.notifier)
@@ -386,51 +358,4 @@ Widget buildScreenButtons(context, ref) {
       ),
     ],
   );
-}
-
-class GeminiAPIKeyField extends HookConsumerWidget {
-  const GeminiAPIKeyField({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider.notifier);
-    final chatGPTKey =
-        ref.watch(settingsProvider.select((s) => s.dirty.geminiApiKey));
-    final TextEditingController chatGPTKeyCtrl = useTextEditingController();
-
-    final double screenWidth = MediaQuery.of(context).size.width;
-
-    // The following updates the text-editing controller with the current value
-    // but it will also reset the cursor position to the end of the text
-    // hence we need to cache the position -> seleciton
-    final cacheSelection = chatGPTKeyCtrl.selection;
-    chatGPTKeyCtrl.text = chatGPTKey; // to refresh the text on changes
-    chatGPTKeyCtrl.selection = TextSelection.fromPosition(TextPosition(
-        offset: min(chatGPTKeyCtrl.text.length, cacheSelection.baseOffset)));
-
-    return ListTile(
-      leading: const Icon(Icons.connect_without_contact),
-      title: const Text("Gemini API Key"),
-      trailing: ConstrainedBox(
-        constraints:
-            BoxConstraints(minWidth: 40, maxWidth: max(250, screenWidth * 0.5)),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                controller: chatGPTKeyCtrl,
-                onChanged: ((value) => settings.setGeminiApiKey(value)),
-                // controller: ref.apiAddressCtrl,
-                decoration: InputDecoration(
-                  // border: OutlineInputBorder(),
-                  hintText: 'Gemini API Key',
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
