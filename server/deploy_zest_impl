@@ -32,4 +32,4 @@ echo "Switch current symlink"
 ln -sfn $APP_DIR/releases/$LATEST $APP_DIR/current
 
 # Graceful reload of workers
-sudo /bin/systemctl reload zest
+sudo /bin/systemctl reload zest.service
