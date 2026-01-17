@@ -1272,7 +1272,8 @@ class _InstructionGroupWidget extends StatelessWidget {
                 fillColor: Colors.white,
                 hintText: 'Use \\n\\n\\ to separate elements',
               ),
-              maxLines: 5,
+              minLines: 2,
+              maxLines: 200,
               validator: (v) {
                 if (v == null || v.isEmpty) return 'Required';
                 if (v.length < 2) return 'Min 2 characters';

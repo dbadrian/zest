@@ -25,7 +25,7 @@ from app.recipes.schemas import (
 class LanguageCode(StrEnum):
     en = "en"
     de = "de"
-    cz = "cz"
+    cs = "cs"
     it = "it"
     fr = "fr"
     jp = "jp"

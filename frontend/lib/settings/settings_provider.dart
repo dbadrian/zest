@@ -84,10 +84,6 @@ class Settings extends _$Settings {
     state = state.copyWith.dirty(apiUrl: apiUrl, apiUrlDirty: true);
   }
 
-  void setGeminiApiKey(String geminiApiKey) {
-    state = state.copyWith.dirty(geminiApiKey: geminiApiKey);
-  }
-
   void setShowAdvancedSettings(bool showAdvancedSettings) {
     state = state.copyWith.dirty(showAdvancedSettings: showAdvancedSettings);
   }
