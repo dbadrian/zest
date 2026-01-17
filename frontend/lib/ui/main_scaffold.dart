@@ -252,48 +252,45 @@ class MainScaffold extends ConsumerWidget {
                     //// Main Body
                     ////////////////////////////////////////////////////////////////
                     if (isAuthenticated) ...[
-                      ListTile(
-                        leading: const Icon(Icons.search),
-                        title: const Text('Search'),
-                        onTap: () {
-                          Navigator.pop(context);
-                          ref.invalidate(recipeSearchControllerProvider);
+                      if (GoRouter.of(context).state.name !=
+                          RecipeSearchPage.routeName)
+                        ListTile(
+                          leading: const Icon(Icons.search),
+                          title: const Text('Search'),
+                          onTap: () {
+                            Navigator.pop(context);
+                            ref.invalidate(recipeSearchControllerProvider);
 
-                          context.goNamed(RecipeSearchPage.routeName);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.favorite),
-                        title: const Text('Favorites'),
-                        onTap: () {
-                          Navigator.pop(context);
-                          // ref
-                          //     .read(recipeSearchFilterSettingsProvider.notifier)
-                          //     .reset();
-                          // ref
-                          //     .read(recipeSearchFilterSettingsProvider.notifier)
-                          //     .updateFavoritesOnly(true);
-                          ref.invalidate(recipeSearchControllerProvider);
+                            context.goNamed(RecipeSearchPage.routeName);
+                          },
+                        ),
+                      if (false) // TODO: Re-enable
+                        ListTile(
+                          leading: const Icon(Icons.favorite),
+                          title: const Text('Favorites'),
+                          onTap: () {
+                            Navigator.pop(context);
+                            // ref
+                            //     .read(recipeSearchFilterSettingsProvider.notifier)
+                            //     .reset();
+                            // ref
+                            //     .read(recipeSearchFilterSettingsProvider.notifier)
+                            //     .updateFavoritesOnly(true);
+                            ref.invalidate(recipeSearchControllerProvider);
 
-                          context.goNamed(RecipeSearchPage.routeName);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.add_card_rounded),
-                        title: const Text('Add Recipe'),
-                        onTap: () {
-                          Navigator.pop(context);
-                          // context.goNamed(RecipeEditPage.routeNameCreate);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.drive_file_rename_outline),
-                        title: const Text('Drafts'),
-                        onTap: () {
-                          Navigator.pop(context);
-                          // context.goNamed(RecipeDraftPage.routeName);
-                        },
-                      ),
+                            context.goNamed(RecipeSearchPage.routeName);
+                          },
+                        ),
+                      if (GoRouter.of(context).state.name !=
+                          RecipeEditScreen.routeNameCreate)
+                        ListTile(
+                          leading: const Icon(Icons.add_card_rounded),
+                          title: const Text('Add Recipe'),
+                          onTap: () {
+                            Navigator.pop(context);
+                            context.goNamed(RecipeEditScreen.routeNameCreate);
+                          },
+                        ),
                       const Divider(),
                       // TODO: Add Profile
                       // const ListTile(
@@ -306,15 +303,19 @@ class MainScaffold extends ConsumerWidget {
                       //   onTap: null,
                       // ),
                     ],
-                    ListTile(
-                      leading: const Icon(Icons.settings),
-                      title: const Text('Settings'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        ref.invalidate(recipeSearchControllerProvider);
-                        context.pushNamed(SettingsPage.routeName);
-                      },
-                    ),
+
+                    if (GoRouter.of(context).state.name !=
+                        SettingsPage.routeName)
+                      ListTile(
+                        leading: const Icon(Icons.settings),
+                        title: const Text('Settings'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          ref.invalidate(recipeSearchControllerProvider);
+                          GoRouter.of(context)
+                              .pushNamed(SettingsPage.routeName);
+                        },
+                      ),
                     const ElementsVerticalSpace(),
                     const ElementsVerticalSpace(),
                     if (isAuthenticated)
@@ -339,7 +340,8 @@ class MainScaffold extends ConsumerWidget {
                           }
                         },
                       ),
-                    if (!isAuthenticated)
+                    if (!isAuthenticated &&
+                        GoRouter.of(context).state.name != LoginPage.routeName)
                       ListTile(
                         key: const Key('login'),
                         leading: const Icon(Icons.logout),
@@ -354,44 +356,45 @@ class MainScaffold extends ConsumerWidget {
                           GoRouter.of(context).go(LoginPage.routeLocation);
                         },
                       ),
-                    if (Platform.isWindows || Platform.isLinux)
-                      UpdatWidget(
-                        currentVersion: packageInfo
-                            .version, // TODO: LOW set to current version ${packageInfo.version}
-                        getLatestVersion: () async {
-                          final ret = await ref
-                              .read(githubServiceProvider)
-                              .getLatestVersion();
-                          return ret;
-                        },
-                        openOnDownload: false,
-                        getDownloadFileLocation: (latestVersion) async {
-                          Directory downloadDirectory =
-                              await getDownloadDirectory();
-                          final file = File(p.join(downloadDirectory.path,
-                              "zest-$latestVersion.$platformUpdateExt"));
-                          debugPrint("Update file: $file");
-                          return file;
-                        },
-                        getBinaryUrl: (latestVersion) async {
-                          final assets = await ref
-                              .read(githubServiceProvider)
-                              .getLatestAssetList();
-                          int? assetId;
-                          if (assets != null) {
-                            final assetCandidate = assets.firstWhere((e) {
-                              return e["name"] as String ==
-                                  platformUpdateName(latestVersion);
-                            }, orElse: () => {});
-                            assetId = assetCandidate["id"] as int?;
-                          }
-                          debugPrint(
-                              "Downlaod URL: https://api.github.com/repos/dbadrian/zest/releases/assets/$assetId");
-                          return "https://api.github.com/repos/dbadrian/zest/releases/assets/$assetId";
-                        },
-                        // Lastly, enter your app name so we know what to call your files.
-                        appName: "Zest",
-                      ),
+                    //TODO: Reenable the update feature
+                    // if (Platform.isWindows || Platform.isLinux)
+                    //   UpdatWidget(
+                    //     currentVersion: packageInfo
+                    //         .version, // TODO: LOW set to current version ${packageInfo.version}
+                    //     getLatestVersion: () async {
+                    //       final ret = await ref
+                    //           .read(githubServiceProvider)
+                    //           .getLatestVersion();
+                    //       return ret;
+                    //     },
+                    //     openOnDownload: false,
+                    //     getDownloadFileLocation: (latestVersion) async {
+                    //       Directory downloadDirectory =
+                    //           await getDownloadDirectory();
+                    //       final file = File(p.join(downloadDirectory.path,
+                    //           "zest-$latestVersion.$platformUpdateExt"));
+                    //       debugPrint("Update file: $file");
+                    //       return file;
+                    //     },
+                    //     getBinaryUrl: (latestVersion) async {
+                    //       final assets = await ref
+                    //           .read(githubServiceProvider)
+                    //           .getLatestAssetList();
+                    //       int? assetId;
+                    //       if (assets != null) {
+                    //         final assetCandidate = assets.firstWhere((e) {
+                    //           return e["name"] as String ==
+                    //               platformUpdateName(latestVersion);
+                    //         }, orElse: () => {});
+                    //         assetId = assetCandidate["id"] as int?;
+                    //       }
+                    //       debugPrint(
+                    //           "Downlaod URL: https://api.github.com/repos/dbadrian/zest/releases/assets/$assetId");
+                    //       return "https://api.github.com/repos/dbadrian/zest/releases/assets/$assetId";
+                    //     },
+                    //     // Lastly, enter your app name so we know what to call your files.
+                    //     appName: "Zest",
+                    //   ),
                   ],
                 ),
               ),

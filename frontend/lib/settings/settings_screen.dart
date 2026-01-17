@@ -227,7 +227,14 @@ class APIFieldWidget extends HookConsumerWidget {
     final settings = ref.watch(settingsProvider.notifier);
     final apiUrl = ref.watch(settingsProvider.select((s) => s.dirty.apiUrl));
     final TextEditingController apiUrlCtrl = useTextEditingController();
-    apiUrlCtrl.text = apiUrl;
+
+    // The following updates the text-editing controller with the current value
+    // but it will also reset the cursor position to the end of the text
+    // hence we need to cache the position -> seleciton
+    final cacheSelection = apiUrlCtrl.selection;
+    apiUrlCtrl.text = apiUrl; // to refresh the text on changes
+    apiUrlCtrl.selection = TextSelection.fromPosition(TextPosition(
+        offset: min(apiUrlCtrl.text.length, cacheSelection.baseOffset)));
 
     final bool isValidURL = Uri.tryParse(apiUrl)?.hasAbsolutePath ?? false;
     var errorText = "";
@@ -256,7 +263,6 @@ Widget _buildAdvancedSettingsImpl(ref) {
   return const Column(
     children: [
       APIFieldWidget(),
-      GeminiAPIKeyField(),
     ],
   );
 }
@@ -274,36 +280,6 @@ Widget buildAdvancedSettings(ref) {
       if (showAdvancedSettings) _buildAdvancedSettingsImpl(ref),
     ],
   );
-}
-
-class GeminiAPIKeyField extends HookConsumerWidget {
-  const GeminiAPIKeyField({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider.notifier);
-    final chatGPTKey =
-        ref.watch(settingsProvider.select((s) => s.dirty.geminiApiKey));
-    final TextEditingController chatGPTKeyCtrl = useTextEditingController();
-
-    // The following updates the text-editing controller with the current value
-    // but it will also reset the cursor position to the end of the text
-    // hence we need to cache the position -> seleciton
-    final cacheSelection = chatGPTKeyCtrl.selection;
-    chatGPTKeyCtrl.text = chatGPTKey; // to refresh the text on changes
-    chatGPTKeyCtrl.selection = TextSelection.fromPosition(TextPosition(
-        offset: min(chatGPTKeyCtrl.text.length, cacheSelection.baseOffset)));
-
-    return ListTile(
-      leading: const Icon(Icons.vpn_key),
-      title: const Text("Gemini API Key"),
-      subtitle: TextFormField(
-        controller: chatGPTKeyCtrl,
-        onChanged: settings.setGeminiApiKey,
-        decoration: const InputDecoration(hintText: 'Gemini API Key'),
-      ),
-    );
-  }
 }
 
 Widget buildScreenButtons(context, ref) {
@@ -344,14 +320,13 @@ Widget buildScreenButtons(context, ref) {
         ),
       ),
       ElevatedButton(
-        onPressed: () {
-          settings.persistSettings();
+        onPressed: () async {
+          await settings.persistSettings();
           if (ref.read(settingsProvider.select((s) => s.dirty.apiUrlDirty))) {
-            ref
-                .read(authenticationServiceProvider.notifier)
-                .logout()
-                .whenComplete(
-                    () => GoRouter.of(context).go(LoginPage.routeLocation));
+            await ref.read(authenticationServiceProvider.notifier).logout();
+            GoRouter.of(context).go(LoginPage.routeLocation);
+          } else {
+            GoRouter.of(context).pop(); // go back to where we where
           }
         },
         child: const Text("Save"),

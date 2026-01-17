@@ -44,10 +44,13 @@ class LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(authenticationServiceProvider);
 
-    if (!state.isLoading) {
-      userCtrl.text =
-          ref.watch(authenticationServiceProvider).value?.user.username ?? '';
+    if (state.isLoading) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
     }
+
+    userCtrl.text = state.valueOrNull?.user.username ?? userCtrl.text;
 
     String errorMsg = "";
     if (state.hasError) {
