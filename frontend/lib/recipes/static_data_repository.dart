@@ -76,14 +76,15 @@ class StaticDataRepository {
     return _multilingualData!;
   }
 
-  // helper functions
-  Future<List<Unit>> searchUnits(String query) async {
-    return Future.value(extractTop<Unit>(
-        query: query,
-        choices: _units!,
-        limit: 500,
-        getter: (x) => x.name).map((e) => e.choice).toList());
-  }
+  // Future<List<Unit>> searchUnits(String query) async {
+  //   final mld = getMultilingualData();
+
+  //   return Future.value(extractTop<Unit>(
+  //       query: query.toLowerCase(),
+  //       choices: _units!,
+  //       limit: 500,
+  //       getter: (x) => x.name.toLowerCase()).map((e) => e.choice).toList());
+  // }
 
   // helper functions
   Future<List<Food>> searchFoods(

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:zest/authentication/reauthentication_dialog.dart';
@@ -974,6 +975,11 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
 
   Widget _buildIngredientGroupsSection(List<Unit> units, List<Food> foods,
       Map<String, dynamic> currentLanguageData) {
+    final List<(Unit, String)> translatedUnits = units
+        .map((e) =>
+            (e, currentLanguageData["units"][e.name]["singular"] as String))
+        .toList();
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -1020,10 +1026,13 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                     foods: foods,
                     currentLangData: currentLanguageData,
                     searchUnits: (String query) async {
-                      final ret = await ref
-                          .read(staticRepositoryProvider)
-                          .searchUnits(query);
-                      return ret;
+                      return extractTop<(Unit, String)>(
+                              query: query.toLowerCase(),
+                              choices: translatedUnits,
+                              limit: 500,
+                              getter: (x) => x.$2.toLowerCase())
+                          .map((e) => e.choice.$1)
+                          .toList();
                     },
                     searchFoods: (String query) async {
                       final ret = await ref
