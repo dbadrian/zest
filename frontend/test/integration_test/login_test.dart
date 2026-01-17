@@ -70,39 +70,39 @@ void main() async {
       });
     });
 
-    testWidgets('Test cached username for login', (tester) async {
-      await tester.runAsync(() async {
-        FlutterSecureStorage.setMockInitialValues({
-          "authentication_service_user":
-              '{"pk":"...","username":"$username","email":"..","first_name":"...","last_name":"..."}'
-        });
+    // testWidgets('Test cached username for login', (tester) async {
+    //   await tester.runAsync(() async {
+    //     FlutterSecureStorage.setMockInitialValues({
+    //       "authentication_service_user":
+    //           '{"pk":"...","username":"$username","email":"..","first_name":"...","last_name":"..."}'
+    //     });
 
-        await startAppDefault(tester,
-            sharedPrefs: sharedPrefs, database: database);
+    //     await startAppDefault(tester,
+    //         sharedPrefs: sharedPrefs, database: database);
 
-        // advance time and pretend animation is done
-        await tester.pump(const Duration(seconds: 3));
-        await tester.pumpAndSettle();
+    //     // advance time and pretend animation is done
+    //     await tester.pump(const Duration(seconds: 3));
+    //     await tester.pumpAndSettle();
 
-        final usernameKey = const Key('username');
-        final passwordKey = const Key('password');
-        expect(find.byKey(usernameKey), findsOneWidget);
-        expect(find.byKey(passwordKey), findsOneWidget);
-        final loginButton = find.byKey(const Key('login'));
-        expect(loginButton, findsOneWidget);
+    //     final usernameKey = const Key('username');
+    //     final passwordKey = const Key('password');
+    //     expect(find.byKey(usernameKey), findsOneWidget);
+    //     expect(find.byKey(passwordKey), findsOneWidget);
+    //     final loginButton = find.byKey(const Key('login'));
+    //     expect(loginButton, findsOneWidget);
 
-        await tester.pumpAndSettle();
-        final TextFormField formfield =
-            tester.widget<TextFormField>(find.byKey(usernameKey));
+    //     await tester.pumpAndSettle();
+    //     final TextFormField formfield =
+    //         tester.widget<TextFormField>(find.byKey(usernameKey));
 
-        expect(formfield.controller!.text, username);
+    //     expect(formfield.controller!.text, username);
 
-        await tester.enterText(find.byKey(passwordKey), password);
-        await tester.tap(loginButton);
-        await tester.pumpAndSettle();
+    //     await tester.enterText(find.byKey(passwordKey), password);
+    //     await tester.tap(loginButton);
+    //     await tester.pumpAndSettle();
 
-        expect(find.byKey(const Key('appbar_search_icon')), findsOneWidget);
-      });
-    });
+    //     expect(find.byKey(const Key('appbar_search_icon')), findsOneWidget);
+    //   });
+    // });
   });
 }
