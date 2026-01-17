@@ -26,7 +26,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
   
-# Backend builds docker images that frontend tests also need
+
+  # Backend builds docker images that frontend tests also need
   test-backend:
     runs-on: ubuntu-latest
     env:
