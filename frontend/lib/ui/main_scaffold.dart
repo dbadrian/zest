@@ -86,7 +86,7 @@ class MainScaffold extends ConsumerWidget {
                     Icons.camera_enhance),
                 onPressed: (backendStatus.valueOrNull?.isOnline ?? false)
                     ? () async {
-                        // context.goNamed(TakePictureScreen.routeName);
+                        context.goNamed(TakePictureScreen.routeName);
                       }
                     : null,
               ),

@@ -4,7 +4,7 @@ const AVAILABLE_LANGUAGES = {
   "de": "German",
   // "it": "Italian",
   // "fr": "French",
-  "cz": "Czech"
+  "cs": "Czech"
 };
 
 const DEFAULT_LANGUAGE = "de";
