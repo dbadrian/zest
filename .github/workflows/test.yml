@@ -66,6 +66,7 @@ jobs:
       - name: Save Docker images
         run: |
           mkdir -p /tmp/docker-cache
+          cd backend
           # Get list of images from docker compose
           IMAGES=$(docker compose -f docker-compose.yml -f docker-compose.test.yml config --images)
           if [ -n "$IMAGES" ]; then
