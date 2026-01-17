@@ -199,7 +199,6 @@ Widget buildShowAdvancedSettingsCheckbox(ref) {
 
   return LayoutBuilder(
     builder: (context, constraints) {
-      final isSmall = constraints.maxWidth < 360;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

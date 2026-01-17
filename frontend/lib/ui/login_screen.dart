@@ -28,7 +28,9 @@ class LoginPageState extends ConsumerState<LoginPage> {
   void initState() {
     super.initState();
     userCtrl.text =
-        ref.read(authenticationServiceProvider).value?.user.username ?? '';
+        ref.read(authenticationServiceProvider).value?.user.username ??
+            ref.read(authenticationServiceProvider.notifier).lastUser ??
+            "";
 
     showPassword = false;
   }

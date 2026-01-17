@@ -2,7 +2,34 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+FlutterSecureStorage createSecureStorage({
+  String? webNamespace,
+  bool useEncryptedSharedPreferences = true,
+}) {
+  return FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: useEncryptedSharedPreferences,
+    ),
+    iOptions: const IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock,
+    ),
+    mOptions: const MacOsOptions(
+      accessibility: KeychainAccessibility.first_unlock,
+    ),
+    lOptions: const LinuxOptions(),
+    wOptions: const WindowsOptions(),
+  );
+}
+
+final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
+  return createSecureStorage(
+    webNamespace: 'my_app_secure_storage',
+    useEncryptedSharedPreferences: true,
+  );
+});
 
 abstract class ModelStorage<T> {
   // Abstract class defining storage instance of some class T
@@ -36,50 +63,14 @@ class InMemoryModelStorage<T> extends ModelStorage<T> {
   }
 }
 
-// abstract class SharedPreferenacesModelStorage<T> extends ModelStorage<T> {
-//   final String key;
-//   final SharedPreferences storage;
-
-//   SharedPreferenacesModelStorage({required this.key, required this.storage});
-
-//   @override
-//   Future<T?> read() async {
-//     final jsonStr = storage.getString(key);
-//     if (jsonStr != null) {
-//       return fromJson(jsonDecode(jsonStr));
-//     } else {
-//       return null;
-//     }
-//   }
-
-//   @override
-//   Future<void> save(T instance) async {
-//     await storage.setString(key, jsonEncode(toJson(instance)));
-//   }
-
-//   @override
-//   Future<void> clear() async {
-//     final hasKey = await storage.containsKey(key);
-//     if (hasKey) await storage.remove(key);
-//   }
-
-//   T fromJson(Map<String, dynamic> json);
-
-//   Map<String, dynamic> toJson(T instance);
-// }
-
 abstract class SecureModelStorage<T> extends ModelStorage<T> {
   final String key;
-  late final FlutterSecureStorage _storage;
+  final FlutterSecureStorage _storage;
 
-  SecureModelStorage({required this.key}) {
-    // if we are on android
-    if (Platform.isAndroid) {
-      _storage = FlutterSecureStorage(aOptions: _getAndroidOptions());
-    } else {
-      _storage = const FlutterSecureStorage();
-    }
-  }
+  SecureModelStorage({
+    required this.key,
+    required FlutterSecureStorage storage,
+  }) : _storage = storage;
 
   /// Android options for secure storage
   /// https://github.com/mogol/flutter_secure_storage/issues/487#issuecomment-1346244368

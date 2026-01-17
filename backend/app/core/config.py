@@ -70,8 +70,8 @@ class Settings(BaseSettings):
     # Security/Auth related settings
     SECRET_KEY_ACCESS_TOKENS: str = "changethis"
     SECRET_KEY_REFRESH_TOKENS_DB: str = "changethis"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1  # 5
-    REFRESH_TOKEN_EXPIRE_MINUTES: int = 1  # 60 * 24 * 30  # 30 days
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 5
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30  # 30 days
     PASSWORD_RESET_TOKEN_EXPIRE_MINUTES: int = 30
     EMAIL_VERIFICATION_TOKEN_EXPIRE_MINUTES: int = 60 * 24
     JWT_HASH: str = "HS256"  # NOTE:Succifient if the mobile app does not need to verify

@@ -424,3 +424,10 @@ EOF
 
 # Install and index fixtures
 
+```bash
+cd ~/zest/current/backend
+source .venv/bin/activate
+PYTHONPATH=. python scripts/install_fixtures.py --fixture fixtures/units.json
+PYTHONPATH=. python scripts/install_fixtures.py --fixture fixtures/foods.json
+PYTHONPATH=. python scripts/install_fixtures.py --fixture fixtures/recipe_categories.json
+PYTHONPATH=. python scripts/index_data.py

@@ -23,7 +23,7 @@ from app.recipes.models import (
 from app.recipes.search import get_meilisearch_service
 
 
-async def index_all_recipes():
+async def index_data():
     search_service = get_meilisearch_service()
 
     engine = create_async_engine(str(settings.SQLALCHEMY_DATABASE_URI), echo=False)
@@ -59,4 +59,4 @@ async def index_all_recipes():
 
 
 if __name__ == "__main__":
-    asyncio.run(index_all_recipes())
+    asyncio.run(index_data())

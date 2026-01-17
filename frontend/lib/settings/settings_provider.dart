@@ -13,7 +13,6 @@ part 'settings_provider.g.dart';
 const _languageKey = 'settings_language';
 const _searchAllLanguagesKey = 'settings_search_all_languages_key';
 const apiUrlKey = 'settings_api_url';
-const _geminiApiKeyKey = 'settings_gemini_api_key';
 
 const _themeUseDarkThemeKey = 'settings_useDarkTheme';
 const _themeBaseColorKey = 'settings_themeBaseColor';

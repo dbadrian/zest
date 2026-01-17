@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:downloadsfolder/downloadsfolder.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/core/network/http_client.dart';
 import 'package:zest/core/network/interceptors/logging_interceptor.dart';
+import 'package:zest/core/providers/http_client_provider.dart';
 import 'package:zest/settings/settings_provider.dart';
 
-import 'package:zest/utils/model_storage.dart';
+import 'package:zest/utils/persistance.dart';
 
 import 'auth_state.dart';
 import 'auth_state_storage.dart';
@@ -16,25 +19,35 @@ part 'auth_service.g.dart';
 
 typedef AsyncAuthState = AsyncValue<AuthState?>;
 
+// ignore: constant_identifier_names
+const LAST_USER_KEY = "key_auth_last_user";
+
 @riverpod
 class AuthenticationService extends _$AuthenticationService {
   AuthenticationService({
     ModelStorage<AuthState>? tokenStorage,
-  }) : _authStorage = tokenStorage ??
-            SecureAuthStateStorage(key: "authentication_service_token");
+  });
 
-  final ModelStorage<AuthState> _authStorage;
+  late String? _lastUser;
+  late final FlutterSecureStorage _storage;
+
+  late final ModelStorage<AuthState> _authStorage;
   late final ApiHttpClient _client;
 
   bool get isAuthenticated => state.hasValue && state.value != null;
   bool get isLoading => state.isLoading;
   User? get whoIsUser => state.valueOrNull?.user;
+  String? get lastUser => _lastUser;
 
   @override
   Future<AuthState?> build() async {
-    // state = const AsyncLoading();
-    final settings = ref.read(settingsProvider);
-    _client = ApiHttpClient(baseUrl: settings.current.apiUrl);
+    _storage = ref.read(secureStorageProvider);
+    _authStorage = SecureAuthStateStorage(
+        key: "authentication_service_token", storage: _storage);
+
+    _lastUser = await _storage.read(key: LAST_USER_KEY);
+
+    _client = ref.read(apiClientProvider);
     _client.addInterceptor(LoggingInterceptor(enabled: true));
 
     // Auto cancelation of requests
@@ -68,6 +81,8 @@ class AuthenticationService extends _$AuthenticationService {
 
   Future<bool> login(String username, String password) async {
     state = const AsyncLoading();
+    _lastUser = username;
+    await _storage.write(key: LAST_USER_KEY, value: _lastUser);
     await _authStorage.clear(); // clear if not already cleared
 
     final loginResponse = await _client.post<AuthResponse>(

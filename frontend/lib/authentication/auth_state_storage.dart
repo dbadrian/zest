@@ -1,10 +1,10 @@
-import '../utils/model_storage.dart';
+import '../utils/persistance.dart';
 import 'auth_state.dart';
 
 class InMemoryAuthStateStorage extends InMemoryModelStorage<AuthState> {}
 
 class SecureAuthStateStorage extends SecureModelStorage<AuthState> {
-  SecureAuthStateStorage({required super.key});
+  SecureAuthStateStorage({required super.key, required super.storage});
 
   @override
   AuthState fromJson(Map<String, dynamic> json) {
