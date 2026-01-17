@@ -24,33 +24,19 @@ jobs:
       - uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }} # Only required for Organizations, not personal accounts.
   
-
-  # Backend builds docker images that frontend tests also need
   test-backend:
     runs-on: ubuntu-latest
     env:
       ZEST_ENV: test
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Install Task
         uses: arduino/setup-task@v2
         with:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: docker-buildx-backend-${{ hashFiles('backend/**', 'docker-compose.yml', 'docker-compose.test.yml', '**/Dockerfile') }}
-          restore-keys: |
-            docker-buildx-backend-
+      - uses: actions/checkout@v3
 
       - name: Test
         run: task backend:test
@@ -62,32 +48,10 @@ jobs:
           flags: backend
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      # Save built Docker images for frontend tests
-      - name: Save Docker images
-        run: |
-          mkdir -p /tmp/docker-cache
-          cd backend
-          # Get list of images from docker compose
-          export ZEST_ENV=test
-          IMAGES=$(docker compose -f docker-compose.yml -f docker-compose.test.yml config --images)
-          if [ -n "$IMAGES" ]; then
-            echo "Saving images: $IMAGES"
-            docker save -o /tmp/docker-cache/backend-images.tar $IMAGES
-          else
-            echo "No images found to save"
-            exit 1
-          fi
-
-      - name: Upload Docker images for frontend tests
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-docker-images
-          path: /tmp/docker-cache/backend-images.tar
-          retention-days: 1
 
   test-frontend:
     runs-on: ubuntu-latest
-    needs: [test-backend]  # Wait for backend to build docker images
+    # needs: [prepare-frontend-environment]
     env:
       ZEST_ENV: dev
     defaults:
@@ -99,41 +63,26 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          # flutter-version: 3.27.0
           cache: true
 
       - run: flutter --version
       - run: flutter --disable-analytics
-
       - name: Install Ubuntu Dependencies
         run: sudo apt-get install --no-install-recommends -y lcov sqlite3 libsqlite3-dev libsecret-1-0 libsecret-1-dev
 
-      - name: Cache Flutter dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pub-cache
-            ./frontend/.dart_tool
-          key: flutter-deps-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            flutter-deps-${{ runner.os }}-
-
-      - name: Prepare environment
+      - name: Prepare environment.
         run: flutter pub get
 
-      - name: Cache build runner output
-        id: cache-build-runner
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
+        name: Build Runner Cache
+        id: flutter_build_runner_cache
         with:
-          path: |
-            ./frontend/lib/**/*.g.dart
-            ./frontend/lib/**/*.freezed.dart
-            ./frontend/lib/**/*.part.dart
-          key: flutter-build-runner-${{ hashFiles('**/pubspec.lock') }}-${{ hashFiles('**/*.dart', '!**/*.g.dart', '!**/*.freezed.dart') }}
-          restore-keys: |
-            flutter-build-runner-${{ hashFiles('**/pubspec.lock') }}-
+          path: ./frontend/lib/
+          key: flutter_build_runner_cache_${{ runner.os }}_${{ github.sha }}
 
       - name: Build Runner
-        if: steps.cache-build-runner.outputs.cache-hit != 'true'
+        if: steps.flutter_build_runner_cache.outputs.cache-hit != 'true'
         run: flutter pub run build_runner build --delete-conflicting-outputs
 
       - name: Check formatting
@@ -148,21 +97,10 @@ jobs:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Download and load pre-built Docker images from backend tests
-      - name: Download backend Docker images
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-docker-images
-          path: /tmp/docker-cache
-
-      - name: Load Docker images
-        run: docker load -i /tmp/docker-cache/backend-images.tar
-
       - name: Initialize backend
         run: |
           cd ..
           cp backend/.env.test backend/.env.dev
-          # Docker images already loaded, just start services
           task backend:dev:init
           task backend:dev:detach
 
