@@ -52,8 +52,8 @@ tasks:
       - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python scripts/install_fixtures.py --fixture fixtures/recipe_categories.json
       - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python scripts/install_fixtures.py --fixture fixtures/units.json
       - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python scripts/install_fixtures.py --fixture fixtures/foods.json
-      - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python scripts/index_recipes.py
-      - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python scripts/index_recipes.py
+      - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python scripts/index_data.py
+      - docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm backend python scripts/index_data.py
 
   db:psql:
     desc: "Connect to database with psql"
