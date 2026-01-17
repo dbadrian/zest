@@ -48,7 +48,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: docker-buildx-backend-${{ hashFiles('backend/**', 'docker-compose.yml', '**/Dockerfile') }}
+          key: docker-buildx-backend-${{ hashFiles('backend/**', 'docker-compose.yml', 'docker-compose.test.yml', '**/Dockerfile') }}
           restore-keys: |
             docker-buildx-backend-
 
@@ -66,7 +66,15 @@ jobs:
       - name: Save Docker images
         run: |
           mkdir -p /tmp/docker-cache
-          docker compose config | grep 'image:' | awk '{print $2}' | grep -v '^' | xargs docker save -o /tmp/docker-cache/backend-images.tar
+          # Get list of images from docker compose
+          IMAGES=$(docker compose -f docker-compose.yml -f docker-compose.test.yml config --images)
+          if [ -n "$IMAGES" ]; then
+            echo "Saving images: $IMAGES"
+            docker save -o /tmp/docker-cache/backend-images.tar $IMAGES
+          else
+            echo "No images found to save"
+            exit 1
+          fi
 
       - name: Upload Docker images for frontend tests
         uses: actions/upload-artifact@v4
