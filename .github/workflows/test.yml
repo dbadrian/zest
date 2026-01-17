@@ -68,6 +68,7 @@ jobs:
           mkdir -p /tmp/docker-cache
           cd backend
           # Get list of images from docker compose
+          export ZEST_ENV=test
           IMAGES=$(docker compose -f docker-compose.yml -f docker-compose.test.yml config --images)
           if [ -n "$IMAGES" ]; then
             echo "Saving images: $IMAGES"
