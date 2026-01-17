@@ -79,17 +79,17 @@ class MainScaffold extends ConsumerWidget {
                     }
                   : null,
             ),
-            if (Platform.isAndroid)
-              IconButton(
-                icon: const Icon(
-                    key: Key("appbar_addrecipecamera_icon"),
-                    Icons.camera_enhance),
-                onPressed: (backendStatus.valueOrNull?.isOnline ?? false)
-                    ? () async {
-                        context.goNamed(TakePictureScreen.routeName);
-                      }
-                    : null,
-              ),
+            // if (Platform.isAndroid)
+            //   IconButton(
+            //     icon: const Icon(
+            //         key: Key("appbar_addrecipecamera_icon"),
+            //         Icons.camera_enhance),
+            //     onPressed: (backendStatus.valueOrNull?.isOnline ?? false)
+            //         ? () async {
+            //             context.goNamed(TakePictureScreen.routeName);
+            //           }
+            //         : null,
+            //   ),
             IconButton(
               icon: const Icon(
                   key: Key("appbar_addrecipefile_icon"), Icons.upload_file),
