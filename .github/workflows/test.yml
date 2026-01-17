@@ -65,8 +65,7 @@ jobs:
       - name: Save Docker images
         run: |
           mkdir -p /tmp/docker-cache
-          docker compose config | grep 'image:' | awk '{print $2}' | grep -v '^
- | xargs docker save -o /tmp/docker-cache/backend-images.tar
+          docker compose config | grep 'image:' | awk '{print $2}' | grep -v '^ | xargs docker save -o /tmp/docker-cache/backend-images.tar
 
       - name: Upload Docker images for frontend tests
         uses: actions/upload-artifact@v4
