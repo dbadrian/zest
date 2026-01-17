@@ -117,7 +117,7 @@ class Settings(BaseSettings):
     SMTP_USER: str | None = None
     SMTP_PASSWORD: str | None = None
     EMAILS_FROM_EMAIL: EmailStr | None = None
-    EMAILS_FROM_NAME: str | None = None
+    EMAILS_FROM_NAME: str | None = "zest"
 
     @computed_field  # type: ignore[prop-decorator]
     @property
