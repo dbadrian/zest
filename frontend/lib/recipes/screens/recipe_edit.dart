@@ -1274,11 +1274,6 @@ class _InstructionGroupWidget extends StatelessWidget {
               ),
               minLines: 2,
               maxLines: 200,
-              validator: (v) {
-                if (v == null || v.isEmpty) return 'Required';
-                if (v.length < 2) return 'Min 2 characters';
-                return null;
-              },
             ),
           ],
         ),
@@ -1680,14 +1675,15 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
             _currentUnitSelection = null;
           },
           decoration: const InputDecoration(
-            labelText: 'Unit *',
+            labelText: 'Unit',
             border: OutlineInputBorder(),
             isDense: true,
           ),
           validator: (v) {
-            if (v == null || v.isEmpty) return 'Required';
+            if (v == null) return null;
+            // if (v == null || v.isEmpty) return 'Required';
             // if (!widget.units.contains(v)) return 'Invalid unit';
-            if (widget.ingredient.selectedUnit == null) {
+            if (v.isNotEmpty && widget.ingredient.selectedUnit == null) {
               return 'Select Unit from List!';
             }
             return null;

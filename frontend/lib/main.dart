@@ -38,12 +38,11 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final sharedPrefs = await SharedPreferences.getInstance();
 
-  if (Platform.isWindows || Platform.isLinux) {
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     // Initialize FFI
     sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
   }
-
-  databaseFactory = databaseFactoryFfi;
 
   // final appDocumentsDir = await getApplicationDocumentsDirectory();
 
