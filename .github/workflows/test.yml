@@ -2,17 +2,16 @@ name: Backend & Frontend Test
 
 on:
   push:
-    # This should disable running the workflow on tags, according to the
-    # on.<push|pull_request>.<branches|tags> GitHub Actions docs.
-    # cheers @ https://github.com/psycopg/psycopg/blob/5681de9c42f916d5b2436ad9c6f47b79c8aeaa12/.github/workflows/tests.yml#L4-L8
     branches:
-      - "*"
+      - "**"
+    tags-ignore:
+      - "**"  # Ignore all tags
   pull_request:
     branches: [main]
   schedule:
     - cron: "0 0 * * *"
   workflow_call:
-  workflow_dispatch: # manual
+  workflow_dispatch:
 
 jobs:
   secret-scan:
@@ -25,19 +24,32 @@ jobs:
       - uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }} # Only required for Organizations, not personal accounts.
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
   
+# Backend builds docker images that frontend tests also need
   test-backend:
     runs-on: ubuntu-latest
     env:
       ZEST_ENV: test
     steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Install Task
         uses: arduino/setup-task@v2
         with:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/checkout@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: docker-buildx-backend-${{ hashFiles('backend/**', 'docker-compose.yml', '**/Dockerfile') }}
+          restore-keys: |
+            docker-buildx-backend-
 
       - name: Test
         run: task backend:test
@@ -49,79 +61,23 @@ jobs:
           flags: backend
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  # prepare-frontend-environment:
-  #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-  #       working-directory: frontend
-  #   steps:
-  #     - uses: actions/checkout@v3
+      # Save built Docker images for frontend tests
+      - name: Save Docker images
+        run: |
+          mkdir -p /tmp/docker-cache
+          docker compose config | grep 'image:' | awk '{print $2}' | grep -v '^
+ | xargs docker save -o /tmp/docker-cache/backend-images.tar
 
-  #     - uses: subosito/flutter-action@v2
-  #       with:
-  #         channel: stable
-  #         # flutter-version: 3.27.0
-  #         cache: true
-
-  #     - name: "???"
-  #       run: |
-  #         echo $(pwd)
-
-  #     - name: Prepare environment.
-  #       run: flutter pub get
-
-  #     - uses: actions/cache@v4
-  #       name: Build Runner Cache
-  #       id: flutter_build_runner_cache
-  #       with:
-  #         path: ./frontend/lib/
-  #         key: flutter_build_runner_cache_${{ runner.os }}_${{ github.sha }}
-
-  #     - name: Build Runner
-  #       if: steps.flutter_build_runner_cache.outputs.cache-hit != 'true'
-  #       run: flutter pub run build_runner build --delete-conflicting-outputs
-
-  # qa-frontend:
-  #   runs-on: ubuntu-latest
-  #   needs: [prepare-frontend-environment]
-  #   defaults:
-  #     run:
-  #       working-directory: frontend
-  #   steps:
-  #     - uses: actions/checkout@v3
-
-  #     - uses: subosito/flutter-action@v2
-  #       with:
-  #         channel: stable
-  #         # flutter-version: 3.27.0
-  #         cache: true
-
-  #     - run: flutter --version
-  #     - run: flutter --disable-analytics
- 
-  #     - name: Prepare environment.
-  #       run: flutter pub get
-
-  #     - uses: actions/cache@v4
-  #       name: Build Runner Cache
-  #       id: flutter_build_runner_cache
-  #       with:
-  #         path: ./frontend/lib/
-  #         key: flutter_build_runner_cache_${{ runner.os }}_${{ github.sha }}
-
-  #     - name: Build Runner
-  #       if: steps.flutter_build_runner_cache.outputs.cache-hit != 'true'
-  #       run: flutter pub run build_runner build --delete-conflicting-outputs
-
-  #     - name: Check formatting
-  #       run: dart format --set-exit-if-changed .
-
-  #     - name: Static code analysis (no-fatal-infos)
-  #       run: flutter analyze . --no-fatal-infos --no-fatal-warnings
+      - name: Upload Docker images for frontend tests
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-docker-images
+          path: /tmp/docker-cache/backend-images.tar
+          retention-days: 1
 
   test-frontend:
     runs-on: ubuntu-latest
-    # needs: [prepare-frontend-environment]
+    needs: [test-backend]  # Wait for backend to build docker images
     env:
       ZEST_ENV: dev
     defaults:
@@ -133,26 +89,41 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-          # flutter-version: 3.27.0
           cache: true
 
       - run: flutter --version
       - run: flutter --disable-analytics
+
       - name: Install Ubuntu Dependencies
         run: sudo apt-get install --no-install-recommends -y lcov sqlite3 libsqlite3-dev libsecret-1-0 libsecret-1-dev
 
-      - name: Prepare environment.
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            ./frontend/.dart_tool
+          key: flutter-deps-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            flutter-deps-${{ runner.os }}-
+
+      - name: Prepare environment
         run: flutter pub get
 
-      - uses: actions/cache@v4
-        name: Build Runner Cache
-        id: flutter_build_runner_cache
+      - name: Cache build runner output
+        id: cache-build-runner
+        uses: actions/cache@v4
         with:
-          path: ./frontend/lib/
-          key: flutter_build_runner_cache_${{ runner.os }}_${{ github.sha }}
+          path: |
+            ./frontend/lib/**/*.g.dart
+            ./frontend/lib/**/*.freezed.dart
+            ./frontend/lib/**/*.part.dart
+          key: flutter-build-runner-${{ hashFiles('**/pubspec.lock') }}-${{ hashFiles('**/*.dart', '!**/*.g.dart', '!**/*.freezed.dart') }}
+          restore-keys: |
+            flutter-build-runner-${{ hashFiles('**/pubspec.lock') }}-
 
       - name: Build Runner
-        if: steps.flutter_build_runner_cache.outputs.cache-hit != 'true'
+        if: steps.cache-build-runner.outputs.cache-hit != 'true'
         run: flutter pub run build_runner build --delete-conflicting-outputs
 
       - name: Check formatting
@@ -167,10 +138,21 @@ jobs:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
+      # Download and load pre-built Docker images from backend tests
+      - name: Download backend Docker images
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-docker-images
+          path: /tmp/docker-cache
+
+      - name: Load Docker images
+        run: docker load -i /tmp/docker-cache/backend-images.tar
+
       - name: Initialize backend
         run: |
           cd ..
           cp backend/.env.test backend/.env.dev
+          # Docker images already loaded, just start services
           task backend:dev:init
           task backend:dev:detach
 

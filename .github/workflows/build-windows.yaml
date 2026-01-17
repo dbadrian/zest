@@ -11,13 +11,13 @@ jobs:
       run:
         working-directory: ./frontend
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
       # Setup the flutter environment.
       - uses: subosito/flutter-action@v2
         with:
           cache: true
-          channel: "stable" # 'dev', 'alpha', default to: 'stable'
-          # flutter-version: '1.12.x' # you can also specify exact version of flutter
+          channel: "stable"
 
       - run: flutter --version
       - run: flutter --disable-analytics
@@ -48,17 +48,36 @@ jobs:
               architecture: x64
               capabilities: "internetClient,removableStorage"
               store: false
-              # certificate_path: $RUNNER_TEMP\cert.pfx
-              # certificate_password: ${{ secrets.MSIX_CERT_PASSWORD }}
               install_certificate: false
           write-mode: append
 
-      - name: Prepare environment.
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~\AppData\Local\Pub\Cache
+            .\frontend\.dart_tool
+          key: flutter-deps-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            flutter-deps-${{ runner.os }}-
+
+      - name: Restore build artifacts from prepare job
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            .\frontend\lib\**\*.g.dart
+            .\frontend\lib\**\*.freezed.dart
+            .\frontend\lib\**\*.part.dart
+          key: flutter-build-${{ hashFiles('**/pubspec.lock') }}-${{ hashFiles('**/*.dart', '!**/*.g.dart', '!**/*.freezed.dart') }}
+          restore-keys: |
+            flutter-build-${{ hashFiles('**/pubspec.lock') }}-
+
+      - name: Prepare environment
         run: flutter pub get
 
       - run: flutter pub add --dev msix
-      
-      - name: Build runner
+
+      - name: Build runner (fallback if cache miss)
         run: dart run build_runner build --delete-conflicting-outputs
 
       - run: flutter build windows --release
