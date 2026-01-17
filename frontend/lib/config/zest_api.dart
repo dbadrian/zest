@@ -3,7 +3,7 @@
 import 'package:zest/utils/utils.dart';
 
 // TODO: LOW RELEASE Set to empty string for (v.1.0.0) release
-const String DEFAULT_API_URL = 'https://dbadrian.com/api/v1';
+const String DEFAULT_API_URL = 'https://zest.dbadrian.com/api/v1';
 
 ///
 const API_RECIPE_SEARCH_FIELDS = {

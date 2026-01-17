@@ -28,8 +28,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
   void initState() {
     super.initState();
     userCtrl.text =
-        ref.read(authenticationServiceProvider).value?.user.username ??
-            'admin@test.com';
+        ref.read(authenticationServiceProvider).value?.user.username ?? '';
 
     showPassword = false;
   }
@@ -47,8 +46,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
 
     if (!state.isLoading) {
       userCtrl.text =
-          ref.watch(authenticationServiceProvider).value?.user.username ??
-              'admin@test.com';
+          ref.watch(authenticationServiceProvider).value?.user.username ?? '';
     }
 
     String errorMsg = "";
@@ -62,7 +60,6 @@ class LoginPageState extends ConsumerState<LoginPage> {
         errorMsg = "Unknown Error";
       }
     }
-    passwordCtrl.text = "changethis";
 
     return Stack(
       children: [
