@@ -904,7 +904,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   Widget _buildInstructionGroupsSection() {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -927,6 +927,10 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
             ),
             const SizedBox(height: 16),
             ReorderableListView.builder(
+              buildDefaultDragHandles:
+                  (defaultTargetPlatform == TargetPlatform.windows ||
+                      defaultTargetPlatform == TargetPlatform.linux ||
+                      defaultTargetPlatform == TargetPlatform.macOS),
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _instructionGroups.length,
@@ -938,9 +942,9 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                 });
               },
               itemBuilder: (context, i) {
-                return Padding(
+                final child = Padding(
                   key: ValueKey('instruction_$i'),
-                  padding: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.only(bottom: 8),
                   child: _InstructionGroupWidget(
                     group: _instructionGroups[i],
                     index: i,
@@ -965,6 +969,20 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                         : null,
                   ),
                 );
+
+                return Row(
+                  key: ValueKey('instruction_$i'),
+                  children: [
+                    Expanded(child: child),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ReorderableDragStartListener(
+                        index: i,
+                        child: const Icon(Icons.drag_handle),
+                      ),
+                    ),
+                  ],
+                );
               },
             ),
           ],
@@ -982,7 +1000,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
