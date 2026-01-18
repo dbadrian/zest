@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/core/network/api_response.dart';
+import 'package:zest/core/network/http_client.dart';
 import 'package:zest/core/providers/http_client_provider.dart';
 
 part 'api_status_provider.g.dart'; // Generated file
@@ -8,20 +9,21 @@ part 'api_status_provider.g.dart'; // Generated file
 @riverpod
 class ApiStatus extends _$ApiStatus {
   Timer? _timer;
+  late ApiHttpClient _client;
 
   @override
   Future<({bool isOnline})> build() async {
     startChecking(const Duration(seconds: 10));
+    _client = ref.watch(apiClientProvider(withAuthentication: false));
     return await _checkBackendStatus();
   }
 
   Future<({bool isOnline})> _checkBackendStatus() async {
     // final SettingsState settings = ref.read(settingsProvider);
-    final client = ref.read(apiClientProvider);
 
     try {
       final response = await AsyncValue.guard(
-          () => client.get<Map<String, dynamic>>("/info", (e) => e));
+          () => _client.get<Map<String, dynamic>>("/info", (e) => e));
 
       if (response.hasValue) {
         if (response.value is ApiSuccess) {

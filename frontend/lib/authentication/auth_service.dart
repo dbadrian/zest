@@ -32,7 +32,6 @@ class AuthenticationService extends _$AuthenticationService {
   late final FlutterSecureStorage _storage;
 
   late final ModelStorage<AuthState> _authStorage;
-  late final ApiHttpClient _client;
 
   bool get isAuthenticated => state.hasValue && state.value != null;
   bool get isLoading => state.isLoading;
@@ -46,14 +45,6 @@ class AuthenticationService extends _$AuthenticationService {
         key: "authentication_service_token", storage: _storage);
 
     _lastUser = await _storage.read(key: LAST_USER_KEY);
-
-    _client = ref.read(apiClientProvider);
-    _client.addInterceptor(LoggingInterceptor(enabled: true));
-
-    // Auto cancelation of requests
-    ref.onDispose(() {
-      _client.dispose();
-    });
 
     // Look for token in storage (will refresh if necessary)
 
@@ -85,13 +76,14 @@ class AuthenticationService extends _$AuthenticationService {
     await _storage.write(key: LAST_USER_KEY, value: _lastUser);
     await _authStorage.clear(); // clear if not already cleared
 
-    final loginResponse = await _client.post<AuthResponse>(
-        "/auth/login", AuthResponse.fromJson,
-        encodeJson: false,
-        headers: {
+    final loginResponse = await ref
+        .read(apiClientProvider(withAuthentication: false))
+        .post<AuthResponse>("/auth/login", AuthResponse.fromJson,
+            encodeJson: false,
+            headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: {
+            body: {
           'username': username,
           'password': password
         });
@@ -106,8 +98,10 @@ class AuthenticationService extends _$AuthenticationService {
     final authState = loginResponse.dataOrNull!;
 
     // since it was a success, we can now query for the user credentials
-    final userResponse = await _client.get<User>("/auth/me", User.fromJson,
-        headers: {'Authorization': 'Bearer ${authState.accessToken}'});
+    final userResponse = await ref
+        .read(apiClientProvider(withAuthentication: false))
+        .get<User>("/auth/me", User.fromJson,
+            headers: {'Authorization': 'Bearer ${authState.accessToken}'});
 
     if (userResponse.isFailure) {
       state = AsyncError(userResponse.errorOrNull!, StackTrace.current);
@@ -131,9 +125,10 @@ class AuthenticationService extends _$AuthenticationService {
       return false;
     }
 
-    final refreshResponse = await _client.post<AuthResponse>(
-        "/auth/refresh", AuthResponse.fromJson,
-        body: {'refresh_token': oldState.refreshToken});
+    final refreshResponse = await ref
+        .read(apiClientProvider(withAuthentication: false))
+        .post<AuthResponse>("/auth/refresh", AuthResponse.fromJson,
+            body: {'refresh_token': oldState.refreshToken});
 
     // whatever is wrong...early abort
     if (refreshResponse.isFailure) {

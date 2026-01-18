@@ -247,7 +247,7 @@ class APIService {
 @Riverpod(keepAlive: true)
 APIService apiService(Ref ref) => APIService(
       ref: ref,
-      client: ref.watch(apiClientProvider),
+      client: ref.watch(apiClientProvider(withAuthentication: true)),
     );
 
 // //////////////////////////////////////////////////////////////////////////////

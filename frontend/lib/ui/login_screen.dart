@@ -47,6 +47,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
     final state = ref.watch(authenticationServiceProvider);
 
     if (state.isLoading) {
+      // TODO: Low overlay with loading st
       return Center(
         child: CircularProgressIndicator(),
       );

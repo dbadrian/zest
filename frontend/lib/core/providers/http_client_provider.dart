@@ -9,28 +9,31 @@ import '../network/interceptors/logging_interceptor.dart';
 
 part 'http_client_provider.g.dart';
 
-@Riverpod(keepAlive: true)
-ApiHttpClient apiClient(Ref ref) {
+@Riverpod(keepAlive: false)
+ApiHttpClient apiClient(Ref ref, {required bool withAuthentication}) {
+  debugPrint('🟢 apiClient CREATED: $withAuthentication with Auth?');
   final String apiBaseUrl =
       ref.watch(settingsProvider.select((p) => p.current.apiUrl));
 
   final client = ApiHttpClient(baseUrl: apiBaseUrl);
 
-  client.addInterceptor(
-    AuthInterceptor(
-      getAccessToken: () async {
-        final authState = ref.read(authenticationServiceProvider);
-        return authState.valueOrNull?.accessToken;
-      },
-      refreshToken: () async {
-        await ref.read(authenticationServiceProvider.notifier).refreshToken();
-      },
-      onUnauthorized: () async {
-        debugPrint("onUnauthorized got called from AuthInterceptor");
-        await ref.read(authenticationServiceProvider.notifier).logout();
-      },
-    ),
-  );
+  if (withAuthentication) {
+    client.addInterceptor(
+      AuthInterceptor(
+        getAccessToken: () async {
+          final authState = ref.read(authenticationServiceProvider);
+          return authState.valueOrNull?.accessToken;
+        },
+        refreshToken: () async {
+          await ref.read(authenticationServiceProvider.notifier).refreshToken();
+        },
+        onUnauthorized: () async {
+          debugPrint("onUnauthorized got called from AuthInterceptor");
+          await ref.read(authenticationServiceProvider.notifier).logout();
+        },
+      ),
+    );
+  }
 
   // Add logging in debug mode
   client.addInterceptor(
@@ -39,7 +42,10 @@ ApiHttpClient apiClient(Ref ref) {
     ),
   );
 
-  ref.onDispose(() => client.dispose());
+  ref.onDispose(() {
+    debugPrint('🔴 apiClient value DISPOSED');
+    client.dispose();
+  });
 
   return client;
 }
