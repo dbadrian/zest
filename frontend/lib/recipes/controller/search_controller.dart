@@ -172,9 +172,9 @@ class RecipeSearchController extends _$RecipeSearchController {
 
   void loadNextRecipePage() async {
     final filterSettings = ref.watch(recipeSearchFilterSettingsProvider);
-    state = const AsyncValue.loading();
 
     if (nextPageAvailable(state.value!.recipeList)) {
+      // state = const AsyncValue.loading();
       final ret = await AsyncValue.guard(() async {
         return await _loadRecipes(
             query: state.value!.currentQuery,
@@ -182,11 +182,6 @@ class RecipeSearchController extends _$RecipeSearchController {
             filterSettings: filterSettings);
       });
 
-      // final ret = await _loadRecipes(
-      //   query: state.value!.currentQuery,
-      //   page: state.value!.recipeList!.pagination.currentPage + 1,
-      //   filterSettings: filterSettings,
-      // );
       ret.when(
         data: (data) {
           // We create a new state from the latest response as to have the updated pagination
@@ -201,7 +196,7 @@ class RecipeSearchController extends _$RecipeSearchController {
           state = AsyncError(error, stackTrace);
         }),
         loading: (() {
-          state = const AsyncValue.loading();
+          // state = const AsyncValue.loading();
         }),
       );
     }

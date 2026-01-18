@@ -33,8 +33,8 @@ class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
     super.initState();
     // controller that will be used to load the next page
     _scrollController.addListener(() async {
-      if (_scrollController.offset ==
-          _scrollController.position.maxScrollExtent) {
+      if (_scrollController.offset >=
+          _scrollController.position.maxScrollExtent - 50) {
         // TODO: Invisible scroll as in old version
         ref.read(recipeSearchControllerProvider.notifier).loadNextRecipePage();
       }
