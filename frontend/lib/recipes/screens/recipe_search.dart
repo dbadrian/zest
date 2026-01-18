@@ -162,6 +162,7 @@ class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
                       RecipeDetailsPage.routeName,
                       pathParameters: {'id': item.id.toString()},
                     );
+                    ref.invalidate(recipeSearchControllerProvider);
                   },
                   isAlt: index.isOdd,
                   isHighlighted: false,

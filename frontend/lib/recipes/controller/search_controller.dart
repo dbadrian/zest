@@ -145,7 +145,7 @@ class RecipeSearchController extends _$RecipeSearchController {
           // page: page,
           // pageSize: filterSettings.pageSize,
           // query related
-          // lcFilter: filterSettings.lcFilter.toList(),
+          languages: filterSettings.lcFilter.toList(),
           categories:
               filterSettings.categories.map((e) => mapcat[e]!.name).toList(),
           favoritesOnly: filterSettings.favoritesOnly,

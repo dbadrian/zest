@@ -958,30 +958,31 @@ class TitleWidget extends ConsumerWidget {
     final recipe = ref.watch(recipeDetailsControllerProvider(recipeId)).value;
 
     return Wrap(alignment: WrapAlignment.center, children: [
-      Flexible(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 20),
-          child: TextButton(
-            child: Text(
-              recipe!.latestRevision.title ??
-                  "Untitled", // TODO: LOW if null remove widget
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            onPressed: () async {
-              final success = await ref
-                  .read(recipeDetailsControllerProvider(recipeId).notifier)
-                  .loadRecipe();
-
-              if (!success && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Error: Couldn't load recipe!")),
-                );
-              }
-            },
+      // TODO: handle small screens
+      // Flexible(
+      //   child:
+      Padding(
+        padding: const EdgeInsets.only(left: 20),
+        child: TextButton(
+          child: Text(
+            recipe!.latestRevision.title ??
+                "Untitled", // TODO: LOW if null remove widget
+            style: Theme.of(context).textTheme.titleLarge,
           ),
+          onPressed: () async {
+            final success = await ref
+                .read(recipeDetailsControllerProvider(recipeId).notifier)
+                .loadRecipe();
+
+            if (!success && context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Error: Couldn't load recipe!")),
+              );
+            }
+          },
         ),
       ),
-      // Text(recipe!.title, style: const TextStyle(fontSize: 20)))),
+      // ),
       if (recipe.isDraft) ...[
         SizedBox(
           width: 5,
@@ -1019,12 +1020,13 @@ class TitleWidget extends ConsumerWidget {
           .isDeleteable())
         IconButton(
             onPressed: () async {
+              ref.invalidate(recipeSearchControllerProvider);
+              await Future.delayed(Duration(milliseconds: 500));
               final isDeleted = await ref
                   .read(recipeDetailsControllerProvider(recipeId).notifier)
                   .deleteRecipe();
 
               if (isDeleted && context.mounted) {
-                ref.invalidate(recipeSearchControllerProvider);
                 context.goNamed(RecipeSearchPage.routeName);
               } else if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(

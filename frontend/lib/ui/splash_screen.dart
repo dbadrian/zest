@@ -27,7 +27,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     // Fade-in animation
     _animationController =
-        AnimationController(vsync: this, duration: Duration(seconds: 2));
+        AnimationController(vsync: this, duration: Duration(seconds: 1));
     _fadeAnimation =
         CurvedAnimation(parent: _animationController, curve: Curves.easeIn);
     _animationController.forward();
@@ -36,8 +36,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   Future<void> _initializeApp() async {
-    // Simulate loading data
-    await Future.delayed(Duration(seconds: 2));
+    // await Future.delayed(Duration(milliseconds: 500));
 
     // Perform network test
     bool isAuthed = await _refreshAuthState();
