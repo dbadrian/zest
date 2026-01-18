@@ -122,9 +122,8 @@ class LoginPageState extends ConsumerState<LoginPage> {
 
                         if (loggedIn) {
                           if (context.mounted) {
-                            GoRouter.of(context).go(HomePage.routeLocation);
-                            // GoRouter.of(context)
-                            //     .go(RecipeSearchPage.routeLocation);
+                            GoRouter.of(context)
+                                .go(RecipeSearchPage.routeLocation);
                           }
                         }
                       },
