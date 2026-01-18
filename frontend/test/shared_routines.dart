@@ -10,7 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+// import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:updat/utils/global_options.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -18,7 +18,12 @@ import 'package:zest/config/constants.dart';
 import 'package:zest/settings/settings_provider.dart';
 import 'package:zest/main.dart';
 
-Future<(SharedPreferences, Database)> prepareAppForIntegrationTest() async {
+Future<
+    (
+      SharedPreferences,
+      SharedPreferences
+// Database
+    )> prepareAppForIntegrationTest() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   // WidgetsFlutterBinding.ensureInitialized();
 
@@ -29,11 +34,11 @@ Future<(SharedPreferences, Database)> prepareAppForIntegrationTest() async {
 
   final sharedPrefs = await SharedPreferences.getInstance();
 
-  if (Platform.isWindows || Platform.isLinux) {
-    sqfliteFfiInit();
-  }
+  // if (Platform.isWindows || Platform.isLinux) {
+  //   sqfliteFfiInit();
+  // }
 
-  databaseFactory = databaseFactoryFfi;
+  // databaseFactory = databaseFactoryFfi;
 
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(
@@ -42,23 +47,23 @@ Future<(SharedPreferences, Database)> prepareAppForIntegrationTest() async {
     return '.';
   });
 
-  final appDocumentsDir = await getApplicationDocumentsDirectory();
+  // final appDocumentsDir = await getApplicationDocumentsDirectory();
 
-  final database = await openDatabase(
-    join(appDocumentsDir.path, 'sqlite.db'),
-    onCreate: (db, version) {
-      return db.execute(
-        'CREATE TABLE $RECIPE_DRAFT_DB_KEY(id INTEGER PRIMARY KEY, updatedLast INT, state TEXT)',
-      );
-    },
-    onUpgrade: (Database db, int oldVersion, int newVersion) {
-      if (oldVersion < newVersion && newVersion == 3) {
-        db.execute(
-            "ALTER TABLE $RECIPE_DRAFT_DB_KEY ADD COLUMN updatedLast INT;");
-      }
-    },
-    version: 3,
-  );
+  // final database = await openDatabase(
+  //   join(appDocumentsDir.path, 'sqlite.db'),
+  //   onCreate: (db, version) {
+  //     return db.execute(
+  //       'CREATE TABLE $RECIPE_DRAFT_DB_KEY(id INTEGER PRIMARY KEY, updatedLast INT, state TEXT)',
+  //     );
+  //   },
+  //   onUpgrade: (Database db, int oldVersion, int newVersion) {
+  //     if (oldVersion < newVersion && newVersion == 3) {
+  //       db.execute(
+  //           "ALTER TABLE $RECIPE_DRAFT_DB_KEY ADD COLUMN updatedLast INT;");
+  //     }
+  //   },
+  //   version: 3,
+  // );
 
   PackageInfo.setMockInitialValues(
       appName: "abc",
@@ -76,17 +81,18 @@ Future<(SharedPreferences, Database)> prepareAppForIntegrationTest() async {
 
   FlutterSecureStorage.setMockInitialValues({});
 
+  final database = sharedPrefs; // should be database
   return (sharedPrefs, database);
 }
 
 Future<void> startAppDefault(
   WidgetTester tester, {
   required SharedPreferences sharedPrefs,
-  required Database database,
+  // required Database database,
 }) async {
   await tester.pumpWidget(ProviderScope(overrides: [
     sharedPreferencesProvider.overrideWithValue(sharedPrefs),
-    sqliteDbProvider.overrideWithValue(database),
+    // sqliteDbProvider.overrideWithValue(database),
   ], child: const ZestApp()));
 }
 

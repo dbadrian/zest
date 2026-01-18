@@ -18,17 +18,18 @@ part 'recipe_repository.g.dart';
 class RecipeRepository {
   final APIService _client;
   // ignore: unused_field
-  final CacheManager<RecipeListItem> _listCache;
+  // final CacheManager<RecipeListItem> _listCache;
   // ignore: unused_field
-  final CacheManager<Recipe> _fullRecipeCache;
+  // final CacheManager<Recipe> _fullRecipeCache;
 
   RecipeRepository({
     required APIService client,
-    required CacheManager<RecipeListItem> listCache,
-    required CacheManager<Recipe> fullRecipeCache,
-  })  : _client = client,
-        _listCache = listCache,
-        _fullRecipeCache = fullRecipeCache;
+    // required CacheManager<RecipeListItem> listCache,
+    // required CacheManager<Recipe> fullRecipeCache,
+  }) : _client = client
+  // _listCache = listCache,
+  // _fullRecipeCache = fullRecipeCache
+  ;
 
   Future<RecipeListResponse> getRecipes(
       {int page = 1, int? pageSize, bool forceRefresh = false}) async {
@@ -79,8 +80,8 @@ class RecipeRepository {
 RecipeRepository recipeRepository(Ref ref) {
   return RecipeRepository(
     client: ref.watch(apiServiceProvider),
-    listCache: ref.watch(recipeListCacheManagerProvider),
-    fullRecipeCache: ref.watch(recipeFullCacheManagerProvider),
+    // listCache: ref.watch(recipeListCacheManagerProvider),
+    // fullRecipeCache: ref.watch(recipeFullCacheManagerProvider),
   );
 }
 

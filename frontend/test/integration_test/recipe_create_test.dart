@@ -17,8 +17,11 @@ void main() async {
   group('end-to-end test', () {
     testWidgets('Create Recipe Integration Test', (tester) async {
       await tester.runAsync(() async {
-        await startAppDefault(tester,
-            sharedPrefs: sharedPrefs, database: database);
+        await startAppDefault(
+          tester,
+          sharedPrefs: sharedPrefs,
+          // database: database
+        );
         // advance time and pretend animation is done
         await tester.pump(const Duration(seconds: 3));
         await tester.pumpAndSettle();

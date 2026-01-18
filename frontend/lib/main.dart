@@ -10,7 +10,7 @@ import 'package:updat/utils/global_options.dart';
 
 import 'package:zest/recipes/screens/recipe_search.dart';
 
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+// import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'authentication/auth_service.dart';
 import 'routing/app_router.dart';
@@ -20,7 +20,7 @@ import 'theme/theme_definitions.dart';
 final sharedPreferencesProvider =
     Provider<SharedPreferences>((_) => throw UnimplementedError());
 
-final sqliteDbProvider = Provider<Database>((_) => throw UnimplementedError());
+// final sqliteDbProvider = Provider<Database>((_) => throw UnimplementedError());
 
 // Is this a release build
 const bool isProduction = bool.fromEnvironment('dart.vm.product');
@@ -38,11 +38,11 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final sharedPrefs = await SharedPreferences.getInstance();
 
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    // Initialize FFI
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-  }
+  // if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+  //   // Initialize FFI
+  //   sqfliteFfiInit();
+  //   databaseFactory = databaseFactoryFfi;
+  // }
 
   // final appDocumentsDir = await getApplicationDocumentsDirectory();
 
