@@ -957,7 +957,7 @@ class TitleWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final recipe = ref.watch(recipeDetailsControllerProvider(recipeId)).value;
 
-    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+    return Wrap(alignment: WrapAlignment.center, children: [
       Flexible(
         child: Padding(
           padding: const EdgeInsets.only(left: 20),
@@ -965,7 +965,7 @@ class TitleWidget extends ConsumerWidget {
             child: Text(
               recipe!.latestRevision.title ??
                   "Untitled", // TODO: LOW if null remove widget
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             onPressed: () async {
               final success = await ref

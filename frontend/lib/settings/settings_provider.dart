@@ -145,6 +145,6 @@ class Settings extends _$Settings {
     prefs.setBool(_showAdvancedSettingsKey, state.dirty.showAdvancedSettings);
     prefs.setString(apiUrlKey, state.dirty.apiUrl);
 
-    state = state.copyWith(current: state.dirty);
+    state = state.copyWith(current: state.dirty.copyWith(apiUrlDirty: false));
   }
 }
