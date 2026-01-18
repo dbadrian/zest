@@ -319,52 +319,6 @@ class FilterSettingsBottomWindow extends ConsumerWidget {
           subtitle: const Text('Only your favorites will be shown!'),
         ),
         const Divider(),
-        FutureBuilder(
-          future: ref.watch(staticRepositoryProvider).getCategories(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
-            }
-
-            return FormBuilderFilterChip(
-              name: "categories",
-              showCheckmark: false,
-              initialValue: ref.watch(recipeSearchFilterSettingsProvider
-                  .select((s) => s.categories)),
-              spacing: 10,
-              alignment: WrapAlignment.center,
-              crossAxisAlignment: WrapCrossAlignment.end,
-              runSpacing: 10,
-              decoration: const InputDecoration(
-                // contentPadding: EdgeInsets.only(bottom: -5, top: 19),
-                // labelText: "What categories does this recipe belong to?",
-                isDense: false,
-                // enabledBorder: InputBorder.none,
-                border: OutlineInputBorder(borderSide: BorderSide.none),
-                // contentPadding: const EdgeInsets.fromLTRB(0, 0, 12, 24),
-              ),
-              selectedColor: Theme.of(context).colorScheme.secondaryContainer,
-              options: snapshot.data!
-                  .map<FormBuilderChipOption<int>>(
-                    (RecipeCategory e) => FormBuilderChipOption<int>(
-                      value: e.id,
-                      child: Text(
-                        e.name,
-                      ),
-                    ),
-                  )
-                  .toList(),
-              //      ??
-              // List<FormBuilderChipOption<int>>.empty(),
-              // validator: emptyListValidator,
-              onChanged: ((c) => ref
-                  .read(recipeSearchFilterSettingsProvider.notifier)
-                  .updateCategories(c!)),
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-            );
-          },
-        ),
-        const Divider(),
         SwitchListTile(
           visualDensity: VisualDensity.compact,
           value: settings.filterOwner,
@@ -389,38 +343,85 @@ class FilterSettingsBottomWindow extends ConsumerWidget {
           subtitle: const Text('Recipes from all languages will be shown!'),
         ),
         const Divider(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 200,
-              height: 40,
-              child: Center(
-                child: Text('Search Fields:',
-                    style: Theme.of(context).textTheme.titleMedium),
-              ),
-            ),
-            Flexible(
-              fit: FlexFit.tight,
-              child: FormBuilderCheckboxGroup<String>(
-                visualDensity: VisualDensity.compact,
-                name: "search_fields",
-                decoration: const InputDecoration(border: InputBorder.none),
-                initialValue: settings.searchFields,
-                options: API_RECIPE_SEARCH_FIELDS.entries
-                    .map<FormBuilderFieldOption<String>>(
-                        (e) => FormBuilderFieldOption(value: e.key))
+        FutureBuilder(
+          future: ref.watch(staticRepositoryProvider).getCategories(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return FormBuilderFilterChip(
+                name: "categories",
+                showCheckmark: false,
+                initialValue: ref.watch(recipeSearchFilterSettingsProvider
+                    .select((s) => s.categories)),
+                spacing: 5,
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.end,
+                runSpacing: 5,
+                decoration: const InputDecoration(
+                  // contentPadding: EdgeInsets.only(bottom: -5, top: 19),
+                  // labelText: "What categories does this recipe belong to?",
+                  isDense: true,
+                  // enabledBorder: InputBorder.none,
+                  border: OutlineInputBorder(borderSide: BorderSide.none),
+                  // contentPadding: const EdgeInsets.fromLTRB(0, 0, 12, 24),
+                ),
+                selectedColor: Theme.of(context).colorScheme.secondaryContainer,
+                options: snapshot.data!
+                    .map<FormBuilderChipOption<int>>(
+                      (RecipeCategory e) => FormBuilderChipOption<int>(
+                        value: e.id,
+                        child: Text(
+                          e.name,
+                        ),
+                      ),
+                    )
                     .toList(),
-                onChanged: ((value) {
-                  ref
-                      .read(recipeSearchFilterSettingsProvider.notifier)
-                      .updateSearchFields(value!);
-                }),
-                wrapAlignment: WrapAlignment.center,
-              ),
-            ),
-          ],
+                //      ??
+                // List<FormBuilderChipOption<int>>.empty(),
+                // validator: emptyListValidator,
+                onChanged: ((c) => ref
+                    .read(recipeSearchFilterSettingsProvider.notifier)
+                    .updateCategories(c!)),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+              );
+            } else {
+              return CircularProgressIndicator();
+            }
+          },
         ),
+
+        // const Divider(),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.center,
+        //   children: [
+        //     SizedBox(
+        //       width: 200,
+        //       height: 40,
+        //       child: Center(
+        //         child: Text('Search Fields:',
+        //             style: Theme.of(context).textTheme.titleMedium),
+        //       ),
+        //     ),
+        //     Flexible(
+        //       fit: FlexFit.tight,
+        //       child: FormBuilderCheckboxGroup<String>(
+        //         visualDensity: VisualDensity.compact,
+        //         name: "search_fields",
+        //         decoration: const InputDecoration(border: InputBorder.none),
+        //         initialValue: settings.searchFields,
+        //         options: API_RECIPE_SEARCH_FIELDS.entries
+        //             .map<FormBuilderFieldOption<String>>(
+        //                 (e) => FormBuilderFieldOption(value: e.key))
+        //             .toList(),
+        //         onChanged: ((value) {
+        //           ref
+        //               .read(recipeSearchFilterSettingsProvider.notifier)
+        //               .updateSearchFields(value!);
+        //         }),
+        //         wrapAlignment: WrapAlignment.center,
+        //       ),
+        //     ),
+        //   ],
+        // ),
         // ListTile(
         //   visualDensity: VisualDensity.compact,
         //   leading: const Icon(Icons.search),

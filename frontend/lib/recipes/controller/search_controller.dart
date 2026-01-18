@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/config/constants.dart';
@@ -30,14 +31,15 @@ class FilterSettingsState with _$FilterSettingsState {
   }) = _FilterSettingsState;
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class RecipeSearchFilterSettings extends _$RecipeSearchFilterSettings {
   @override
   FilterSettingsState build() {
-    return reset_();
+    debugPrint("building new filter settings");
+    return initState();
   }
 
-  FilterSettingsState reset_() {
+  FilterSettingsState initState() {
     // Filter by language
     // Default: we only show the current user language, unless user
     // specified to always show all languages
@@ -61,7 +63,7 @@ class RecipeSearchFilterSettings extends _$RecipeSearchFilterSettings {
   }
 
   void reset() {
-    state = reset_();
+    state = initState();
   }
 
   void updateFilterOwner(bool update) {
@@ -118,7 +120,7 @@ class RecipeSearchController extends _$RecipeSearchController {
   @override
   Future<RecipeSearchState> build() async {
     // state = const ;
-    final filterSettings = ref.read(recipeSearchFilterSettingsProvider);
+    final filterSettings = ref.watch(recipeSearchFilterSettingsProvider);
     final asyncState = await AsyncValue.guard(() async {
       return await _loadRecipes(
           query: "", page: 1, filterSettings: filterSettings);
@@ -146,7 +148,7 @@ class RecipeSearchController extends _$RecipeSearchController {
           // lcFilter: filterSettings.lcFilter.toList(),
           categories:
               filterSettings.categories.map((e) => mapcat[e]!.name).toList(),
-          // favoritesOnly: filterSettings.favoritesOnly,
+          favoritesOnly: filterSettings.favoritesOnly,
 
           // searchFields: filterSettings.searchFields
           //     .map<String>((e) => API_RECIPE_SEARCH_FIELDS[e]!.left)

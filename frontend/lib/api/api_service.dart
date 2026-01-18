@@ -56,7 +56,7 @@ class APIService {
       if (pageSize != null) 'page_size': pageSize.toString(),
       if (categories != null && categories.isNotEmpty) 'categories': categories,
       if (languages != null) 'languages': languages,
-      if (favoritesOnly != null) 'favorites_only': favoritesOnly,
+      if (favoritesOnly != null) 'favorites_only': favoritesOnly.toString(),
     };
 
     final response = await client.get<RecipeSearchListResponse>(
