@@ -185,7 +185,7 @@ class MainScaffold extends ConsumerWidget {
                         if (!context.mounted) return;
 
                         String errorReason;
-                        final exception = e as ApiException;
+                        e as ApiException;
                         if (e.isOffline) {
                           errorReason =
                               "Network connection failed (backend unreachable).";
