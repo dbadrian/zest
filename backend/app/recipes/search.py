@@ -197,13 +197,16 @@ class MeilisearchService:
     async def delete_recipe(self, recipe_id: int):
         """Remove recipe from index"""
         index = self.client.get_index(self.recipe_index_name)
-        update = index.delete_document(recipe_id)
+        task = index.delete_document(recipe_id)
+        await self.client.wait_for_task(task.task_uid)
 
     async def index_food(self, food: FoodCandidate | str, db: AsyncSession):
         """Index a single food"""
         doc = self._food_to_document(food)
         index = self.client.get_index(self.food_index_name)
-        index.add_documents([doc])
+        task = index.add_documents([doc])
+        await self.client.wait_for_task(task.task_uid)
+
 
     async def index_food_bulk(self, foods: list[FoodCandidate] | list[str]):
         """Bulk index multiple recipes"""
