@@ -998,6 +998,13 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
             (e, currentLanguageData["units"][e.name]["singular"] as String))
         .toList();
 
+    // Sort units according to the unit order
+    // TODO: Move this to a shared utils file
+    final _units = units.toList();
+    _units.sort(
+      (a, b) => (a.id).compareTo((b.id)),
+    );
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -1040,10 +1047,13 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                   child: _IngredientGroupWidget(
                     group: _ingredientGroups[i],
                     index: i,
-                    units: units,
+                    units: _units,
                     foods: foods,
                     currentLangData: currentLanguageData,
                     searchUnits: (String query) async {
+                      if (query == " ") {
+                        return _units;
+                      }
                       return extractTop<(Unit, String)>(
                               query: query.toLowerCase(),
                               choices: translatedUnits,

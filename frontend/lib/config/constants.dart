@@ -28,3 +28,12 @@ const String RECIPE_DRAFT_DB_KEY = "recipedrafts";
 
 // TODO: LOW Max value should be provided via the API
 const int MAX_DIFFICULTY_INT = 5;
+
+/// Sorting order of unit systems
+const unitOrder = {
+  'Metric': 0,
+  '': 1, // dimensionless
+  'US': 2, // us
+  'imp.': 3, // imperial
+  'Shakkanhou': 4
+};
