@@ -112,6 +112,7 @@ class ApiException implements Exception {
   bool get isUnauthorized => type == ApiErrorType.unauthorized;
   bool get isNetworkError => type == ApiErrorType.network;
   bool get isTimeout => type == ApiErrorType.timeout;
+  bool get isServerError => type == ApiErrorType.server;
   bool get isOffline => isNetworkError || isTimeout;
 
   @override

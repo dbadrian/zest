@@ -8,6 +8,7 @@ import 'package:updat/updat.dart';
 import 'package:downloadsfolder/downloadsfolder.dart';
 import 'package:path/path.dart' as p;
 import 'package:zest/camera/screens.dart';
+import 'package:zest/core/network/api_exception.dart';
 
 import 'package:zest/main.dart';
 import 'package:zest/recipes/controller/search_controller.dart';
@@ -183,11 +184,23 @@ class MainScaffold extends ConsumerWidget {
                       } catch (e) {
                         if (!context.mounted) return;
 
-                        Navigator.of(context, rootNavigator: true).pop();
+                        String errorReason;
+                        final exception = e as ApiException;
+                        if (e.isOffline) {
+                          errorReason =
+                              "Network connection failed (backend unreachable).";
+                        } else if (e.isServerError) {
+                          errorReason = "Server couldn't process the file.";
+                        } else {
+                          errorReason = "Unknown error ($e)";
+                        }
+                        if (userIsWaiting) {
+                          Navigator.of(context, rootNavigator: true).pop();
+                        }
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Upload failed: $e'),
+                            content: Text('Upload failed: $errorReason'),
                           ),
                         );
                       }

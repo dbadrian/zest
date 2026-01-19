@@ -189,59 +189,41 @@ class RecipeDetailsNarrowWidget extends ConsumerWidget {
             labelColor: Colors.black,
             labelStyle: TextStyle(fontWeight: FontWeight.bold),
             tabs: [
-              Tab(
-                // icon: Icon(Icons.directions_car),
-                text: "General",
-              ),
-              Tab(
-                // icon: Icon(Icons.directions_car),
-                text: "Ingredients",
-              ),
-              Tab(
-                // icon: Icon(Icons.directions_transit),
-                text: "Instructions",
-              ),
+              Tab(text: "General"),
+              Tab(text: "Ingredients"),
+              Tab(text: "Instructions"),
             ],
           ),
           Expanded(
-            child: TabBarView(
-              children: [
-                ListView(
-                  // Use PageStorageKey to "remember" scroll position when switching tabs
-                  key: const PageStorageKey<String>('meta_info'),
+            child: Builder(
+              builder: (context) {
+                // Get the controller safely from DefaultTabController
+                final TabController tabController =
+                    DefaultTabController.of(context)!;
+
+                return TabBarView(
+                  controller: tabController,
                   children: [
-                    const SizedBox(height: 10),
-                    RecipeMetaInfoColumn(
-                      recipeId: recipeId,
+                    ListView(
+                      key: const PageStorageKey<String>('meta_info'),
+                      children: [
+                        const SizedBox(height: 10),
+                        RecipeMetaInfoColumn(recipeId: recipeId),
+                        const SizedBox(height: 10),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                  ],
-                  // ),
-                ),
-                ListView(
-                  // Use PageStorageKey to "remember" scroll position when switching tabs
-                  key: const PageStorageKey<String>('ingredients_groups'),
-                  children: [
-                    const SizedBox(height: 10),
-                    IngredientsColumn(
-                      recipeId: recipeId,
+                    ListView(
+                      key: const PageStorageKey<String>('ingredients_groups'),
+                      children: [
+                        const SizedBox(height: 10),
+                        IngredientsColumn(recipeId: recipeId),
+                        const SizedBox(height: 20),
+                      ],
                     ),
-                    const SizedBox(height: 20),
+                    InstructionColumn(recipeId: recipeId),
                   ],
-                  // ),
-                ),
-                InstructionColumn(
-                  recipeId: recipeId,
-                ),
-                // ListView(
-                //   // Use PageStorageKey to "remember" scroll position when switching tabs
-                //   key: const PageStorageKey<String>('instructions_groups'),
-                //   shrinkWrap: false,
-                //   // physics: const ClampingScrollPhysics(),
-                //   children: buildInstructionColumn(
-                //       controller.recipe.value.instructionGroups),
-                // ),
-              ],
+                );
+              },
             ),
           ),
         ],
