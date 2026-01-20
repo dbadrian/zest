@@ -242,6 +242,19 @@ class APIService {
       throw response.errorOrNull!;
     }
   }
+
+  Future<Recipe> createRecipeFromUrl(String url) async {
+    final queryParameters = {"url": url};
+    final response = await client.post<Recipe>(
+        "/recipes/from_url", Recipe.fromJson,
+        queryParams: queryParameters, timeout: Duration(minutes: 1));
+
+    if (response.isSuccess) {
+      return response.dataOrNull!;
+    } else {
+      throw response.errorOrNull!;
+    }
+  }
 }
 
 @Riverpod(keepAlive: true)

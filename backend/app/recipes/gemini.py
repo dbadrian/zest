@@ -6,6 +6,9 @@ import select
 import tempfile
 
 from google import genai
+import requests
+from google.genai.types import GenerateContentConfig
+
 from fastapi import UploadFile
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -247,8 +250,23 @@ class RecipeGeminiSchema(BaseModel):
     content: RecipeRevisionGeminiSchema
 
 
-PROMPT = """
+PROMPT_FILE = """
 Extract all recipe information from this file.
+
+CRITICAL INSTRUCTIONS:
+ - DO NOT CHANGE INGREDIENTS. Keep accurate and detailed as possible
+ - Ingredients have an option "comments" field. Use this to specify things such as chopped, or specifying size such as large!
+ - Keep original units as specified in the recipe. Do not perform automatic conversion!
+ - If no amount is specify minimum amount as 1. Use piece or dash as unit, or whatever makes the most sense in the context.
+- For instruction_groups "instructions" field: preserve ALL newlines (\\n\\n) exactly as they appear in the source
+ - Each step should be separated by \\n\\n (double newline)
+ - Do not write anything into owner_commment
+ - If a step has preceeding number in the recipe, it can be removed. Just keep the order and the spacing with \\n\\n
+ - Return structured data matching the provided schema
+"""
+
+PROMPT_URL = """
+Extract all recipe information from this crawled HTML code.
 
 CRITICAL INSTRUCTIONS:
  - DO NOT CHANGE INGREDIENTS. Keep accurate and detailed as possible
@@ -296,7 +314,7 @@ async def create_recipe_from_file(
 
             response = await aclient.models.generate_content(
                 model="gemini-2.5-flash",
-                contents=[uploaded_file, PROMPT],
+                contents=[uploaded_file, PROMPT_FILE],
                 config={
                     "response_mime_type": "application/json",
                     "response_schema": RecipeGeminiSchema,
@@ -318,3 +336,58 @@ async def create_recipe_from_file(
 
     except Exception as e:
         raise Exception(f"Failed to create recipe from PDF: {str(e)}")
+
+
+async def create_recipe_from_url(url: str, db: AsyncSession) -> RecipeCreateUpdate:
+    """
+    Extract recipe data from a url using Google GenAI with structured output.
+
+    Args:
+        url: URL of reicpe to process
+
+    Returns:
+        dict: Recipe data matching RECIPE_SCHEMA
+
+    Raises:
+        Exception: If file upload or AI processing fails
+    """
+
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                        "(KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+        }
+        response = requests.get(url, timeout=10, headers=headers)
+        response.raise_for_status()
+        if response is None:
+            raise Exception("Couldnt crawl URL")
+
+        
+        html = response.text
+
+        async with genai.Client(api_key=settings.GEMINI_API_KEY).aio as aclient:
+
+            response = await aclient.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=[PROMPT_URL, html],
+                config=GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=RecipeGeminiSchema,
+                ),
+            )
+
+        out = json.loads(response.text)
+        for ing in out["content"]["ingredient_groups"]:
+            for ingredient in ing["ingredients"]:
+                ingredient["unit_id"] = UNIT_ENUM_TO_ID[ingredient["unit_id"]]
+
+        out["content"]["categories"] = [
+            RECIPE_CATEGORY_ENUM_TO_ID[id] for id in out["content"]["categories"]
+        ]
+        out["is_private"] = False
+        out["is_draft"] = True
+
+        return RecipeCreateUpdate.model_validate(out)
+
+    except Exception as e:
+        raise Exception(f"Failed to create recipe from URL: {str(e)}")

@@ -71,14 +71,17 @@ class MainScaffold extends ConsumerWidget {
         centerTitle: true,
         actions: [
           if (isAuthenticated) ...[
-            IconButton(
-              icon: const Icon(
-                  key: Key("appbar_addrecipe_icon"), Icons.add_card_rounded),
-              onPressed: (backendStatus.valueOrNull?.isOnline ?? false)
-                  ? () {
-                      context.goNamed(RecipeEditScreen.routeNameCreate);
-                    }
-                  : null,
+            Tooltip(
+              message: "Add recipe manually",
+              child: IconButton(
+                icon: const Icon(
+                    key: Key("appbar_addrecipe_icon"), Icons.add_card_rounded),
+                onPressed: (backendStatus.valueOrNull?.isOnline ?? false)
+                    ? () {
+                        context.goNamed(RecipeEditScreen.routeNameCreate);
+                      }
+                    : null,
+              ),
             ),
             // if (Platform.isAndroid)
             //   IconButton(
@@ -91,121 +94,283 @@ class MainScaffold extends ConsumerWidget {
             //           }
             //         : null,
             //   ),
-            IconButton(
-              icon: const Icon(
-                  key: Key("appbar_addrecipefile_icon"), Icons.upload_file),
-              onPressed: (backendStatus.valueOrNull?.isOnline ?? false)
-                  ? () async {
-                      bool userIsWaiting = true;
+            Tooltip(
+              message: "Parse recipe from file (pdf, image)",
+              child: IconButton(
+                icon: const Icon(
+                    key: Key("appbar_addrecipefile_icon"), Icons.upload_file),
+                onPressed: (backendStatus.valueOrNull?.isOnline ?? false)
+                    ? () async {
+                        bool userIsWaiting = true;
 
-                      final result = await FilePicker.platform.pickFiles(
-                        type: FileType.custom,
-                        allowedExtensions: [
-                          'pdf',
-                          'jpg',
-                          'jpeg',
-                          'heic',
-                          'heif',
-                          'png'
-                        ],
-                      );
-                      if (result == null || result.files.isEmpty) {
-                        return;
+                        final result = await FilePicker.platform.pickFiles(
+                          type: FileType.custom,
+                          allowedExtensions: [
+                            'pdf',
+                            'jpg',
+                            'jpeg',
+                            'heic',
+                            'heif',
+                            'png'
+                          ],
+                        );
+                        if (result == null || result.files.isEmpty) {
+                          return;
+                        }
+
+                        final recipeFuture = ref
+                            .read(apiServiceProvider)
+                            .createRecipeFromFile(File(result.files[0].path!));
+
+                        if (!context.mounted) return;
+
+                        // Show progress dialog
+                        showDialog(
+                          context: context,
+                          barrierDismissible: true,
+                          builder: (_) {
+                            return PopScope(
+                              canPop: true,
+                              onPopInvokedWithResult: (_, __) {
+                                userIsWaiting = false;
+                              },
+                              child: AlertDialog(
+                                title: const Text("Uploading"),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    CircularProgressIndicator(),
+                                    SizedBox(height: 16),
+                                    Text(
+                                        "Uploading and processing file…\nWait to be redirected automatically, or feel free to close and you will be notified once its done."),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      userIsWaiting = false;
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text("Dismiss"),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                        try {
+                          final recipe = await recipeFuture;
+
+                          if (!context.mounted) return;
+
+                          if (userIsWaiting) {
+                            // Close dialog before navigation
+                            Navigator.of(context, rootNavigator: true).pop();
+
+                            context.goNamed(RecipeEditScreen.routeNameEdit,
+                                pathParameters: {'id': recipe.id.toString()});
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: TextButton(
+                                  onPressed: () {
+                                    context.goNamed(
+                                        RecipeEditScreen.routeNameEdit,
+                                        pathParameters: {
+                                          'id': recipe.id.toString()
+                                        });
+                                  },
+                                  child: Text(
+                                      'Processing of "${recipe.latestRevision.title}" completed'),
+                                ),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (!context.mounted) return;
+
+                          String errorReason;
+                          e as ApiException;
+                          if (e.isOffline) {
+                            errorReason =
+                                "Network connection failed (backend unreachable).";
+                          } else if (e.isServerError) {
+                            errorReason = "Server couldn't process the file.";
+                          } else {
+                            errorReason = "Unknown error ($e)";
+                          }
+                          if (userIsWaiting) {
+                            Navigator.of(context, rootNavigator: true).pop();
+                          }
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Upload failed: $errorReason'),
+                            ),
+                          );
+                        }
                       }
+                    : null,
+              ),
+            ),
+            Tooltip(
+              message: "Parse recipe from URL",
+              child: IconButton(
+                icon: Stack(
+                  alignment: Alignment.bottomLeft,
+                  children: [
+                    Icon(Icons.link),
+                    Positioned(
+                      top: -2,
+                      right: -2,
+                      child: Icon(Icons.auto_awesome, size: 16), // Overlay
+                    ),
+                  ],
+                ),
+                onPressed: (backendStatus.valueOrNull?.isOnline ?? false)
+                    ? () async {
+                        bool userIsWaiting = true;
 
-                      final recipeFuture = ref
-                          .read(apiServiceProvider)
-                          .createRecipeFromFile(File(result.files[0].path!));
+                        final result = await showDialog<String>(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) {
+                            final TextEditingController controller =
+                                TextEditingController();
 
-                      if (!context.mounted) return;
-
-                      // Show progress dialog
-                      showDialog(
-                        context: context,
-                        barrierDismissible: true,
-                        builder: (_) {
-                          return PopScope(
-                            canPop: true,
-                            onPopInvokedWithResult: (_, __) {
-                              userIsWaiting = false;
-                            },
-                            child: AlertDialog(
-                              title: const Text("Uploading"),
+                            return AlertDialog(
+                              title: const Text(
+                                  'Recipe URL Parser [EXPERIMENTAL]'),
                               content: Column(
                                 mainAxisSize: MainAxisSize.min,
-                                children: const [
-                                  CircularProgressIndicator(),
-                                  SizedBox(height: 16),
+                                children: [
                                   Text(
-                                      "Uploading and processing file…\nWait to be redirected automatically, or feel free to close, you will be notified once its done."),
+                                      "Will try and parse recipe from provided URL.\nThis feature is experimental and may fails."),
+                                  TextField(
+                                    controller: controller,
+                                    autofocus: true,
+                                    decoration: const InputDecoration(
+                                      hintText: 'Type valid URL.',
+                                    ),
+                                  ),
                                 ],
                               ),
                               actions: [
                                 TextButton(
                                   onPressed: () {
-                                    userIsWaiting = false;
-                                    Navigator.of(context).pop();
+                                    Navigator.pop(context, null);
                                   },
-                                  child: const Text("Dismiss"),
+                                  child: const Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context, controller.text);
+                                  },
+                                  child: const Text('Parse'),
                                 ),
                               ],
-                            ),
-                          );
-                        },
-                      );
-                      try {
-                        final recipe = await recipeFuture;
+                            );
+                          },
+                        );
+
+                        if (result == null) {
+                          return;
+                        }
+
+                        final recipeFuture = ref
+                            .read(apiServiceProvider)
+                            .createRecipeFromUrl(result);
 
                         if (!context.mounted) return;
 
-                        if (userIsWaiting) {
-                          // Close dialog before navigation
-                          Navigator.of(context, rootNavigator: true).pop();
+                        // Show progress dialog
+                        showDialog(
+                          context: context,
+                          barrierDismissible: true,
+                          builder: (_) {
+                            return PopScope(
+                              canPop: true,
+                              onPopInvokedWithResult: (_, __) {
+                                userIsWaiting = false;
+                              },
+                              child: AlertDialog(
+                                title: const Text("Uploading"),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    CircularProgressIndicator(),
+                                    SizedBox(height: 16),
+                                    Text(
+                                        "Processing URL...\nWait to be redirected automatically, or feel free to close and you will be notified once its done (if it succeeded)."),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      userIsWaiting = false;
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text("Dismiss"),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                        try {
+                          final recipe = await recipeFuture;
 
-                          context.goNamed(RecipeEditScreen.routeNameEdit,
-                              pathParameters: {'id': recipe.id.toString()});
-                        } else {
+                          if (!context.mounted) return;
+
+                          if (userIsWaiting) {
+                            // Close dialog before navigation
+                            Navigator.of(context, rootNavigator: true).pop();
+
+                            context.goNamed(RecipeEditScreen.routeNameEdit,
+                                pathParameters: {'id': recipe.id.toString()});
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: TextButton(
+                                  onPressed: () {
+                                    context.goNamed(
+                                        RecipeEditScreen.routeNameEdit,
+                                        pathParameters: {
+                                          'id': recipe.id.toString()
+                                        });
+                                  },
+                                  child: Text(
+                                      'Processing of "${recipe.latestRevision.title}" completed'),
+                                ),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (!context.mounted) return;
+
+                          String errorReason;
+                          e as ApiException;
+                          if (e.isOffline) {
+                            errorReason =
+                                "Network connection failed (backend unreachable).";
+                          } else if (e.isServerError) {
+                            errorReason = "Server couldn't process the file.";
+                          } else {
+                            errorReason = "Unknown error ($e)";
+                          }
+                          if (userIsWaiting) {
+                            Navigator.of(context, rootNavigator: true).pop();
+                          }
+
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: TextButton(
-                                onPressed: () {
-                                  context.goNamed(
-                                      RecipeEditScreen.routeNameEdit,
-                                      pathParameters: {
-                                        'id': recipe.id.toString()
-                                      });
-                                },
-                                child: Text(
-                                    'Processing of "${recipe.latestRevision.title}" completed'),
-                              ),
+                              content: Text('Upload failed: $errorReason'),
                             ),
                           );
                         }
-                      } catch (e) {
-                        if (!context.mounted) return;
-
-                        String errorReason;
-                        e as ApiException;
-                        if (e.isOffline) {
-                          errorReason =
-                              "Network connection failed (backend unreachable).";
-                        } else if (e.isServerError) {
-                          errorReason = "Server couldn't process the file.";
-                        } else {
-                          errorReason = "Unknown error ($e)";
-                        }
-                        if (userIsWaiting) {
-                          Navigator.of(context, rootNavigator: true).pop();
-                        }
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Upload failed: $errorReason'),
-                          ),
-                        );
                       }
-                    }
-                  : null,
+                    : null,
+              ),
             ),
             IconButton(
               icon: const Icon(key: Key("appbar_search_icon"), Icons.search),

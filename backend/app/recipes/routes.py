@@ -12,7 +12,7 @@ from fastapi import (
     status,
     Request,
 )
-from pydantic import ValidationError
+from pydantic import HttpUrl, ValidationError
 from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy.orm import Session
 from sqlalchemy import Select, exc, insert, or_, select
@@ -38,7 +38,7 @@ from app.core.pagination import (
 )
 from app.db import get_db
 from app.recipes.associations import user_favorite_recipes
-from app.recipes.gemini import create_recipe_from_file
+from app.recipes.gemini import create_recipe_from_file, create_recipe_from_url
 from .models import (
     FoodCandidate,
     Recipe,
@@ -677,6 +677,27 @@ async def get_recipe_from_pdf(
         )
 
     recipe_data = await create_recipe_from_file(file, db)
+    recipe = await _create_recipe(
+        db=db, recipe_data=recipe_data, owner_id=current_user.id
+    )
+
+    search_service = get_meilisearch_service()
+    await search_service.index_recipe(recipe, db)
+
+    return recipe
+
+
+@router.post("/from_url", response_model=RecipeRead, status_code=status.HTTP_200_OK)
+async def get_recipe_from_url(
+    url: HttpUrl,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if not url:
+        return {"message": "No valid URL sent"}
+
+
+    recipe_data = await create_recipe_from_url(url, db)
     recipe = await _create_recipe(
         db=db, recipe_data=recipe_data, owner_id=current_user.id
     )

@@ -67,6 +67,7 @@ class ApiHttpClient {
     T Function(Map<String, dynamic>) fromJson, {
     Map<String, String>? headers,
     dynamic body,
+    Map<String, dynamic>? queryParams,
     Duration? timeout,
     bool encodeJson = true,
     List<File>? files,
@@ -76,6 +77,7 @@ class ApiHttpClient {
         path: path,
         headers: headers,
         body: body,
+        queryParams: queryParams,
         timeout: timeout,
         fromJson: fromJson,
         encodeJson: encodeJson,
