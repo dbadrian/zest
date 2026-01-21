@@ -606,7 +606,7 @@ class TestLanguageValidation:
         valid_recipe_data: dict,
     ):
         """Should accept all languages in allowed list"""
-        allowed_languages = ["de", "en", "jp", "pt", "it", "cs"]
+        allowed_languages = ["de", "en", "ja", "pt", "it", "cs"]
 
         for lang in allowed_languages:
             valid_recipe_data["language"] = lang
