@@ -1,0 +1,70 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  test:
+    uses: dbadrian/zest/.github/workflows/test.yml@main
+
+  build-android:
+    uses: dbadrian/zest/.github/workflows/build-android.yaml@main
+    needs: [test]
+    secrets: inherit
+
+  build-windows-misx:
+    uses: dbadrian/zest/.github/workflows/build-windows.yaml@main
+    needs: [test]
+    secrets: inherit
+
+  build-linux:
+    uses: dbadrian/zest/.github/workflows/build-linux.yaml@main
+    needs: [test]
+    secrets: inherit
+
+  deploy-backend:
+    name: Deploy to EC2
+    uses: dbadrian/zest/.github/workflows/deploy-backend.yaml@main
+    needs: [build-android, build-linux, build-windows-misx]  # assuming github release is not failing
+    secrets: inherit
+
+  release-github:
+    name: Github Release
+    runs-on: ubuntu-latest
+    needs: [build-android, build-windows-misx, build-linux, deploy-backend]
+    steps:
+      - name: Retrieve Windows Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-artifact-msix
+          path: builds/
+
+      - name: Retrieve Androids Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: android-artifact
+          path: builds/
+
+      - name: Retrieve Linux Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-artifact
+          path: builds/
+  
+      - name: Rename files according to release
+        run: |
+          mv builds/app-release-signed.aab builds/zest-${GITHUB_REF#refs/*/}.aab
+          mv builds/zest.msix builds/zest-${GITHUB_REF#refs/*/}.msix
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "builds/*.*"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  release-playstore:
+    uses: dbadrian/zest/.github/workflows/push-playstore.yaml@main
+    needs: [build-android, deploy-backend] 
+    secrets: inherit

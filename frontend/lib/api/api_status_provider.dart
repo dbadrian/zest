@@ -1,0 +1,110 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:zest/core/network/api_response.dart';
+import 'package:zest/core/network/http_client.dart';
+import 'package:zest/core/providers/http_client_provider.dart';
+
+part 'api_status_provider.g.dart'; // Generated file
+
+@riverpod
+class ApiStatus extends _$ApiStatus {
+  Timer? _timer;
+
+  @override
+  Future<({bool isOnline})> build() async {
+    ref.watch(apiClientProvider(withAuthentication: false));
+    startChecking(const Duration(seconds: kDebugMode ? 10 : 2));
+    return await _checkBackendStatus();
+  }
+
+  Future<({bool isOnline})> _checkBackendStatus() async {
+    // final SettingsState settings = ref.read(settingsProvider);
+    final client = ref.watch(apiClientProvider(withAuthentication: false));
+
+    try {
+      final response = await AsyncValue.guard(
+          () => client.get<Map<String, dynamic>>("/info", (e) => e));
+
+      if (response.hasValue) {
+        if (response.value is ApiSuccess) {
+          return (isOnline: true);
+        } else {
+          return (isOnline: false);
+        }
+      } else {
+        return (isOnline: false);
+      }
+    } catch (_) {
+      return (isOnline: false); // Offline in case of errors
+    }
+  }
+
+  // Start periodic checks
+  void startChecking(Duration interval) {
+    _timer?.cancel(); // Cancel existing timer
+    _timer = Timer.periodic(interval, (_) async {
+      state = await AsyncValue.guard(() => _checkBackendStatus());
+    });
+    // Immediately update state
+    _updateStatus();
+  }
+
+  // Update the status once without waiting for the periodic interval
+  Future<void> _updateStatus() async {
+    state = await AsyncValue.guard(() => _checkBackendStatus());
+  }
+
+  Future<void> updateStatus(bool isOnline) async {
+    state = AsyncValue.data((isOnline: isOnline));
+  }
+}
+
+// @riverpod
+// class ApiStatus extends AsyncNotifier<bool> {
+//   Timer? _timer;
+
+//   @override
+//   Future<bool> build() async {
+//     // Initial state when the provider is first created
+//     return _checkBackendStatus();
+//   }
+
+//   // Function to check backend status
+//   Future<bool> _checkBackendStatus() async {
+//     try {
+//       final response =
+//           await http.get(Uri.parse('https://dbadrian/api/v1/info'));
+//       return response.statusCode == 200; // Online if status is 200
+//     } catch (_) {
+//       return false; // Offline in case of errors
+//     }
+//   }
+
+//   // Start periodic checks
+//   void startChecking(Duration interval) {
+//     _timer?.cancel(); // Cancel existing timer
+//     _timer = Timer.periodic(interval, (_) async {
+//       state = await AsyncValue.guard(() => _checkBackendStatus());
+//     });
+//     // Immediately update state
+//     _updateStatus();
+//   }
+
+//   // Update the status once without waiting for the periodic interval
+//   Future<void> _updateStatus() async {
+//     state = await AsyncValue.guard(() => _checkBackendStatus());
+//   }
+
+//   // Stop periodic checks
+//   void stopChecking() {
+//     _timer?.cancel();
+//     _timer = null;
+//   }
+
+//   // @override
+//   // void dispose() {
+//   //   stopChecking();
+//   //   super.dispose();
+//   // }
+// }

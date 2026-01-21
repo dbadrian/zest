@@ -1,0 +1,980 @@
+{
+  "en": {
+    "units": {
+      "kilogram": {
+        "singular": "kilogram",
+        "plural": "kilograms",
+        "abbreviation": "kg"
+      },
+      "gram": {
+        "singular": "gram",
+        "plural": "grams",
+        "abbreviation": "g"
+      },
+      "decagram": {
+        "singular": "decagram",
+        "plural": "decagrams",
+        "abbreviation": "dag"
+      },
+      "milligram": {
+        "singular": "milligram",
+        "plural": "milligrams",
+        "abbreviation": "mg"
+      },
+      "microgram": {
+        "singular": "microgram",
+        "plural": "micrograms",
+        "abbreviation": "µg"
+      },
+      "liter": {
+        "singular": "liter",
+        "plural": "liters",
+        "abbreviation": "l"
+      },
+      "milliliter": {
+        "singular": "milliliter",
+        "plural": "milliliters",
+        "abbreviation": "ml"
+      },
+      "centiliter": {
+        "singular": "centiliter",
+        "plural": "centiliters",
+        "abbreviation": "cl"
+      },
+      "deciliter": {
+        "singular": "deciliter",
+        "plural": "deciliters",
+        "abbreviation": "dl"
+      },
+      "gill": {
+        "singular": "gill",
+        "plural": "gills",
+        "abbreviation": "gi"
+      },
+      "pound": {
+        "singular": "pound",
+        "plural": "pounds",
+        "abbreviation": "lb"
+      },
+      "teaspoon": {
+        "singular": "teaspoon",
+        "plural": "teaspoons",
+        "abbreviation": "tsp"
+      },
+      "tablespoon": {
+        "singular": "tablespoon",
+        "plural": "tablespoons",
+        "abbreviation": "tbsp"
+      },
+      "piece": {
+        "singular": "piece",
+        "plural": "pieces",
+        "abbreviation": ""
+      },
+      "pinch": {
+        "singular": "pinch",
+        "plural": "pinches",
+        "abbreviation": ""
+      },
+      "tub": {
+        "singular": "tub",
+        "plural": "tubs",
+        "abbreviation": ""
+      },
+      "bundle": {
+        "singular": "bundle",
+        "plural": "bundles",
+        "abbreviation": ""
+      },
+      "handful": {
+        "singular": "handful",
+        "plural": "handfuls",
+        "abbreviation": ""
+      },
+      "bag": {
+        "singular": "bag",
+        "plural": "bags",
+        "abbreviation": ""
+      },
+      "cup": {
+        "singular": "cup",
+        "plural": "cups",
+        "abbreviation": "cup"
+      },
+      "can": {
+        "singular": "can",
+        "plural": "cans",
+        "abbreviation": ""
+      },
+      "bottle": {
+        "singular": "bottle",
+        "plural": "bottles",
+        "abbreviation": ""
+      },
+      "knife tip": {
+        "singular": "knife tip",
+        "plural": "knife tips",
+        "abbreviation": ""
+      },
+      "stick": {
+        "singular": "stick",
+        "plural": "sticks",
+        "abbreviation": ""
+      },
+      "stem": {
+        "singular": "stem",
+        "plural": "stems",
+        "abbreviation": ""
+      },
+      "package": {
+        "singular": "package",
+        "plural": "packages",
+        "abbreviation": ""
+      },
+      "dash": {
+        "singular": "dash",
+        "plural": "dashes",
+        "abbreviation": ""
+      },
+      "drop": {
+        "singular": "drop",
+        "plural": "drops",
+        "abbreviation": ""
+      },
+      "coffeespoon": {
+        "singular": "coffeespoon",
+        "plural": "coffeespoons",
+        "abbreviation": ""
+      },
+      "grain": {
+        "singular": "grain",
+        "plural": "grains",
+        "abbreviation": "gr"
+      },
+      "slice": {
+        "singular": "slice",
+        "plural": "slices",
+        "abbreviation": ""
+      },
+      "splash": {
+        "singular": "splash",
+        "plural": "splashes",
+        "abbreviation": ""
+      },
+      "clove": {
+        "singular": "clove",
+        "plural": "cloves",
+        "abbreviation": ""
+      },
+      "bulb": {
+        "singular": "bulb",
+        "plural": "bulbs",
+        "abbreviation": ""
+      },
+      "fluid ounce": {
+        "singular": "fluid ounce",
+        "plural": "fluid ounces",
+        "abbreviation": "fl oz"
+      },
+      "gallon": {
+        "singular": "gallon",
+        "plural": "gallons",
+        "abbreviation": "gal"
+      },
+      "saltspoon": {
+        "singular": "saltspoon",
+        "plural": "saltspoons",
+        "abbreviation": ""
+      },
+      "tea cup": {
+        "singular": "tea cup",
+        "plural": "tea cups",
+        "abbreviation": ""
+      },
+      "pound (dt.)": {
+        "singular": "pound (dt.)",
+        "plural": "pounds (dt.)",
+        "abbreviation": ""
+      },
+      "shaku 勺": {
+        "singular": "shaku",
+        "plural": "shaku",
+        "abbreviation": ""
+      },
+      "gō 合": {
+        "singular": "gō",
+        "plural": "gō",
+        "abbreviation": ""
+      },
+      "shō 升": {
+        "singular": "shō 升",
+        "plural": "shō 升",
+        "abbreviation": ""
+      },
+      "to 斗": {
+        "singular": "to",
+        "plural": "to",
+        "abbreviation": ""
+      },
+      "koku 石": {
+        "singular": "koku",
+        "plural": "koku",
+        "abbreviation": ""
+      },
+      "fun 分": {
+        "singular": "fun",
+        "plural": "fun",
+        "abbreviation": ""
+      },
+      "monme 匁": {
+        "singular": "monme",
+        "plural": "monme",
+        "abbreviation": ""
+      },
+      "ryō 両": {
+        "singular": "ryō",
+        "plural": "ryō",
+        "abbreviation": ""
+      },
+      "kin 斤": {
+        "singular": "kin",
+        "plural": "kin",
+        "abbreviation": ""
+      },
+      "kan 貫(目)": {
+        "singular": "kan",
+        "plural": "kan",
+        "abbreviation": ""
+      },
+      "shō 鍾": {
+        "singular": "shō 鍾",
+        "plural": "shō 鍾",
+        "abbreviation": ""
+      },
+      "specific gravity": {
+        "singular": "specific gravity",
+        "plural": "specific gravities",
+        "abbreviation": ""
+      },
+      "brix": {
+        "singular": "brix",
+        "plural": "brix",
+        "abbreviation": ""
+      },
+      "iternational unit": {
+        "singular": "international unit",
+        "plural": "international units",
+        "abbreviation": "IU"
+      },
+      "calorie": {
+        "singular": "calorie",
+        "plural": "calories",
+        "abbreviation": "cal"
+      },
+      "kilojoule": {
+        "singular": "kilojoule",
+        "plural": "kilojoules",
+        "abbreviation": "kJ"
+      },
+      "parts per million": {
+        "singular": "part per million",
+        "plural": "parts per million",
+        "abbreviation": "ppm"
+      },
+      "head": {
+        "singular": "head",
+        "plural": "heads",
+        "abbreviation": ""
+      },
+      "to taste": {
+        "singular": "to taste",
+        "plural": "to taste",
+        "abbreviation": ""
+      },
+      "sheet": {
+        "singular": "sheet",
+        "plural": "sheets",
+        "abbreviation": ""
+      },
+      "block": {
+        "singular": "block",
+        "plural": "blocks",
+        "abbreviation": ""
+      }
+    },
+    "categories": {
+      "Breakfast": "Breakfast",
+      "Lunch": "Lunch",
+      "Dinner": "Dinner",
+      "Brunch": "Brunch",
+      "Appetizer": "Appetizer",
+      "Salad": "Salad",
+      "Soup": "Soup",
+      "Side Dish": "Side Dish",
+      "Main Course": "Main Course",
+      "Snack": "Snack",
+      "Dessert": "Dessert",
+      "Beverage": "Beverage",
+      "Sauce & Dressing": "Sauce & Dressing",
+      "Condiment": "Condiment",
+      "Baking": "Baking",
+      "Bread": "Bread",
+      "Cakes & Cupcakes": "Cakes & Cupcakes",
+      "Cookies & Bars": "Cookies & Bars",
+      "Pastries & Pies": "Pastries & Pies",
+      "Holiday & Special Occasion": "Holiday & Special Occasion"
+    }
+  },
+  "de": {
+    "units": {
+      "kilogram": {
+        "singular": "Kilogramm",
+        "plural": "Kilogramm",
+        "abbreviation": "kg"
+      },
+      "gram": {
+        "singular": "Gramm",
+        "plural": "Gramm",
+        "abbreviation": "g"
+      },
+      "decagram": {
+        "singular": "Dekagramm",
+        "plural": "Dekagramm",
+        "abbreviation": "dag"
+      },
+      "milligram": {
+        "singular": "Milligramm",
+        "plural": "Milligramm",
+        "abbreviation": "mg"
+      },
+      "microgram": {
+        "singular": "Mikrogramm",
+        "plural": "Mikrogramm",
+        "abbreviation": "µg"
+      },
+      "liter": {
+        "singular": "Liter",
+        "plural": "Liter",
+        "abbreviation": "l"
+      },
+      "milliliter": {
+        "singular": "Milliliter",
+        "plural": "Milliliter",
+        "abbreviation": "ml"
+      },
+      "centiliter": {
+        "singular": "Zentiliter",
+        "plural": "Zentiliter",
+        "abbreviation": "cl"
+      },
+      "deciliter": {
+        "singular": "Deziliter",
+        "plural": "Deziliter",
+        "abbreviation": "dl"
+      },
+      "gill": {
+        "singular": "Gill",
+        "plural": "Gills",
+        "abbreviation": "gi"
+      },
+      "pound": {
+        "singular": "Pfund",
+        "plural": "Pfund",
+        "abbreviation": "lb"
+      },
+      "teaspoon": {
+        "singular": "Teelöffel",
+        "plural": "Teelöffel",
+        "abbreviation": "TL"
+      },
+      "tablespoon": {
+        "singular": "Esslöffel",
+        "plural": "Esslöffel",
+        "abbreviation": "EL"
+      },
+      "piece": {
+        "singular": "Stück",
+        "plural": "Stücke",
+        "abbreviation": ""
+      },
+      "pinch": {
+        "singular": "Prise",
+        "plural": "Prisen",
+        "abbreviation": ""
+      },
+      "tub": {
+        "singular": "Becher",
+        "plural": "Becher",
+        "abbreviation": ""
+      },
+      "bundle": {
+        "singular": "Bund",
+        "plural": "Bunde",
+        "abbreviation": ""
+      },
+      "handful": {
+        "singular": "Handvoll",
+        "plural": "Handvoll",
+        "abbreviation": ""
+      },
+      "bag": {
+        "singular": "Tüte",
+        "plural": "Tüten",
+        "abbreviation": ""
+      },
+      "cup": {
+        "singular": "Tasse",
+        "plural": "Tassen",
+        "abbreviation": "cup"
+      },
+      "can": {
+        "singular": "Dose",
+        "plural": "Dosen",
+        "abbreviation": ""
+      },
+      "bottle": {
+        "singular": "Flasche",
+        "plural": "Flaschen",
+        "abbreviation": ""
+      },
+      "knife tip": {
+        "singular": "Messerspitze",
+        "plural": "Messerspitzen",
+        "abbreviation": ""
+      },
+      "stick": {
+        "singular": "Stange",
+        "plural": "Stangen",
+        "abbreviation": ""
+      },
+      "stem": {
+        "singular": "Stiel",
+        "plural": "Stiele",
+        "abbreviation": ""
+      },
+      "package": {
+        "singular": "Paket",
+        "plural": "Pakete",
+        "abbreviation": ""
+      },
+      "dash": {
+        "singular": "Schuss",
+        "plural": "Schüsse",
+        "abbreviation": ""
+      },
+      "drop": {
+        "singular": "Tropfen",
+        "plural": "Tropfen",
+        "abbreviation": ""
+      },
+      "coffeespoon": {
+        "singular": "Kaffeelöffel",
+        "plural": "Kaffeelöffel",
+        "abbreviation": ""
+      },
+      "grain": {
+        "singular": "Korn",
+        "plural": "Körner",
+        "abbreviation": "gr"
+      },
+      "slice": {
+        "singular": "Scheibe",
+        "plural": "Scheiben",
+        "abbreviation": ""
+      },
+      "splash": {
+        "singular": "Spritzer",
+        "plural": "Spritzer",
+        "abbreviation": ""
+      },
+      "clove": {
+        "singular": "Zehe",
+        "plural": "Zehen",
+        "abbreviation": ""
+      },
+      "bulb": {
+        "singular": "Knolle",
+        "plural": "Knollen",
+        "abbreviation": ""
+      },
+      "fluid ounce": {
+        "singular": "Flüssigunze",
+        "plural": "Flüssigunzen",
+        "abbreviation": "fl oz"
+      },
+      "gallon": {
+        "singular": "Gallone",
+        "plural": "Gallonen",
+        "abbreviation": "gal"
+      },
+      "saltspoon": {
+        "singular": "Salzlöffel",
+        "plural": "Salzlöffel",
+        "abbreviation": ""
+      },
+      "tea cup": {
+        "singular": "Teetasse",
+        "plural": "Teetassen",
+        "abbreviation": ""
+      },
+      "pound (dt.)": {
+        "singular": "Pfund (dt.)",
+        "plural": "Pfund (dt.)",
+        "abbreviation": ""
+      },
+      "shaku 勺": {
+        "singular": "Shaku",
+        "plural": "Shaku",
+        "abbreviation": ""
+      },
+      "gō 合": {
+        "singular": "Gō",
+        "plural": "Gō",
+        "abbreviation": ""
+      },
+      "shō 升": {
+        "singular": "Shō 升",
+        "plural": "Shō 升",
+        "abbreviation": ""
+      },
+      "to 斗": {
+        "singular": "To",
+        "plural": "To",
+        "abbreviation": ""
+      },
+      "koku 石": {
+        "singular": "Koku",
+        "plural": "Koku",
+        "abbreviation": ""
+      },
+      "fun 分": {
+        "singular": "Fun",
+        "plural": "Fun",
+        "abbreviation": ""
+      },
+      "monme 匁": {
+        "singular": "Monme",
+        "plural": "Monme",
+        "abbreviation": ""
+      },
+      "ryō 両": {
+        "singular": "Ryō",
+        "plural": "Ryō",
+        "abbreviation": ""
+      },
+      "kin 斤": {
+        "singular": "Kin",
+        "plural": "Kin",
+        "abbreviation": ""
+      },
+      "kan 貫(目)": {
+        "singular": "Kan",
+        "plural": "Kan",
+        "abbreviation": ""
+      },
+      "shō 鍾": {
+        "singular": "Shō 鍾",
+        "plural": "Shō 鍾",
+        "abbreviation": ""
+      },
+      "specific gravity": {
+        "singular": "Spezifisches Gewicht",
+        "plural": "Spezifische Gewichte",
+        "abbreviation": ""
+      },
+      "brix": {
+        "singular": "Brix",
+        "plural": "Brix",
+        "abbreviation": ""
+      },
+      "iternational unit": {
+        "singular": "Internationale Einheit",
+        "plural": "Internationale Einheiten",
+        "abbreviation": "IE"
+      },
+      "calorie": {
+        "singular": "Kalorie",
+        "plural": "Kalorien",
+        "abbreviation": "cal"
+      },
+      "kilojoule": {
+        "singular": "Kilojoule",
+        "plural": "Kilojoule",
+        "abbreviation": "kJ"
+      },
+      "parts per million": {
+        "singular": "Teil pro Million",
+        "plural": "Teile pro Million",
+        "abbreviation": "ppm"
+      },
+      "head": {
+        "singular": "Kopf",
+        "plural": "Köpfe",
+        "abbreviation": ""
+      },
+      "to taste": {
+        "singular": "nach Geschmack",
+        "plural": "nach Geschmack",
+        "abbreviation": ""
+      },
+      "sheet": {
+        "singular": "Blatt",
+        "plural": "Blätter",
+        "abbreviation": ""
+      },
+      "block": {
+        "singular": "Block",
+        "plural": "Blöcke",
+        "abbreviation": ""
+      }
+    },
+    "categories": {
+      "Breakfast": "Frühstück",
+      "Lunch": "Mittagessen",
+      "Dinner": "Abendessen",
+      "Brunch": "Brunch",
+      "Appetizer": "Vorspeise",
+      "Salad": "Salat",
+      "Soup": "Suppe",
+      "Side Dish": "Beilage",
+      "Main Course": "Hauptgericht",
+      "Snack": "Snack",
+      "Dessert": "Dessert",
+      "Beverage": "Getränk",
+      "Sauce & Dressing": "Sauce & Dressing",
+      "Condiment": "Würzmittel",
+      "Baking": "Backen",
+      "Bread": "Brot",
+      "Cakes & Cupcakes": "Kuchen & Cupcakes",
+      "Cookies & Bars": "Kekse & Riegel",
+      "Pastries & Pies": "Gebäck & Kuchen",
+      "Holiday & Special Occasion": "Feiertage & besondere Anlässe"
+    }
+  },
+  "cs": {
+    "units": {
+      "kilogram": {
+        "singular": "kilogram",
+        "plural": "kilogramy",
+        "abbreviation": "kg"
+      },
+      "gram": {
+        "singular": "gram",
+        "plural": "gramy",
+        "abbreviation": "g"
+      },
+      "decagram": {
+        "singular": "dekagram",
+        "plural": "dekagramy",
+        "abbreviation": "dag"
+      },
+      "milligram": {
+        "singular": "miligram",
+        "plural": "miligramy",
+        "abbreviation": "mg"
+      },
+      "microgram": {
+        "singular": "mikrogram",
+        "plural": "mikrogramy",
+        "abbreviation": "µg"
+      },
+      "liter": {
+        "singular": "litr",
+        "plural": "litry",
+        "abbreviation": "l"
+      },
+      "milliliter": {
+        "singular": "mililitr",
+        "plural": "mililitry",
+        "abbreviation": "ml"
+      },
+      "centiliter": {
+        "singular": "centilitr",
+        "plural": "centilitry",
+        "abbreviation": "cl"
+      },
+      "deciliter": {
+        "singular": "decilitr",
+        "plural": "decilitry",
+        "abbreviation": "dl"
+      },
+      "gill": {
+        "singular": "gill",
+        "plural": "gilly",
+        "abbreviation": "gi"
+      },
+      "pound": {
+        "singular": "libra",
+        "plural": "libry",
+        "abbreviation": "lb"
+      },
+      "teaspoon": {
+        "singular": "čajová lžička",
+        "plural": "čajové lžičky",
+        "abbreviation": "č. l."
+      },
+      "tablespoon": {
+        "singular": "polévková lžíce",
+        "plural": "polévkové lžíce",
+        "abbreviation": "pol. l."
+      },
+      "piece": {
+        "singular": "kus",
+        "plural": "kusy",
+        "abbreviation": ""
+      },
+      "pinch": {
+        "singular": "špetka",
+        "plural": "špetky",
+        "abbreviation": ""
+      },
+      "tub": {
+        "singular": "kbelík",
+        "plural": "kbelíky",
+        "abbreviation": ""
+      },
+      "bundle": {
+        "singular": "svazek",
+        "plural": "svazky",
+        "abbreviation": ""
+      },
+      "handful": {
+        "singular": "hrst",
+        "plural": "hrsti",
+        "abbreviation": ""
+      },
+      "bag": {
+        "singular": "taška",
+        "plural": "tašky",
+        "abbreviation": ""
+      },
+      "cup": {
+        "singular": "šálek",
+        "plural": "šálky",
+        "abbreviation": "cup"
+      },
+      "can": {
+        "singular": "plechovka",
+        "plural": "plechovky",
+        "abbreviation": ""
+      },
+      "bottle": {
+        "singular": "láhev",
+        "plural": "láhve",
+        "abbreviation": ""
+      },
+      "knife tip": {
+        "singular": "špička nože",
+        "plural": "špičky nože",
+        "abbreviation": ""
+      },
+      "stick": {
+        "singular": "tyčinka",
+        "plural": "tyčinky",
+        "abbreviation": ""
+      },
+      "stem": {
+        "singular": "stonka",
+        "plural": "stonky",
+        "abbreviation": ""
+      },
+      "package": {
+        "singular": "balíček",
+        "plural": "balíčky",
+        "abbreviation": ""
+      },
+      "dash": {
+        "singular": "špetka",
+        "plural": "špetky",
+        "abbreviation": ""
+      },
+      "drop": {
+        "singular": "kapka",
+        "plural": "kapky",
+        "abbreviation": ""
+      },
+      "coffeespoon": {
+        "singular": "kávová lžička",
+        "plural": "kávové lžičky",
+        "abbreviation": ""
+      },
+      "grain": {
+        "singular": "zrnko",
+        "plural": "zrnka",
+        "abbreviation": "gr"
+      },
+      "slice": {
+        "singular": "plátek",
+        "plural": "plátky",
+        "abbreviation": ""
+      },
+      "splash": {
+        "singular": "šplouchnutí",
+        "plural": "šplouchnutí",
+        "abbreviation": ""
+      },
+      "clove": {
+        "singular": "stroužek",
+        "plural": "stroužky",
+        "abbreviation": ""
+      },
+      "bulb": {
+        "singular": "žárovka",
+        "plural": "žárovky",
+        "abbreviation": ""
+      },
+      "fluid ounce": {
+        "singular": "fluidní unce",
+        "plural": "fluidní unce",
+        "abbreviation": "fl oz"
+      },
+      "gallon": {
+        "singular": "galon",
+        "plural": "galony",
+        "abbreviation": "gal"
+      },
+      "saltspoon": {
+        "singular": "lžička soli",
+        "plural": "lžičky soli",
+        "abbreviation": ""
+      },
+      "tea cup": {
+        "singular": "šálek čaje",
+        "plural": "šálky čaje",
+        "abbreviation": ""
+      },
+      "pound (dt.)": {
+        "singular": "libra (dt.)",
+        "plural": "libry (dt.)",
+        "abbreviation": ""
+      },
+      "shaku 勺": {
+        "singular": "shaku",
+        "plural": "shaku",
+        "abbreviation": ""
+      },
+      "gō 合": {
+        "singular": "gō",
+        "plural": "gō",
+        "abbreviation": ""
+      },
+      "shō 升": {
+        "singular": "shō",
+        "plural": "shō",
+        "abbreviation": ""
+      },
+      "to 斗": {
+        "singular": "to",
+        "plural": "to",
+        "abbreviation": ""
+      },
+      "koku 石": {
+        "singular": "koku",
+        "plural": "koku",
+        "abbreviation": ""
+      },
+      "fun 分": {
+        "singular": "fun",
+        "plural": "fun",
+        "abbreviation": ""
+      },
+      "monme 匁": {
+        "singular": "monme",
+        "plural": "monme",
+        "abbreviation": ""
+      },
+      "ryō 両": {
+        "singular": "ryō",
+        "plural": "ryō",
+        "abbreviation": ""
+      },
+      "kin 斤": {
+        "singular": "kin",
+        "plural": "kin",
+        "abbreviation": ""
+      },
+      "kan 貫(目)": {
+        "singular": "kan",
+        "plural": "kan",
+        "abbreviation": ""
+      },
+      "shō 鍾": {
+        "singular": "shō",
+        "plural": "shō",
+        "abbreviation": ""
+      },
+      "specific gravity": {
+        "singular": "specifická hmotnost",
+        "plural": "specifické hmotnosti",
+        "abbreviation": ""
+      },
+      "brix": {
+        "singular": "brix",
+        "plural": "brix",
+        "abbreviation": ""
+      },
+      "iternational unit": {
+        "singular": "mezinárodní jednotka",
+        "plural": "mezinárodní jednotky",
+        "abbreviation": "IU"
+      },
+      "calorie": {
+        "singular": "kalorie",
+        "plural": "kalorie",
+        "abbreviation": "cal"
+      },
+      "kilojoule": {
+        "singular": "kilojoul",
+        "plural": "kilojouly",
+        "abbreviation": "kJ"
+      },
+      "parts per million": {
+        "singular": "částice na milion",
+        "plural": "částice na milion",
+        "abbreviation": "ppm"
+      },
+      "head": {
+        "singular": "hlava",
+        "plural": "hlavy",
+        "abbreviation": ""
+      },
+      "to taste": {
+        "singular": "dle chuti",
+        "plural": "dle chuti",
+        "abbreviation": ""
+      },
+      "sheet": {
+        "singular": "plát",
+        "plural": "pláty",
+        "abbreviation": ""
+      },
+      "block": {
+        "singular": "blok",
+        "plural": "bloky",
+        "abbreviation": ""
+      }
+    },
+    "categories": {
+      "Breakfast": "Snídaně",
+      "Lunch": "Oběd",
+      "Dinner": "Večeře",
+      "Brunch": "Brunch",
+      "Appetizer": "Předkrm",
+      "Salad": "Salát",
+      "Soup": "Polévka",
+      "Side Dish": "Příloha",
+      "Main Course": "Hlavní chod",
+      "Snack": "Svačina",
+      "Dessert": "Dezert",
+      "Beverage": "Nápoj",
+      "Sauce & Dressing": "Omáčka a dresink",
+      "Condiment": "Dochucovadlo",
+      "Baking": "Pečení",
+      "Bread": "Chléb",
+      "Cakes & Cupcakes": "Dorty a cupcakes",
+      "Cookies & Bars": "Sušenky a řezy",
+      "Pastries & Pies": "Pečivo a koláče",
+      "Holiday & Special Occasion": "Svátky a zvláštní příležitosti"
+    }
+  }
+}

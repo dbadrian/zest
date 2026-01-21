@@ -1,0 +1,9 @@
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          explicit_to_json: true
+          # TODO: disable for production maybe?
+          checked: true
+          # disallow_unrecognized_keys: true

@@ -1,0 +1,18 @@
+name: Deploy Backend
+
+on:
+  workflow_call:
+  workflow_dispatch: # manual
+
+jobs:
+  deploy-backend:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build & Deploy
+        env:
+          PRIVATE_KEY: ${{ secrets.DEPLOY_SERVER_PRIVATE_KEY }}
+          SERVER: ${{secrets.DEPLOY_SERVER}}
+        run: |
+            echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+            ssh -o StrictHostKeyChecking=no -i private_key ${SERVER} '/home/zest/bin/deploy_zest'

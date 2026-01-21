@@ -1,0 +1,38 @@
+[Unit]
+Description=Zest Service
+After=network.target
+
+[Service]
+User=zest
+Group=zest
+Environment="ZEST_ENV=production"
+
+# Path to your script directory
+WorkingDirectory=/home/zest/zest/current/backend
+
+# The command to run
+ExecStart=/home/zest/zest/current/backend/.venv/bin/gunicorn app.main:app --config gunicorn.conf.py
+
+# Graceful reload
+ExecReload=/bin/kill -HUP $MAINPID
+
+# Restart policy
+Restart=on-failure
+RestartSec=5
+
+# Allow up to 10 restart attempts within 1 minute
+StartLimitIntervalSec=60
+StartLimitBurst=10
+
+# let workers finish jobs
+TimeoutStopSec=60
+
+# Logging (systemd-journald handles this)
+StandardOutput=journal
+StandardError=journal
+
+# If it's not a daemon, use simple
+Type=simple
+
+[Install]
+WantedBy=multi-user.target

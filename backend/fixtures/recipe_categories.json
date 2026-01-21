@@ -1,0 +1,142 @@
+[
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Breakfast",
+      "id": 0
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Lunch",
+      "id": 1
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Dinner",
+      "id": 2
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Brunch",
+      "id": 3
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Appetizer",
+      "id": 4
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Salad",
+      "id": 5
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Soup",
+      "id": 6
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Side Dish",
+      "id": 7
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Main Course",
+      "id": 8
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Snack",
+      "id": 9
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Dessert",
+      "id": 10
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Beverage",
+      "id": 11
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Sauce & Dressing",
+      "id": 12
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Condiment",
+      "id": 13
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Baking",
+      "id": 14
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Bread",
+      "id": 15
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Cakes & Cupcakes",
+      "id": 16
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Cookies & Bars",
+      "id": 17
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Pastries & Pies",
+      "id": 18
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Holiday & Special Occasion",
+      "id": 19
+    }
+  }
+]
