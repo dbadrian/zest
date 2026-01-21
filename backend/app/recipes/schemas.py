@@ -1,3 +1,4 @@
+from enum import StrEnum
 from typing import Annotated, List
 from datetime import datetime
 
@@ -5,11 +6,11 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from pydantic_core.core_schema import ValidationInfo
 
 from app.auth.models import USER_ID_T
-from app.recipes.constants import BaseUnit, UnitSystem
+from app.recipes.constants import LANGUAGE_CODE, BaseUnit, UnitSystem
 
 
-# Constants for validation
-ALLOWED_LANGUAGES = ["de", "en", "jp", "ja", "pt", "it", "cs", "fr", "es"]
+
+ALLOWED_LANGUAGES = list(LANGUAGE_CODE.keys())
 MIN_STRING_LENGTH = 2
 MAX_NAME_LENGTH = 512
 MAX_DESCRIPTION_LENGTH = 1024

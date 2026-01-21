@@ -8,6 +8,7 @@ import 'package:zest/recipes/models/unit.dart';
 import 'package:zest/recipes/recipe_repository.dart';
 import 'package:zest/recipes/static_data_repository.dart';
 import 'package:zest/settings/settings_provider.dart';
+import 'package:zest/utils/languages.dart';
 
 part 'providers.g.dart';
 
@@ -16,13 +17,14 @@ class RecipeFormData {
   final List<Unit> units;
   final List<Food> foods;
   final Map<String, dynamic> currentLanguageData;
+  final Map<String, String> localizedLanguageNames;
 
-  RecipeFormData({
-    required this.categories,
-    required this.units,
-    required this.foods,
-    required this.currentLanguageData,
-  });
+  RecipeFormData(
+      {required this.categories,
+      required this.units,
+      required this.foods,
+      required this.currentLanguageData,
+      required this.localizedLanguageNames});
 }
 
 @riverpod
@@ -30,6 +32,8 @@ Future<RecipeFormData> recipeStaticData(Ref ref) async {
   final repo = ref.watch(staticRepositoryProvider);
   final language =
       ref.watch(settingsProvider.select((s) => s.current.language));
+
+  final localizedLanguages = await getLocalizedLanguages(language);
 
   // load all resources in parallel
   final results = await Future.wait([
@@ -47,6 +51,7 @@ Future<RecipeFormData> recipeStaticData(Ref ref) async {
     units: results[1] as List<Unit>,
     foods: results[2] as List<Food>,
     currentLanguageData: currentLanguageData,
+    localizedLanguageNames: localizedLanguages,
   );
 }
 

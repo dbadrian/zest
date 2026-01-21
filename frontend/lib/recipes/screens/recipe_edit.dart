@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:language_info_plus/language_info_plus.dart';
+
 import 'package:zest/authentication/reauthentication_dialog.dart';
 import 'package:zest/config/constants.dart';
 import 'package:zest/core/network/api_exception.dart';
@@ -15,8 +17,10 @@ import 'package:zest/recipes/recipe_repository.dart';
 import 'package:zest/recipes/screens/recipe_details.dart';
 import 'package:zest/recipes/screens/recipe_search.dart';
 import 'package:zest/recipes/static_data_repository.dart';
+import 'package:zest/settings/settings_provider.dart';
 
 import 'package:zest/ui/widgets/debounced_autocomplete.dart';
+import 'package:zest/utils/languages.dart';
 import 'package:zest/utils/networking.dart';
 
 class RecipeEditScreen extends ConsumerStatefulWidget {
@@ -49,6 +53,8 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   final _sourceUrlController = TextEditingController();
 
   final _servingsController = TextEditingController();
+
+  final _languageController = TextEditingController();
 
   // ignore: unused_field
   String? _selectedLanguage = "en";
@@ -403,7 +409,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            _buildMetadataSection(isWide),
+                            _buildMetadataSection(isWide, data),
                             const SizedBox(height: 32),
                             _buildBasicInfoSection(isWide),
                             const SizedBox(height: 32),
@@ -490,7 +496,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
     );
   }
 
-  Widget _buildMetadataSection(bool isWide) {
+  Widget _buildMetadataSection(bool isWide, RecipeFormData staticData) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -511,13 +517,13 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
             if (isWide)
               Row(
                 children: [
-                  Expanded(child: _buildLanguageDropdown()),
+                  Expanded(child: _buildLanguageDropdown(staticData)),
                   const SizedBox(width: 16),
                   Expanded(child: _buildServingsField()),
                 ],
               )
             else ...[
-              _buildLanguageDropdown(),
+              _buildLanguageDropdown(staticData),
               const SizedBox(height: 16),
               _buildServingsField(),
             ],
@@ -529,25 +535,87 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
     );
   }
 
-  Widget _buildLanguageDropdown() {
-    return DropdownButtonFormField<String>(
-      key: Key("recipeLanguageDropdown"),
-      initialValue: _selectedLanguage,
-      decoration: const InputDecoration(
-        labelText: 'Language *',
-        border: OutlineInputBorder(),
-      ),
-      items: AVAILABLE_LANGUAGES.entries.map((e) {
-        return DropdownMenuItem(
-          value: e.key,
-          child: Text(e.value),
-        );
-      }).toList(),
-      onChanged: (v) {
-        setState(() => _selectedLanguage = v);
+  Widget _buildLanguageDropdown(RecipeFormData staticData) {
+    final currentLanguage =
+        ref.watch(settingsProvider.select((s) => s.current.language));
+    final localizedLanguges = staticData.localizedLanguageNames;
+    // TODO: grab the current default language
+    return Autocomplete<MapEntry<String, String>>(
+      initialValue: _selectedLanguage != null
+          ? TextEditingValue(
+              text: localizedLanguges[currentLanguage] ?? '',
+            )
+          : TextEditingValue.empty,
+      optionsBuilder: (TextEditingValue textEditingValue) {
+        if (textEditingValue.text.isEmpty) {
+          return const Iterable<MapEntry<String, String>>.empty();
+        }
+
+        return localizedLanguges.entries.where((entry) {
+          return entry.value
+              .toLowerCase()
+              .contains(textEditingValue.text.toLowerCase());
+        });
       },
-      validator: (v) => v == null ? 'Language is required' : null,
+      displayStringForOption: (option) => option.value,
+      onSelected: (selection) {
+        setState(() {
+          _selectedLanguage = selection.key; // language code
+          _languageController.text = selection.value;
+        });
+      },
+      fieldViewBuilder: (
+        BuildContext context,
+        TextEditingController textController,
+        FocusNode focusNode,
+        VoidCallback onFieldSubmitted,
+      ) {
+        return TextFormField(
+          key: const Key("recipeLanguageAutocomplete"),
+          controller: textController,
+          focusNode: focusNode,
+          textInputAction: TextInputAction.done,
+          decoration: const InputDecoration(
+            labelText: 'Language *',
+            border: OutlineInputBorder(),
+          ),
+          onFieldSubmitted: (value) {
+            final matches = localizedLanguges.entries.where((entry) {
+              return entry.value.toLowerCase().contains(value.toLowerCase());
+            }).toList();
+
+            if (matches.isNotEmpty) {
+              final selection = matches.first;
+              setState(() {
+                _selectedLanguage = selection.key;
+                textController.text = selection.value;
+              });
+            }
+          },
+          validator: (_) =>
+              _selectedLanguage == null ? 'Language is required' : null,
+        );
+      },
     );
+
+    // return DropdownButtonFormField<String>(
+    //   key: Key("recipeLanguageDropdown"),
+    //   initialValue: _selectedLanguage,
+    //   decoration: const InputDecoration(
+    //     labelText: 'Language *',
+    //     border: OutlineInputBorder(),
+    //   ),
+    //   items: AVAILABLE_LANGUAGES.entries.map((e) {
+    //     return DropdownMenuItem(
+    //       value: e.key,
+    //       child: Text(e.value),
+    //     );
+    //   }).toList(),
+    //   onChanged: (v) {
+    //     setState(() => _selectedLanguage = v);
+    //   },
+    //   validator: (v) => v == null ? 'Language is required' : null,
+    // );
   }
 
   Widget _buildServingsField() {

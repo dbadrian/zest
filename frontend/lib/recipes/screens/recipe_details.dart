@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:number_inc_dec/number_inc_dec.dart';
+import 'package:zest/api/api_service.dart';
 import 'package:zest/authentication/reauthentication_dialog.dart';
 import 'package:zest/core/network/api_exception.dart';
 import 'package:zest/recipes/controller/providers.dart';
@@ -971,6 +972,160 @@ class TitleWidget extends ConsumerWidget {
         ),
         Text("[DRAFT]", style: const TextStyle(fontWeight: FontWeight.w600)),
       ],
+      Tooltip(
+        message: "Parse recipe from URL",
+        child: IconButton(
+          icon: Icon(Icons.translate),
+          onPressed: () async {
+            bool userIsWaiting = true;
+
+            final result = await showDialog<String>(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) {
+                final TextEditingController controller =
+                    TextEditingController();
+
+                return AlertDialog(
+                  title: const Text(
+                    'Recipe Translate [EXPERIMENTAL]',
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Will try and translate recipe to specified language.\nThis feature is experimental and may fail.",
+                      ),
+                      TextField(
+                        controller: controller,
+                        autofocus: true,
+                        decoration: const InputDecoration(
+                          hintText:
+                              'Type language code, e.g., "en", "cs", "de".',
+                        ),
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context, null);
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context, controller.text);
+                      },
+                      child: const Text('Parse'),
+                    ),
+                  ],
+                );
+              },
+            );
+
+            if (result == null) {
+              return;
+            }
+
+            final recipeFuture =
+                ref.read(apiServiceProvider).translateRecipe(recipeId, result);
+
+            if (!context.mounted) return;
+
+            // Show progress dialog
+            showDialog(
+              context: context,
+              barrierDismissible: true,
+              builder: (_) {
+                return PopScope(
+                  canPop: true,
+                  onPopInvokedWithResult: (_, __) {
+                    userIsWaiting = false;
+                  },
+                  child: AlertDialog(
+                    title: const Text("Uploading"),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text(
+                          "Processing URL...\nWait to be redirected automatically, or feel free to close and you will be notified once its done (if it succeeded).",
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          userIsWaiting = false;
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text("Dismiss"),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+            try {
+              final recipe = await recipeFuture;
+
+              if (!context.mounted) return;
+
+              if (userIsWaiting) {
+                // Close dialog before navigation
+                Navigator.of(context, rootNavigator: true).pop();
+
+                context.goNamed(
+                  RecipeEditScreen.routeNameEdit,
+                  pathParameters: {'id': recipe.id.toString()},
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: TextButton(
+                      onPressed: () {
+                        context.goNamed(
+                          RecipeEditScreen.routeNameEdit,
+                          pathParameters: {
+                            'id': recipe.id.toString(),
+                          },
+                        );
+                      },
+                      child: Text(
+                        'Processing of "${recipe.latestRevision.title}" completed',
+                      ),
+                    ),
+                  ),
+                );
+              }
+            } catch (e) {
+              if (!context.mounted) return;
+
+              String errorReason;
+              e as ApiException;
+              if (e.isOffline) {
+                errorReason =
+                    "Network connection failed (backend unreachable).";
+              } else if (e.isServerError) {
+                errorReason = "Server couldn't process the file.";
+              } else {
+                errorReason = "Unknown error ($e)";
+              }
+              if (userIsWaiting) {
+                Navigator.of(context, rootNavigator: true).pop();
+              }
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Upload failed: $errorReason'),
+                ),
+              );
+            }
+          },
+        ),
+      ),
       (recipe.isFavorited)
           ? IconButton(
               onPressed: ref

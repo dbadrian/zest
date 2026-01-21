@@ -47,7 +47,7 @@ class RecipeSearchFilterSettings extends _$RecipeSearchFilterSettings {
         ref.watch(settingsProvider.select((s) => s.current.searchAllLanguages));
     Set<String> lcFilter = {};
     if (showAllLanguages) {
-      lcFilter.addAll(AVAILABLE_LANGUAGES.keys);
+      // lcFilter.addAll(AVAILABLE_LANGUAGES.keys);
     } else {
       lcFilter
           .add(ref.watch(settingsProvider.select((s) => s.current.language)));
@@ -78,7 +78,7 @@ class RecipeSearchFilterSettings extends _$RecipeSearchFilterSettings {
     if (showAll) {
       state = state.copyWith(
         showAllLanguages: true,
-        lcFilter: AVAILABLE_LANGUAGES.keys.toSet(),
+        lcFilter: {}, //AVAILABLE_LANGUAGES.keys.toSet(),
       );
     } else {
       state = state.copyWith(

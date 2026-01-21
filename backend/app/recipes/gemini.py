@@ -15,24 +15,19 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.recipes.models import Unit
+from app.recipes.models import Recipe
+from app.recipes.constants import LANGUAGE_CODE
 from app.recipes.schemas import (
     IngredientBase,
     IngredientGroupBase,
     RecipeCreateUpdate,
+    RecipeRead,
     RecipeRevisionBase,
-    RecipeRevisionCreateUpdate,
 )
 
 
-class LanguageCode(StrEnum):
-    en = "en"
-    de = "de"
-    cs = "cs"
-    it = "it"
-    fr = "fr"
-    jp = "jp"
-
+# Only allow valid language codes
+LanguageCode = StrEnum("LanguageCode", {k:k for k in LANGUAGE_CODE.keys()})
 
 class UnitEnum(str, Enum):
     KILOGRAM = "kilogram"
@@ -280,6 +275,20 @@ CRITICAL INSTRUCTIONS:
  - Return structured data matching the provided schema
 """
 
+PROMPT_TRANSLATE = """
+Translate all recipe information from this recipe json string, Translate to {langcode}.
+
+CRITICAL INSTRUCTIONS:
+ - DO NOT CHANGE INGREDIENTS. Keep accurate and detailed as possible
+ - Ingredients have an option "comments" field. Use this to specify things such as chopped, or specifying size such as large!
+ - Keep original units as specified in the recipe. Do not perform automatic conversion!
+ - If no amount is specify minimum amount as 1. Use piece or dash as unit, or whatever makes the most sense in the context.
+- For instruction_groups "instructions" field: preserve ALL newlines (\\n\\n) exactly as they appear in the source
+ - Each step should be separated by \\n\\n (double newline)
+ - Do not write anything into owner_commment
+ - If a step has preceeding number in the recipe, it can be removed. Just keep the order and the spacing with \\n\\n
+ - Return structured data matching the provided schema
+"""
 
 async def create_recipe_from_file(
     file: UploadFile, db: AsyncSession
@@ -378,6 +387,52 @@ async def create_recipe_from_url(url: str, db: AsyncSession) -> RecipeCreateUpda
 
         out = json.loads(response.text)
         for ing in out["content"]["ingredient_groups"]:
+            for ingredient in ing["ingredients"]:
+                ingredient["unit_id"] = UNIT_ENUM_TO_ID[ingredient["unit_id"]]
+
+        out["content"]["categories"] = [
+            RECIPE_CATEGORY_ENUM_TO_ID[id] for id in out["content"]["categories"]
+        ]
+        out["is_private"] = False
+        out["is_draft"] = True
+
+        return RecipeCreateUpdate.model_validate(out)
+
+    except Exception as e:
+        raise Exception(f"Failed to create recipe from URL: {str(e)}")
+
+
+async def translate_recipe(recipe: Recipe, target_language: str, db: AsyncSession) -> RecipeCreateUpdate:
+    """
+    Translate recipe to desired language.
+
+    Args:
+        recipe: Recipe to translate
+        target_language: Target language
+
+    Returns:
+        dict: Recipe data matching RECIPE_SCHEMA
+
+    Raises:
+        Exception: If file upload or AI processing fails
+    """
+
+    try:
+        json_str = RecipeRead.model_validate(recipe).model_dump_json()
+
+        async with genai.Client(api_key=settings.GEMINI_API_KEY).aio as aclient:
+
+            response = await aclient.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=[PROMPT_TRANSLATE.format(langcode=target_language), json_str],
+                config=GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=RecipeGeminiSchema,
+                ),
+            )
+
+        out = json.loads(response.text)
+        for ing in out["content"]["ingredient_groups"]: 
             for ingredient in ing["ingredients"]:
                 ingredient["unit_id"] = UNIT_ENUM_TO_ID[ingredient["unit_id"]]
 

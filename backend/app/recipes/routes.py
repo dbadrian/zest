@@ -38,7 +38,7 @@ from app.core.pagination import (
 )
 from app.db import get_db
 from app.recipes.associations import user_favorite_recipes
-from app.recipes.gemini import create_recipe_from_file, create_recipe_from_url
+from app.recipes.gemini import create_recipe_from_file, create_recipe_from_url, translate_recipe
 from .models import (
     FoodCandidate,
     Recipe,
@@ -653,7 +653,7 @@ async def get_recipe_versions(
     return recipe
 
 
-@router.post("/from_file", response_model=RecipeRead, status_code=status.HTTP_200_OK)
+@router.post("/from_file", response_model=RecipeRead, status_code=status.HTTP_201_CREATED)
 async def get_recipe_from_pdf(
     file: UploadFile,
     db: AsyncSession = Depends(get_db),
@@ -687,7 +687,7 @@ async def get_recipe_from_pdf(
     return recipe
 
 
-@router.post("/from_url", response_model=RecipeRead, status_code=status.HTTP_200_OK)
+@router.post("/from_url", response_model=RecipeRead, status_code=status.HTTP_201_CREATED)
 async def get_recipe_from_url(
     url: HttpUrl,
     db: AsyncSession = Depends(get_db),
@@ -698,6 +698,26 @@ async def get_recipe_from_url(
 
 
     recipe_data = await create_recipe_from_url(url, db)
+    recipe = await _create_recipe(
+        db=db, recipe_data=recipe_data, owner_id=current_user.id
+    )
+
+    search_service = get_meilisearch_service()
+    await search_service.index_recipe(recipe, db)
+
+    return recipe
+
+
+@router.post("/translate/{recipe_id}", response_model=RecipeRead, status_code=status.HTTP_200_OK)
+async def get_recipe(
+    recipe: Recipe = Depends(_get_recipe(for_write=False)),
+    target_language: str = Query(..., description="Target Language"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+
+
+    recipe_data = await translate_recipe(recipe, target_language, db)
     recipe = await _create_recipe(
         db=db, recipe_data=recipe_data, owner_id=current_user.id
     )

@@ -55,7 +55,7 @@ class APIService {
       "page": page.toString(),
       if (pageSize != null) 'page_size': pageSize.toString(),
       if (categories != null && categories.isNotEmpty) 'categories': categories,
-      if (languages != null) 'languages': languages,
+      if (languages != null && languages.isNotEmpty) 'languages': languages,
       if (favoritesOnly != null) 'favorites_only': favoritesOnly.toString(),
     };
 
@@ -247,6 +247,19 @@ class APIService {
     final queryParameters = {"url": url};
     final response = await client.post<Recipe>(
         "/recipes/from_url", Recipe.fromJson,
+        queryParams: queryParameters, timeout: Duration(minutes: 1));
+
+    if (response.isSuccess) {
+      return response.dataOrNull!;
+    } else {
+      throw response.errorOrNull!;
+    }
+  }
+
+  Future<Recipe> translateRecipe(int recipeId, String targetLanguage) async {
+    final queryParameters = {"target_language": targetLanguage};
+    final response = await client.post<Recipe>(
+        "/recipes/translate/$recipeId", Recipe.fromJson,
         queryParams: queryParameters, timeout: Duration(minutes: 1));
 
     if (response.isSuccess) {

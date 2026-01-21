@@ -36,6 +36,8 @@ tasks:
 
   dev:down:
     desc: "Stop development environment"
+    dotenv:
+      - .env.dev
     cmds:
       - docker compose -f docker-compose.yml -f docker-compose.dev.yml down --volumes --remove-orphans --rmi local
 

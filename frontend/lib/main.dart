@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:language_info_plus/language_info_plus.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path/path.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:updat/utils/global_options.dart';
@@ -95,10 +97,18 @@ class ZestApp extends ConsumerStatefulWidget {
 }
 
 class _ZestAppState extends ConsumerState<ZestApp> {
+  Locale _locale = Locale('de'); // Default locale
+
   @override
   void initState() {
     super.initState();
     _initializeApp();
+  }
+
+  void setLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
   }
 
   Future<void> _initializeApp() async {
@@ -111,6 +121,18 @@ class _ZestAppState extends ConsumerState<ZestApp> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<String>(settingsProvider.select((s) => s.current.language),
+        (previous, next) async {
+      print(
+          'Locale changed from $previous to $next ${WidgetsBinding.instance.platformDispatcher.locale}');
+      setLocale(Locale(next));
+      print(
+          'Locale changed from $previous to $next ${WidgetsBinding.instance.platformDispatcher.locale}');
+
+      // load localized languages
+      await initializeLanguage();
+    });
+
     final router = ref.watch(getRouterProvider);
 
     final Color themeBaseColor = ref.watch(
@@ -125,7 +147,19 @@ class _ZestAppState extends ConsumerState<ZestApp> {
       return settings.dirty.useDarkTheme;
     }));
 
+    final locale = ref.watch(settingsProvider.select((settings) {
+      return settings.current.language;
+    }));
+
     return MaterialApp.router(
+      locale: Locale(locale),
+      // supportedLocales: AppLocalizations.supportedLocales,
+      // localizationsDelegates: const [
+      //   AppLocalizations.delegate,
+      //   GlobalMaterialLocalizations.delegate,
+      //   GlobalWidgetsLocalizations.delegate,
+      //   GlobalCupertinoLocalizations.delegate,
+      // ],
       // routeInformationParser: router.routeInformationParser,
       // routerDelegate: router.routerDelegate,
       // routeInformationProvider: router.routeInformationProvider,
