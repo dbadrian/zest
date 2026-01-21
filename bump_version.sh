@@ -81,7 +81,7 @@ cd backend
 uv version ${VERSION}
 echo "__version__ = '${VERSION}'" > app/version.py
 cd ../frontend
-cider version ${VERSION}+$(($(git rev-list --count HEAD) + 1148))
+cider version ${VERSION}+$(($(git rev-list --count HEAD) + 2000))
 sed -i "s/pkgver=.*$/pkgver=${VERSION}/g" PKGBUILD
 cd ..
 git add backend/pyproject.toml
