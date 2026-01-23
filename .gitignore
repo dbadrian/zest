@@ -1,3 +1,4 @@
+
 frontend/coverage/lcov.info
 reports/
 deprecated/
@@ -151,3 +152,5 @@ zest.crt
 zest.pem
 .env.dev
 .env.production
+todo.md
+TODO.md

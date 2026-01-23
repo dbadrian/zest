@@ -202,16 +202,15 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
     // MAYBE: maybe in the future it will do some bookkeeping...but not today
   }
 
-  Future<bool> _submitForm() async {
+  Future<int?> _submitForm({bool reloadRecipe = true}) async {
     if (!_isDraft && !_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fix validation errors')),
       );
-      return false;
+      return null;
     }
 
     setState(() => _isSubmitting = true);
-    var success = true;
 
     try {
       final prepTime = _prepTimeHours * 60 + _prepTimeMinutes;
@@ -255,24 +254,32 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
               .read(recipeRepositoryProvider)
               .updateRecipe(widget.recipeId!, draft)));
 
-      recipe.whenOrNull(
+      return recipe.whenOrNull(
           data: (data) {
+            if (mounted) setState(() => _isSubmitting = false);
+
             if (data != null) {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Recipe saved successfully!')),
                 );
               }
-              if (context.mounted) {
+              if (reloadRecipe && context.mounted) {
                 // reopen editor with from the now created recipe
                 // such that widget.recipeId is set
                 // ignore: use_build_context_synchronously
                 context.goNamed(RecipeEditScreen.routeNameEdit,
                     pathParameters: {'id': data.id.toString()});
               }
+
+              return data.id;
             }
+
+            return null;
           },
           error: (error, stackTrace) {
+            if (mounted) setState(() => _isSubmitting = false);
+
             if ((error as ApiException).isNetworkError) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -283,22 +290,20 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
               debugPrint("Opening reauthentication dialog");
               openReauthenticationDialog(context);
             }
-            return false;
+            return null;
           },
           skipLoadingOnRefresh: true,
           skipLoadingOnReload: true);
     } catch (e) {
-      success = false;
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e')),
         );
       }
+      return null;
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
-
-    return success;
   }
 
   @override
@@ -360,16 +365,14 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                 if (isControlPressed &&
                     isShiftPressed &&
                     event.logicalKey == LogicalKeyboardKey.enter) {
-                  bool success = await _submitForm();
-                  if (success && widget.recipeId != null) {
-                    ref.invalidate(
-                        RecipeDetailsControllerProvider(widget.recipeId!));
+                  final recipeId = await _submitForm(reloadRecipe: false);
+                  if (recipeId != null) {
+                    ref.invalidate(RecipeDetailsControllerProvider(recipeId));
                     if (context.mounted) {
                       // ignore: use_build_context_synchronously
-                      context.pop();
                       context.goNamed(
                         RecipeDetailsPage.routeName,
-                        pathParameters: {'id': widget.recipeId.toString()},
+                        pathParameters: {'id': recipeId.toString()},
                       );
                     }
                   }
@@ -1198,18 +1201,16 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
       onPressed: _isSubmitting
           ? null
           : () async {
-              final success = await _submitForm();
-
-              if (success && widget.recipeId != null) {
-                ref.invalidate(
-                    RecipeDetailsControllerProvider(widget.recipeId!));
+              int? recipeId = await _submitForm(reloadRecipe: false);
+              if (recipeId != null) {
                 if (context.mounted) {
-                  // ignore: use_build_context_synchronously
-                  context.pop();
+                  debugPrint("Context mounted");
+
+                  ref.invalidate(RecipeDetailsControllerProvider(recipeId));
                   // ignore: use_build_context_synchronously
                   context.goNamed(
                     RecipeDetailsPage.routeName,
-                    pathParameters: {'id': widget.recipeId.toString()},
+                    pathParameters: {'id': recipeId.toString()},
                   );
                 }
               }
@@ -1833,7 +1834,7 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
             isDense: true,
           ),
           validator: (v) {
-            if (v == null || v.isEmpty) return 'Required';
+            // if (v == null || v.isEmpty) return 'Required';
             return null;
           },
           onChanged: (v) {
