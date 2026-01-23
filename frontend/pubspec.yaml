@@ -99,6 +99,13 @@ dev_dependencies:
     sdk: flutter
   test: ^1.25.8
 
+  flutter_launcher_icons: ^0.14.4
+
+
+flutter_icons:
+  android: true
+  ios: false
+  image_path: "assets/zest.png"
 
 dependency_overrides:
   analyzer_plugin: ^0.13.1 # https://stackoverflow.com/questions/79642891/i-am-trying-to-use-riverpod-generator-but-getting-all-kinds-of-dependency-issues
