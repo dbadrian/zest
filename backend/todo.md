@@ -4,3 +4,7 @@
 - auth code droped, UI stays in a weird behaviour...
 
 - wrong password give unknown error on login screen
+
+- updat reintroduced
+
+- docs for windows install

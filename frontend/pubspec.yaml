@@ -76,6 +76,7 @@ dependencies:
   url_launcher: ^6.3.2
   camera: ^0.11.3
   language_info_plus: ^1.1.0
+  upgrader: ^12.5.0
 
 dev_dependencies:
 
