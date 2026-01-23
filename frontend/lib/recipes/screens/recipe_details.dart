@@ -1157,13 +1157,13 @@ class TitleWidget extends ConsumerWidget {
           .isDeleteable())
         IconButton(
             onPressed: () async {
-              ref.invalidate(recipeSearchControllerProvider);
-              await Future.delayed(Duration(milliseconds: 500));
               final isDeleted = await ref
                   .read(recipeDetailsControllerProvider(recipeId).notifier)
                   .deleteRecipe();
 
               if (isDeleted && context.mounted) {
+                ref.read(recipeSearchFilterSettingsProvider.notifier).reset();
+                ref.invalidate(recipeSearchControllerProvider);
                 context.goNamed(RecipeSearchPage.routeName);
               } else if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(

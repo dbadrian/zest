@@ -198,14 +198,14 @@ class MeilisearchService:
         """Remove recipe from index"""
         index = self.client.get_index(self.recipe_index_name)
         task = index.delete_document(recipe_id)
-        await self.client.wait_for_task(task.task_uid)
+        # await self.client.wait_for_task(task.task_uid)
 
     async def index_food(self, food: FoodCandidate | str, db: AsyncSession):
         """Index a single food"""
         doc = self._food_to_document(food)
         index = self.client.get_index(self.food_index_name)
         task = index.add_documents([doc])
-        await self.client.wait_for_task(task.task_uid)
+        # await self.client.wait_for_task(task.task_uid)
 
 
     async def index_food_bulk(self, foods: list[FoodCandidate] | list[str]):
@@ -214,7 +214,7 @@ class MeilisearchService:
         if documents:
             index = self.client.get_index(self.food_index_name)
             task = index.add_documents(documents)
-            self.client.wait_for_task(task.task_uid)
+            # self.client.wait_for_task(task.task_uid)
 
     def _food_to_document(self, food: FoodCandidate | str) -> dict:
         """Convert Food model to Meilisearch document"""
