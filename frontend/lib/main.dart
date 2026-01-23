@@ -9,6 +9,7 @@ import 'package:path/path.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:updat/utils/global_options.dart';
+import 'package:upgrader/upgrader.dart';
 
 import 'package:zest/recipes/screens/recipe_search.dart';
 
@@ -169,6 +170,12 @@ class _ZestAppState extends ConsumerState<ZestApp> {
       darkTheme: darkTheme_,
       themeMode: useDarkTheme ? ThemeMode.dark : ThemeMode.light,
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        return UpgradeAlert(
+          navigatorKey: router.routerDelegate.navigatorKey,
+          child: child ?? const Text('child'), // TODO: What to do correctly>?
+        );
+      },
     );
   }
 }
