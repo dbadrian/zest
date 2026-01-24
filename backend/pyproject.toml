@@ -26,6 +26,9 @@ dependencies = [
 ]
 
 [dependency-groups]
+ai = [
+    "ollama>=0.6.1",
+]
 dev = [
     "alembic>=1.17.2",
     "grequests>=0.7.0",
