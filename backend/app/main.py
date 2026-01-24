@@ -20,9 +20,11 @@ app = FastAPI(**app_config, lifespan=lifespan)
 app.include_router(auth_router, prefix=settings.API_V1_STR)
 app.include_router(recipe_router, prefix=settings.API_V1_STR)
 
-BASE_DIR = Path(__file__)
-static_dir = BASE_DIR.joinpath("..", "..", "static").resolve().absolute()
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+if settings.ENVIRONMENT != "production":
+    BASE_DIR = Path(__file__)
+    static_dir = BASE_DIR.joinpath("..", "..", "static").resolve().absolute()
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 
 @app.get("/api/v1/info")

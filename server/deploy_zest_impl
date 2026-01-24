@@ -31,5 +31,7 @@ PYTHONPATH=. alembic upgrade head
 echo "Switch current symlink"
 ln -sfn $APP_DIR/releases/$LATEST $APP_DIR/current
 
+rsync -r --progress --delete $APP_DIR/current/backend/static  /var/www/html/zest
+
 # Graceful reload of workers
 sudo /bin/systemctl restart zest.service
