@@ -26,12 +26,13 @@ String platformUpdateName(String? latestVersion) {
   switch (Platform.operatingSystem) {
     case 'windows':
       {
-        name = 'zest.msix';
+        name = 'zest-v$latestVersion.msix';
         break;
       }
     case 'linux':
       {
-        name = 'zest.msix';
+        // Just for development debugging purposes
+        name = 'zest-v$latestVersion.msix';
         break;
       }
     case 'android':
