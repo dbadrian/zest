@@ -6,13 +6,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 FlutterSecureStorage createSecureStorage({
-  String? webNamespace,
   bool useEncryptedSharedPreferences = true,
 }) {
   return FlutterSecureStorage(
     aOptions: AndroidOptions(
-      encryptedSharedPreferences: useEncryptedSharedPreferences,
-    ),
+        encryptedSharedPreferences: useEncryptedSharedPreferences,
+        sharedPreferencesName: "zest_secure_storage",
+        preferencesKeyPrefix: 'zest_'),
     iOptions: const IOSOptions(
       accessibility: KeychainAccessibility.first_unlock,
     ),
@@ -26,7 +26,6 @@ FlutterSecureStorage createSecureStorage({
 
 final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
   return createSecureStorage(
-    webNamespace: 'my_app_secure_storage',
     useEncryptedSharedPreferences: true,
   );
 });
@@ -72,17 +71,9 @@ abstract class SecureModelStorage<T> extends ModelStorage<T> {
     required FlutterSecureStorage storage,
   }) : _storage = storage;
 
-  /// Android options for secure storage
-  /// https://github.com/mogol/flutter_secure_storage/issues/487#issuecomment-1346244368
-  AndroidOptions _getAndroidOptions() => const AndroidOptions(
-        encryptedSharedPreferences: true,
-        // todo biometric!!
-      );
-
   @override
   Future<T?> read() async {
-    final jsonStr =
-        await _storage.read(key: key, aOptions: _getAndroidOptions());
+    final jsonStr = await _storage.read(key: key);
     if (jsonStr != null) {
       try {
         return fromJson(jsonDecode(jsonStr));
@@ -98,18 +89,14 @@ abstract class SecureModelStorage<T> extends ModelStorage<T> {
 
   @override
   Future<void> save(T instance) async {
-    await _storage.write(
-        key: key,
-        value: jsonEncode(toJson(instance)),
-        aOptions: _getAndroidOptions());
+    await _storage.write(key: key, value: jsonEncode(toJson(instance)));
   }
 
   @override
   Future<void> clear() async {
     debugPrint("Clearing $key from secure storage");
-    final hasKey =
-        await _storage.containsKey(key: key, aOptions: _getAndroidOptions());
-    if (hasKey) await _storage.delete(key: key, aOptions: _getAndroidOptions());
+    final hasKey = await _storage.containsKey(key: key);
+    if (hasKey) await _storage.delete(key: key);
   }
 
   T fromJson(Map<String, dynamic> json);

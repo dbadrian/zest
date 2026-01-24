@@ -124,10 +124,10 @@ class _ZestAppState extends ConsumerState<ZestApp> {
   Widget build(BuildContext context) {
     ref.listen<String>(settingsProvider.select((s) => s.current.language),
         (previous, next) async {
-      print(
+      debugPrint(
           'Locale changed from $previous to $next ${WidgetsBinding.instance.platformDispatcher.locale}');
       setLocale(Locale(next));
-      print(
+      debugPrint(
           'Locale changed from $previous to $next ${WidgetsBinding.instance.platformDispatcher.locale}');
 
       // load localized languages
