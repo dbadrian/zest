@@ -46,8 +46,10 @@ class AuthenticationService extends _$AuthenticationService {
 
     _lastUser = await _storage.read(key: LAST_USER_KEY);
 
-    // Look for token in storage (will refresh if necessary)
+    return _loadStateFromStorage();
+  }
 
+  Future<AuthState?> _loadStateFromStorage() async {
     final state = await _authStorage.read();
     debugPrint(state.toString());
 
@@ -74,6 +76,7 @@ class AuthenticationService extends _$AuthenticationService {
     state = const AsyncLoading();
     _lastUser = username;
     await _storage.write(key: LAST_USER_KEY, value: _lastUser);
+    debugPrint("Clearing existing auth storage");
     await _authStorage.clear(); // clear if not already cleared
 
     final loginResponse = await ref
@@ -119,8 +122,9 @@ class AuthenticationService extends _$AuthenticationService {
   }
 
   Future<bool> refreshToken() async {
-    final oldState = state.valueOrNull;
+    final oldState = state.valueOrNull ?? await _loadStateFromStorage();
     if (oldState == null) {
+      debugPrint("Clearing auth storage as state is reported null");
       await _authStorage.clear();
       return false;
     }
@@ -133,7 +137,7 @@ class AuthenticationService extends _$AuthenticationService {
     // whatever is wrong...early abort
     if (refreshResponse.isFailure) {
       debugPrint(refreshResponse.errorOrNull.toString());
-      await _authStorage.clear();
+      // await _authStorage.clear(); // TODO: HIGH: should we wipe on an error or accept it?
       state = AsyncError(refreshResponse.errorOrNull!, StackTrace.current);
       return false;
     }
