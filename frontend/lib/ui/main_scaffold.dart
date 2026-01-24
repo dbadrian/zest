@@ -547,7 +547,7 @@ class MainScaffold extends ConsumerWidget {
                   //TODO: Feature on linux??!
                   if (Platform.isWindows || Platform.isLinux)
                     UpdatWidget(
-                      currentVersion: "0.2.10", //packageInfo.version,
+                      currentVersion: packageInfo.version,
                       getLatestVersion: () async {
                         final ret = await ref
                             .read(githubServiceProvider)
