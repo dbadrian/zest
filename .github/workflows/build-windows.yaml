@@ -39,9 +39,9 @@ jobs:
           contents: |
             msix_config:
               display_name: Zest
-              publisher_display_name: DBADRIAN
-              identity_name: com.dbadrian.zest
-              publisher: CN=com.dbadrian.zest, O=DBADRIAN, C=DE
+              publisher_display_name: DAVAD
+              identity_name: DAVAD
+              publisher: CN=DAVAD, O=DBADRIAN, C=DE
               sign_msix: false
               msix_version: ${{ steps.msixver.outputs.value }}.0
               logo_path: assets\promo-windows\icon.png
