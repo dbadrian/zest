@@ -278,7 +278,7 @@ async def verify_email_from_url(
 ) -> RedirectResponse:
     if token is None or not token.strip():
         return RedirectResponse(
-            url=f"http://{settings.HOST_DOMAIN}/static/failure.html",
+            url=f"https://{settings.HOST_DOMAIN}/static/failure.html",
             status_code=status.HTTP_302_FOUND,
         )
 
@@ -347,7 +347,7 @@ async def password_reset_request(
         db.add(db_reset)
 
         # reset_link = f"https://{settings.HOST_DOMAIN}{settings.API_V1_STR}/auth/password-reset/confirm?token={password_reset_token}"
-        reset_link = f"http://{settings.HOST_DOMAIN}/static/password-reset.html?token={password_reset_token}"
+        reset_link = f"https://{settings.HOST_DOMAIN}/static/password-reset.html?token={password_reset_token}"
         email_content = HTML_PASSWORD_RESET_EMAIL_TEMPLATE.format(reset_link=reset_link)
         asyncio.create_task(
             send_email(
@@ -437,25 +437,23 @@ async def login(
     )
 
     if (user := user_ret.scalar_one_or_none()) is None:
-        print("YOOOOO: This ahppened")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
         )
 
-    # # Check if account is currently locked due failed login attempts
-    # if is_account_locked(user):
-    #     raise HTTPException(
-    #         status_code=status.HTTP_403_FORBIDDEN,
-    #         detail=f"Account temporarily locked. Try again in {settings.LOCKED_ACCOUNT_TIMEOUT_MINUTES} minutes.",
-    #     )
+    # Check if account is currently locked due failed login attempts
+    if is_account_locked(user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Account temporarily locked. Try again in {settings.LOCKED_ACCOUNT_TIMEOUT_MINUTES} minutes.",
+        )
 
     # Verify password
     # TODO: user should always have hashed password..
     if not user.hashed_password or not su.verify_password(
         form_data.password, user.hashed_password
     ):
-        print("YOOOOO: This ahppened")
         await lock_account(user, db)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
