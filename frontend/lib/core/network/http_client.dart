@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:zest/authentication/auth_interceptor.dart';
 
 import 'interceptor.dart';
 import 'api_response.dart';
@@ -266,8 +267,9 @@ class ApiHttpClient {
       for (final interceptor in _interceptors) {
         await interceptor.onError(e);
       }
-
-      if (e.isUnauthorized && retryCount == 0) {
+      if (_interceptors.any((o) => o is AuthInterceptor) &&
+          e.isUnauthorized &&
+          retryCount == 0) {
         // attempt a retry now that we might have refreshed the token
         return _request<T>(
           method: method,

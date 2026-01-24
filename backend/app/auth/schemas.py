@@ -372,8 +372,8 @@ class PasswordResetRequest(BaseModel):
     Attributes:
         email: Email address associated with the account
     """
-
-    email: EmailStr
+    username: str | None
+    email: EmailStr | None
 
 
 class PasswordResetConfirm(PasswordStrength):

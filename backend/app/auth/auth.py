@@ -1,3 +1,4 @@
+import asyncio
 from enum import Enum
 from datetime import timedelta, UTC, datetime
 
@@ -13,16 +14,20 @@ from starlette.status import HTTP_400_BAD_REQUEST
 
 from app.core.config import settings
 from app.db import get_db
+from app.core.mail import send_email
 
 from app.auth.models import (
     USER_ID_T,
     AuthProvider,
     EmailVerificationToken,
+    PasswordResetToken,
     RefreshToken,
     User,
 )
 from app.auth.schemas import (
     AccessTokenRefresh,
+    PasswordResetConfirm,
+    PasswordResetRequest,
     SessionRevoked,
     ActiveSessionMeta,
     UserInfoPublic,
@@ -33,6 +38,7 @@ from app.auth.schemas import (
     EmailVerificationRequest,
     GoogleAuthRequest,
 )
+from app.auth.email import HTML_PASSWORD_RESET_EMAIL_TEMPLATE
 import app.auth.security_utils as su
 from app.auth import constants
 
@@ -136,7 +142,7 @@ async def get_current_superuser(current_user: User = Depends(get_current_user)) 
 router = APIRouter(prefix=f"/{constants.AUTH_ROUTER_PREFIX}", tags=["authentication"])
 
 
-@router.post("/register", response_model=TokenResponse)
+@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_200_OK)
 async def register(
     user_data: UserRegister,
     request: Request,
@@ -198,12 +204,12 @@ async def register(
 
     if settings.ENVIRONMENT == "local":
         print(
-            f"Verification link: localhost:8000{settings.API_V1_STR}/auth/verify-email?token={verification_token}"
+            f"Verification link: https://{settings.HOST_DOMAIN}{settings.API_V1_STR}/auth/verify-email?token={verification_token}"
         )
 
     # Generate tokens
     access_token = su.create_access_token(data={"sub": str(user.id)})
-    refresh_token = su.create_refresh_token()
+    refresh_token = su.create_secure_token()
 
     # Store refresh token
     db_refresh = RefreshToken(
@@ -265,17 +271,6 @@ async def verify_email_logic(token: str, db: AsyncSession) -> VerifyEmailResult:
     return VerifyEmailResult.SUCCESS
 
 
-# @router.post("/verify-email")
-# async def verify_email(
-#     verification: EmailVerificationRequest, db: AsyncSession = Depends(get_db)
-# ):
-#     """
-#     Verify email with token
-#     """
-#     await verify_email_logic(verification.token, db)
-#     return {"message": "Email verified successfully"}
-
-
 @router.get("/verify-email")
 async def verify_email_from_url(
     token: str | None = Query(None),
@@ -291,38 +286,139 @@ async def verify_email_from_url(
         ret = await verify_email_logic(token, db=db)
     except:
         return RedirectResponse(
-            url=f"http://{settings.HOST_DOMAIN}/static/failure.html",
+            url=f"https://{settings.HOST_DOMAIN}/static/failure.html",
             status_code=status.HTTP_302_FOUND,
         )
     if ret == VerifyEmailResult.ALREADY_VERIFIED:
         return RedirectResponse(
-            url=f"http://{settings.HOST_DOMAIN}/static/email-verification-already-verified.html",
+            url=f"https://{settings.HOST_DOMAIN}/static/email-verification-already-verified.html",
             status_code=status.HTTP_302_FOUND,
         )
     elif ret == VerifyEmailResult.EXPIRED:
         return RedirectResponse(
-            url=f"http://{settings.HOST_DOMAIN}/static/email-verification-failure.html",
+            url=f"https://{settings.HOST_DOMAIN}/static/email-verification-failure.html",
             status_code=status.HTTP_302_FOUND,
         )
     elif ret == VerifyEmailResult.INVALID:
         return RedirectResponse(
-            url=f"http://{settings.HOST_DOMAIN}/static/email-verification-failure.html",
+            url=f"https://{settings.HOST_DOMAIN}/static/email-verification-failure.html",
             status_code=status.HTTP_302_FOUND,
         )
     elif ret == VerifyEmailResult.SUCCESS:
         return RedirectResponse(
-            url=f"http://{settings.HOST_DOMAIN}/static/email-verification-failure.html",
+            url=f"https://{settings.HOST_DOMAIN}/static/email-verification-success.html",
             status_code=status.HTTP_302_FOUND,
         )
 
     # shouldnt reach. but failure if it does...
     return RedirectResponse(
-        url=f"http://{settings.HOST_DOMAIN}/static/failure.html",
+        url=f"https://{settings.HOST_DOMAIN}/static/failure.html",
         status_code=status.HTTP_302_FOUND,
     )
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/password-reset/request", status_code=status.HTTP_200_OK)
+async def password_reset_request(
+    request: Request, data: PasswordResetRequest, db: AsyncSession = Depends(get_db)
+):
+    
+    if data.username is not None:
+        user_ret = await db.execute(select(User).filter(User.username == data.username))
+    elif data.email is not None:
+        user_ret = await db.execute(select(User).filter(User.email == data.email))
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Either username or email needs to be submitted",
+        )
+        
+    if (user := user_ret.scalar_one_or_none()) is not None:
+
+        password_reset_token = su.create_secure_token()
+
+        # Store refresh token
+        db_reset = PasswordResetToken(
+            user_id=user.id,
+            token_hash=su.hash_token(password_reset_token),
+            ip_address=su.get_client_ip(request),
+            expires_at=datetime.now(UTC)
+            + timedelta(minutes=settings.PASSWORD_RESET_TOKEN_EXPIRE_MINUTES),
+        )
+        db.add(db_reset)
+
+        # reset_link = f"https://{settings.HOST_DOMAIN}{settings.API_V1_STR}/auth/password-reset/confirm?token={password_reset_token}"
+        reset_link = f"http://{settings.HOST_DOMAIN}/static/password-reset.html?token={password_reset_token}"
+        email_content = HTML_PASSWORD_RESET_EMAIL_TEMPLATE.format(reset_link=reset_link)
+        asyncio.create_task(
+            send_email(
+                user.email, "Zest: password reset link", email_content, html=True
+            )
+        )
+
+    return {"message": "If an account exists, a password reset link has been sent."}
+
+
+
+class PasswordResetResults(str, Enum):
+    SUCCESS = "success"
+    INVALID = "invalid"
+    EXPIRED = "expired"
+    ERROR = "error"
+
+async def password_change_logic(reset_data: PasswordResetConfirm, db: AsyncSession) -> PasswordResetResults:
+    token_hash = su.hash_token(reset_data.token)
+    result = await db.execute(
+        select(PasswordResetToken).where(
+            PasswordResetToken.token_hash == token_hash
+        )
+    )
+    db_token = result.scalar_one_or_none()
+
+    if db_token is None:
+        return PasswordResetResults.INVALID
+
+    if db_token.expires_at < datetime.now(UTC):
+        return PasswordResetResults.EXPIRED
+
+    user_result = await db.execute(select(User).where(User.id == db_token.user_id))
+    user = user_result.scalar_one_or_none()
+    user.hashed_password = su.hash_password(reset_data.password)
+    await db.commit()
+
+    if user is None:
+        return PasswordResetResults.ERROR
+
+
+    await db.delete(db_token)
+
+    return PasswordResetResults.SUCCESS
+
+@router.post("/password-reset/confirm", response_model=dict, status_code=status.HTTP_200_OK)
+async def password_reset_confirm(
+    reset_data: PasswordResetConfirm, db: AsyncSession = Depends(get_db)
+):
+    try:
+        ret = await password_change_logic(reset_data, db=db)
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Password reset failed.",
+        )
+    if ret == PasswordResetResults.EXPIRED:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Password reset token expired. Request new reset link..',
+        )
+    elif ret == PasswordResetResults.INVALID:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Invalid reset token.',
+        )
+    elif ret == PasswordResetResults.SUCCESS:
+        return  {"message": "Password changed successfully"}
+
+
+@router.post("/login", response_model=TokenResponse, status_code=status.HTTP_200_OK)
 async def login(
     request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -341,23 +437,25 @@ async def login(
     )
 
     if (user := user_ret.scalar_one_or_none()) is None:
+        print("YOOOOO: This ahppened")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
         )
 
-    # Check if account is currently locked due failed login attempts
-    if is_account_locked(user):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Account temporarily locked. Try again in {settings.LOCKED_ACCOUNT_TIMEOUT_MINUTES} minutes.",
-        )
+    # # Check if account is currently locked due failed login attempts
+    # if is_account_locked(user):
+    #     raise HTTPException(
+    #         status_code=status.HTTP_403_FORBIDDEN,
+    #         detail=f"Account temporarily locked. Try again in {settings.LOCKED_ACCOUNT_TIMEOUT_MINUTES} minutes.",
+    #     )
 
     # Verify password
     # TODO: user should always have hashed password..
     if not user.hashed_password or not su.verify_password(
         form_data.password, user.hashed_password
     ):
+        print("YOOOOO: This ahppened")
         await lock_account(user, db)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -389,7 +487,7 @@ async def login(
 
     # Generate tokens
     access_token = su.create_access_token(data={"sub": user.id})
-    refresh_token = su.create_refresh_token()
+    refresh_token = su.create_secure_token()
 
     # Store refresh token
     db_refresh = RefreshToken(
@@ -410,7 +508,7 @@ async def login(
     }
 
 
-@router.post("/refresh", response_model=TokenResponse)
+@router.post("/refresh", response_model=TokenResponse, status_code=status.HTTP_200_OK)
 async def refresh_token(
     token_data: AccessTokenRefresh, request: Request, db: AsyncSession = Depends(get_db)
 ):
@@ -448,7 +546,7 @@ async def refresh_token(
 
     # Generate new tokens
     access_token = su.create_access_token(data={"sub": user.id})
-    new_refresh_token = su.create_refresh_token()
+    new_refresh_token = su.create_secure_token()
 
     # Store refresh token
     db_refresh = RefreshToken(
@@ -492,7 +590,7 @@ async def logout(refresh_token: LogoutRefreshToken, db=Depends(get_db)):
     return {"message": "Successfully logged out"}
 
 
-@router.post("/logout-all")
+@router.post("/logout-all", status_code=status.HTTP_200_OK)
 async def logout_all(
     current_user: User = Depends(get_current_user), db=Depends(get_db)
 ):

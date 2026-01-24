@@ -90,7 +90,6 @@ class AuthenticationService extends _$AuthenticationService {
           'username': username,
           'password': password
         });
-    // body: jsonEncode({'username': username, 'password': password}));
 
     // whatever is wrong...early abort
     if (loginResponse.isFailure) {

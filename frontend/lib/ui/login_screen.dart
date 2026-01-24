@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zest/core/network/api_exception.dart';
+import 'package:zest/core/providers/http_client_provider.dart';
 import 'package:zest/main.dart';
 
 import 'package:zest/recipes/screens/recipe_search.dart';
@@ -62,6 +63,8 @@ class LoginPageState extends ConsumerState<LoginPage> {
         errorMsg = "Network Error";
       } else if ((state.error as ApiException).isTimeout) {
         errorMsg = "Connection Timeout";
+      } else if ((state.error as ApiException).isUnauthorized) {
+        errorMsg = "Incorrect username or password";
       } else {
         errorMsg = "Unknown Error";
       }
@@ -156,6 +159,69 @@ class LoginPageState extends ConsumerState<LoginPage> {
                       fontFamily: "Montserrat",
                     ),
                   ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () async {
+                      final resetResponse = await ref
+                          .read(apiClientProvider(withAuthentication: false))
+                          .post<Map<String, dynamic>>(
+                              "/auth/password-reset/request", (e) => e,
+                              body: {'username': userCtrl.text, 'email': null});
+
+                      resetResponse.when(success: (data, statusCode, headers) {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("Reset Link Sent"),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    Text(
+                                      "If the given email exists, a reset link has been sent. Open your email app to check your inbox.",
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text("Dismiss"),
+                                  ),
+                                ],
+                              );
+                            });
+                      }, failure: (error) {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("Reset Link Sent"),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    Text(
+                                      "Unknown failure occured while requesting the reset. Check internet connection?",
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text("Dismiss"),
+                                  ),
+                                ],
+                              );
+                            });
+                      });
+                    },
+                    child: Text("Reset Password"),
+                  ),
+                ),
                 const ElementsVerticalSpace(),
                 Wrap(
                   // mainAxisAlignment: MainAxisAlignment.center,
@@ -179,14 +245,14 @@ class LoginPageState extends ConsumerState<LoginPage> {
                             },
                       child: const Text('Sign In'),
                     ),
-                    SizedBox(width: 10),
-                    ElevatedButton(
-                      key: const Key('continue_offline'),
-                      onPressed: () async {
-                        GoRouter.of(context).go(RecipeSearchPage.routeLocation);
-                      },
-                      child: const Text('Continue Offline'),
-                    ),
+                    // SizedBox(width: 10),
+                    // ElevatedButton(
+                    //   key: const Key('continue_offline'),
+                    //   onPressed: () async {
+                    //     GoRouter.of(context).go(RecipeSearchPage.routeLocation);
+                    //   },
+                    //   child: const Text('Continue Offline'),
+                    // ),
                   ],
                 )
               ],

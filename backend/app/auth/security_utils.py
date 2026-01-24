@@ -90,7 +90,7 @@ def create_access_token(
     )
 
 
-def create_refresh_token() -> str:
+def create_secure_token() -> str:
     return generate_high_entropy_token()
 
 
