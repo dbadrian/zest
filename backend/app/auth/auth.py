@@ -296,7 +296,7 @@ async def verify_email_from_url(
         )
     if ret == VerifyEmailResult.ALREADY_VERIFIED:
         return RedirectResponse(
-            url=f"http://{settings.HOST_DOMAIN}/static/email-verification-failure.html",
+            url=f"http://{settings.HOST_DOMAIN}/static/email-verification-already-verified.html",
             status_code=status.HTTP_302_FOUND,
         )
     elif ret == VerifyEmailResult.EXPIRED:
