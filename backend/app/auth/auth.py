@@ -268,7 +268,7 @@ async def register(
     - At least one special character
     """
     # Validate password strength
-    access_token, refresh_token = register_user(user_data, request, db)
+    access_token, refresh_token = await register_user(user_data, request, db)
 
     return {
         "access_token": access_token,
