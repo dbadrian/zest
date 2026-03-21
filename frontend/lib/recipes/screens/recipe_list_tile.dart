@@ -59,12 +59,12 @@ class RecipeListTile extends ConsumerWidget {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CountryFlag.fromLanguageCode(
-                    language!,
-                    height: 20,
-                    width: 30,
-                    shape: const RoundedRectangle(6),
-                  )
+                  CountryFlag.fromLanguageCode(language!,
+                      theme: ImageTheme(
+                        height: 20,
+                        width: 30,
+                        shape: const RoundedRectangle(6),
+                      ))
                 ],
               ),
             SizedBox(

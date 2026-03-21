@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-showLoaderDialog(BuildContext context) {
+void showLoaderDialog(BuildContext context) {
   AlertDialog alert = AlertDialog(
     content: Row(
       mainAxisAlignment: MainAxisAlignment.center,

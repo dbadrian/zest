@@ -6,7 +6,7 @@ part 'auth_state.freezed.dart';
 part 'auth_state.g.dart';
 
 @freezed
-class AuthResponse with _$AuthResponse {
+sealed class AuthResponse with _$AuthResponse {
   factory AuthResponse({
     @JsonKey(name: 'access_token') required String accessToken,
     @JsonKey(name: 'refresh_token') required String refreshToken,
@@ -19,7 +19,7 @@ class AuthResponse with _$AuthResponse {
 }
 
 @freezed
-class AuthState with _$AuthState {
+sealed class AuthState with _$AuthState {
   factory AuthState({
     required String accessToken,
     required String refreshToken,

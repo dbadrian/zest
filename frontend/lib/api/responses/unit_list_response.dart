@@ -7,7 +7,7 @@ part 'unit_list_response.freezed.dart';
 part 'unit_list_response.g.dart';
 
 @freezed
-class UnitListResponse with _$UnitListResponse {
+sealed class UnitListResponse with _$UnitListResponse {
   factory UnitListResponse({
     required PaginationMeta pagination,
     required List<Unit> results,

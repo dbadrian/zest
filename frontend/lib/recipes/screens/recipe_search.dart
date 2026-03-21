@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:zest/config/zest_api.dart';
 import 'package:zest/core/network/api_exception.dart';
 import 'package:zest/recipes/static_data_repository.dart';
 
@@ -348,7 +347,7 @@ class FilterSettingsBottomWindow extends ConsumerWidget {
           future: ref.watch(staticRepositoryProvider).getCategories(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return FormBuilderFilterChip(
+              return FormBuilderFilterChips(
                 name: "categories",
                 showCheckmark: false,
                 initialValue: ref.watch(recipeSearchFilterSettingsProvider

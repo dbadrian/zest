@@ -4,10 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:language_info_plus/language_info_plus.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'package:zest/authentication/reauthentication_dialog.dart';
-import 'package:zest/config/constants.dart';
 import 'package:zest/core/network/api_exception.dart';
 import 'package:zest/recipes/controller/details_controller.dart';
 import 'package:zest/recipes/controller/providers.dart';
@@ -20,7 +19,6 @@ import 'package:zest/recipes/static_data_repository.dart';
 import 'package:zest/settings/settings_provider.dart';
 
 import 'package:zest/ui/widgets/debounced_autocomplete.dart';
-import 'package:zest/utils/languages.dart';
 import 'package:zest/utils/networking.dart';
 
 class RecipeEditScreen extends ConsumerStatefulWidget {
@@ -77,6 +75,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   @override
   void initState() {
     super.initState();
+    WakelockPlus.enable();
 
     if (widget.recipeId != null) {
       () async {
@@ -116,7 +115,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
           }
         }
 
-        final data = asyncdata.valueOrNull;
+        final data = asyncdata.value;
 
         setState(() {
           if (data != null) {
@@ -196,6 +195,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
       group.dispose();
     }
     super.dispose();
+    WakelockPlus.disable();
   }
 
   void _saveSnapshot() {
@@ -367,7 +367,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                     event.logicalKey == LogicalKeyboardKey.enter) {
                   final recipeId = await _submitForm(reloadRecipe: false);
                   if (recipeId != null) {
-                    ref.invalidate(RecipeDetailsControllerProvider(recipeId));
+                    ref.invalidate(recipeDetailsControllerProvider(recipeId));
                     if (context.mounted) {
                       // ignore: use_build_context_synchronously
                       context.goNamed(
@@ -1071,8 +1071,8 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
 
     // Sort units according to the unit order
     // TODO: Move this to a shared utils file
-    final _units = units.toList();
-    _units.sort(
+    final units0 = units.toList();
+    units0.sort(
       (a, b) => (a.id).compareTo((b.id)),
     );
 
@@ -1118,12 +1118,12 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                   child: _IngredientGroupWidget(
                     group: _ingredientGroups[i],
                     index: i,
-                    units: _units,
+                    units: units0,
                     foods: foods,
                     currentLangData: currentLanguageData,
                     searchUnits: (String query) async {
                       if (query == " ") {
-                        return _units;
+                        return units0;
                       }
                       return extractTop<(Unit, String)>(
                               query: query.toLowerCase(),
@@ -1206,7 +1206,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                 if (context.mounted) {
                   debugPrint("Context mounted");
 
-                  ref.invalidate(RecipeDetailsControllerProvider(recipeId));
+                  ref.invalidate(recipeDetailsControllerProvider(recipeId));
                   // ignore: use_build_context_synchronously
                   context.goNamed(
                     RecipeDetailsPage.routeName,

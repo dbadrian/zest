@@ -1,6 +1,4 @@
-import 'dart:io';
 
-import 'package:downloadsfolder/downloadsfolder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -8,13 +6,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:updat/utils/global_options.dart';
 import 'package:integration_test/integration_test.dart';
 
-import 'package:zest/config/constants.dart';
 import 'package:zest/settings/settings_provider.dart';
 import 'package:zest/main.dart';
 

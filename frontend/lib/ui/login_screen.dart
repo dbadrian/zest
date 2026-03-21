@@ -3,7 +3,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zest/core/network/api_exception.dart';
 import 'package:zest/core/providers/http_client_provider.dart';
-import 'package:zest/main.dart';
 
 import 'package:zest/recipes/screens/recipe_search.dart';
 import 'package:zest/ui/widgets/generics.dart';
@@ -54,7 +53,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
       );
     }
 
-    userCtrl.text = state.valueOrNull?.user.username ?? userCtrl.text;
+    userCtrl.text = state.value?.user.username ?? userCtrl.text;
 
     String errorMsg = "";
     if (state.hasError) {

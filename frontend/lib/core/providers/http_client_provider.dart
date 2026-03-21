@@ -22,7 +22,7 @@ ApiHttpClient apiClient(Ref ref, {required bool withAuthentication}) {
       AuthInterceptor(
         getAccessToken: () async {
           final authState = ref.read(authenticationServiceProvider);
-          return authState.valueOrNull?.accessToken;
+          return authState.value?.accessToken;
         },
         refreshToken: () async {
           await ref.read(authenticationServiceProvider.notifier).refreshToken();

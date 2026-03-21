@@ -6,7 +6,7 @@ class Throttle {
 
   Throttle({required this.delay});
 
-  call(Function() action) {
+  void call(Function() action) {
     if (_timer == null || !_timer!.isActive) {
       action();
       _timer = Timer(delay, () {});

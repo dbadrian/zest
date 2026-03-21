@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/core/network/api_response.dart';
-import 'package:zest/core/network/http_client.dart';
 import 'package:zest/core/providers/http_client_provider.dart';
 
 part 'api_status_provider.g.dart'; // Generated file

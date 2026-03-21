@@ -24,7 +24,7 @@ const _showAdvancedSettingsKey = 'settings_show_advanced_settings';
 const _baseColor = Color.fromARGB(255, 7, 228, 255);
 
 @freezed
-class SettingsStateData with _$SettingsStateData {
+sealed class SettingsStateData with _$SettingsStateData {
   const factory SettingsStateData({
     // Language: UI and Content
     // TODO: LOW: Default language should be infered based on system language
@@ -46,7 +46,7 @@ class SettingsStateData with _$SettingsStateData {
 }
 
 @freezed
-class SettingsState with _$SettingsState {
+sealed class SettingsState with _$SettingsState {
   factory SettingsState({
     @Default(SettingsStateData()) SettingsStateData current,
     @Default(SettingsStateData()) SettingsStateData dirty,

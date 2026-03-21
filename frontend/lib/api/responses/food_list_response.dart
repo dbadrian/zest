@@ -9,7 +9,7 @@ part 'food_list_response.freezed.dart';
 part 'food_list_response.g.dart';
 
 @freezed
-class FoodListResponse with _$FoodListResponse {
+sealed class FoodListResponse with _$FoodListResponse {
   factory FoodListResponse({
     required PaginationMeta pagination,
     required List<Food> results,
@@ -25,7 +25,7 @@ class FoodListResponse with _$FoodListResponse {
 }
 
 @freezed
-class FoodSearchListResponse with _$FoodSearchListResponse {
+sealed class FoodSearchListResponse with _$FoodSearchListResponse {
   factory FoodSearchListResponse({
     required PaginationMeta pagination,
     required List<Food> results,

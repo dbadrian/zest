@@ -1,13 +1,9 @@
 import 'dart:async';
 
-import 'package:downloadsfolder/downloadsfolder.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:zest/core/network/http_client.dart';
-import 'package:zest/core/network/interceptors/logging_interceptor.dart';
 import 'package:zest/core/providers/http_client_provider.dart';
-import 'package:zest/settings/settings_provider.dart';
 
 import 'package:zest/utils/persistance.dart';
 
@@ -35,7 +31,7 @@ class AuthenticationService extends _$AuthenticationService {
 
   bool get isAuthenticated => state.hasValue && state.value != null;
   bool get isLoading => state.isLoading;
-  User? get whoIsUser => state.valueOrNull?.user;
+  User? get whoIsUser => state.value?.user;
   String? get lastUser => _lastUser;
 
   @override
@@ -61,7 +57,7 @@ class AuthenticationService extends _$AuthenticationService {
 
   /// Checks if access is still valid.
   Future<bool> tokenWillBeValidIn(Duration duration) async {
-    AuthState? authState = state.valueOrNull;
+    AuthState? authState = state.value;
 
     if (authState != null && !authState.isExpired) {
       // isExpired can only be True if expiresAt is not null. and if its anyway
@@ -121,7 +117,7 @@ class AuthenticationService extends _$AuthenticationService {
   }
 
   Future<bool> refreshToken() async {
-    final oldState = state.valueOrNull ?? await _loadStateFromStorage();
+    final oldState = state.value ?? await _loadStateFromStorage();
     if (oldState == null) {
       debugPrint("Clearing auth storage as state is reported null");
       await _authStorage.clear();

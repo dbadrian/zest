@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/recipes/recipe_repository.dart';
 import 'package:zest/settings/settings_provider.dart';
@@ -122,6 +121,6 @@ class RecipeDetailsController extends _$RecipeDetailsController {
         () => ref.read(recipeRepositoryProvider).deleteRecipeById(recipeId));
     // TODO: Mid: pretty unclear error snackbar as consequence.
     // fovoriting kills the whole detail view. maybe align?
-    return ret.valueOrNull ?? false;
+    return ret.value ?? false;
   }
 }

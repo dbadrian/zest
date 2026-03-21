@@ -9,7 +9,7 @@ part 'recipe_category_list_response.freezed.dart';
 part 'recipe_category_list_response.g.dart';
 
 @freezed
-class RecipeCategoryListResponse with _$RecipeCategoryListResponse {
+sealed class RecipeCategoryListResponse with _$RecipeCategoryListResponse {
   factory RecipeCategoryListResponse({
     required PaginationMeta pagination,
     required List<RecipeCategory> results,

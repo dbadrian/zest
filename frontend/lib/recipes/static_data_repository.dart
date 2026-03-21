@@ -1,5 +1,3 @@
-import 'package:fuzzywuzzy/fuzzywuzzy.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/api/api_service.dart';
 import 'package:zest/api/responses/multilingual_data_response.dart';

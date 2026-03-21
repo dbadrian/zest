@@ -7,8 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:updat/updat.dart';
 import 'package:downloadsfolder/downloadsfolder.dart';
 import 'package:path/path.dart' as p;
-import 'package:upgrader/upgrader.dart';
-import 'package:zest/camera/screens.dart';
 import 'package:zest/core/network/api_exception.dart';
 
 import 'package:zest/main.dart';
@@ -53,7 +51,7 @@ class MainScaffold extends ConsumerWidget {
       body: child,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
-        title: backendStatus.valueOrNull?.isOnline ?? false
+        title: backendStatus.value?.isOnline ?? false
             ? Text("Online")
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -83,7 +81,7 @@ class MainScaffold extends ConsumerWidget {
                   key: Key("appbar_addrecipe_icon"),
                   Icons.add_card_rounded,
                 ),
-                onPressed: (backendStatus.valueOrNull?.isOnline ?? false)
+                onPressed: (backendStatus.value?.isOnline ?? false)
                     ? () {
                         context.goNamed(RecipeEditScreen.routeNameCreate);
                       }
@@ -95,7 +93,7 @@ class MainScaffold extends ConsumerWidget {
             //     icon: const Icon(
             //         key: Key("appbar_addrecipecamera_icon"),
             //         Icons.camera_enhance),
-            //     onPressed: (backendStatus.valueOrNull?.isOnline ?? false)
+            //     onPressed: (backendStatus.value?.isOnline ?? false)
             //         ? () async {
             //             context.goNamed(TakePictureScreen.routeName);
             //           }
@@ -108,7 +106,7 @@ class MainScaffold extends ConsumerWidget {
                   key: Key("appbar_addrecipefile_icon"),
                   Icons.upload_file,
                 ),
-                onPressed: (backendStatus.valueOrNull?.isOnline ?? false)
+                onPressed: (backendStatus.value?.isOnline ?? false)
                     ? () async {
                         bool userIsWaiting = true;
 
@@ -241,7 +239,7 @@ class MainScaffold extends ConsumerWidget {
                     ),
                   ],
                 ),
-                onPressed: (backendStatus.valueOrNull?.isOnline ?? false)
+                onPressed: (backendStatus.value?.isOnline ?? false)
                     ? () async {
                         bool userIsWaiting = true;
 

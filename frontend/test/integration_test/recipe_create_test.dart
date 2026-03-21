@@ -90,10 +90,10 @@ void main() async {
         // check that all fields are empty after opening the recipe creator
         try {
           for (var field in fieldList) {
-            final _field = find.byKey(field);
-            expect(_field, findsOneWidget);
+            final field = find.byKey(field);
+            expect(field, findsOneWidget);
             final TextFormField formfield =
-                tester.widget<TextFormField>(_field);
+                tester.widget<TextFormField>(field);
             if (field == recipePrepTimeHourFieldKey ||
                 field == recipePrepTimeMinuteFieldKey ||
                 field == recipeCookTimeHourFieldKey ||

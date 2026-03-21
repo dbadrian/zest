@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/config/constants.dart';
 import 'package:zest/config/zest_api.dart';
@@ -17,7 +18,7 @@ part 'search_controller.freezed.dart';
 part 'search_controller.g.dart';
 
 @freezed
-class FilterSettingsState with _$FilterSettingsState {
+sealed class FilterSettingsState with _$FilterSettingsState {
   const factory FilterSettingsState({
     @Default(RECIPE_SEARCH_DEFAULT_PAGE_SIZE) int pageSize,
     @Default({}) Set<String> lcFilter,
@@ -100,7 +101,7 @@ class RecipeSearchFilterSettings extends _$RecipeSearchFilterSettings {
 }
 
 @freezed
-class RecipeSearchState with _$RecipeSearchState {
+sealed class RecipeSearchState with _$RecipeSearchState {
   const factory RecipeSearchState({
     @Default("") String currentQuery,
     RecipeSearchListResponse? recipeList,

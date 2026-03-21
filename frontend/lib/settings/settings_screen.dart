@@ -240,8 +240,9 @@ class APIFieldWidget extends HookConsumerWidget {
     if (ref.watch(settingsProvider.select((s) => s.dirty.apiUrlDirty))) {
       errorText = "The API URL is changed, if saved you will be logged out.";
     }
-    if (!isValidURL)
+    if (!isValidURL) {
       errorText += errorText.isEmpty ? "Invalid URL!" : "\nInvalid URL!";
+    }
 
     return ListTile(
       leading: const Icon(Icons.connect_without_contact),

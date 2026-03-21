@@ -4,5 +4,7 @@ includes:
   backend: 
     taskfile: ./backend
     dir: ./backend/
-  # frontend: ./frontend
+  frontend: 
+    taskfile: ./frontend
+    dir: ./frontend/
 
