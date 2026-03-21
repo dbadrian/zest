@@ -43,14 +43,14 @@ async def init_db() -> None:
 
     async with AsyncSessionLocal() as session:
         result = await session.execute(
-            select(User).where(User.email == settings.FIRST_SUPERUSER)
+            select(User).where(User.email == settings.FIRST_SUPERUSER_EMAIL)
         )
         user = result.scalar_one_or_none()
 
         if not user:
             user_new = User(
                 username=settings.FIRST_SUPERUSER,
-                email=settings.FIRST_SUPERUSER,
+                email=settings.FIRST_SUPERUSER_EMAIL,
                 hashed_password=su.hash_password(settings.FIRST_SUPERUSER_PASSWORD),
                 is_superuser=True,
                 email_verified=True,

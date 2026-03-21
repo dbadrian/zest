@@ -39,7 +39,7 @@ async def send_email(
     else:
         message.set_content(body)
 
-
+    print("Attemping to send mail... ")
     await aiosmtplib.send(
         message,
         hostname=settings.SMTP_HOST,
