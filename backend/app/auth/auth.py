@@ -38,7 +38,7 @@ from app.auth.schemas import (
     EmailVerificationRequest,
     GoogleAuthRequest,
 )
-from app.auth.email import HTML_PASSWORD_RESET_EMAIL_TEMPLATE
+from app.auth.email import HTML_PASSWORD_RESET_EMAIL_TEMPLATE, WELCOME_EMAIL_HTML
 import app.auth.security_utils as su
 from app.auth import constants
 
@@ -139,26 +139,12 @@ async def get_current_superuser(current_user: User = Depends(get_current_user)) 
     return current_user
 
 
-router = APIRouter(prefix=f"/{constants.AUTH_ROUTER_PREFIX}", tags=["authentication"])
-
-
-@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_200_OK)
-async def register(
+async def register_user(
     user_data: UserRegister,
-    request: Request,
-    db: AsyncSession = Depends(get_db),  # Inject your get_db
+    db: AsyncSession,
+    request: Request | None = None,
+    manual_user_creation: bool = False,
 ):
-    """
-    Register new user with email/password
-
-    Password requirements:
-    - Minimum 8 characters
-    - At least one uppercase letter
-    - At least one lowercase letter
-    - At least one digit
-    - At least one special character
-    """
-    # Validate password strength
     try:
         PasswordStrength(password=user_data.password)
     except ValueError as e:
@@ -184,6 +170,10 @@ async def register(
         auth_provider=AuthProvider.LOCAL,
         password_changed_at=datetime.now(UTC),
     )
+    if manual_user_creation:
+        user.email_verified = True
+        user.is_active = True
+
     db.add(user)
     await db.flush()
     await db.refresh(user)
@@ -200,27 +190,77 @@ async def register(
     )
     db.add(db_token)
 
-    # TODO: Send verification email with verification_token
-
-    if settings.ENVIRONMENT == "local":
-        print(
-            f"Verification link: https://{settings.HOST_DOMAIN}{settings.API_V1_STR}/auth/verify-email?token={verification_token}"
-        )
-
     # Generate tokens
     access_token = su.create_access_token(data={"sub": str(user.id)})
     refresh_token = su.create_secure_token()
 
     # Store refresh token
+    user_agent = request.headers.get("user-agent") if request is not None else "N/A"
+    ip_address = su.get_client_ip(request) if request is not None else "N/A"
+
     db_refresh = RefreshToken(
         user_id=user.id,
         token_hash=su.hash_token(refresh_token),
-        device_info=request.headers.get("user-agent"),
-        ip_address=su.get_client_ip(request),
+        device_info=user_agent,
+        ip_address=ip_address,
         expires_at=datetime.now(UTC)
         + timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES),
     )
     db.add(db_refresh)
+
+    if manual_user_creation:
+
+        password_reset_token = su.create_secure_token()
+
+        # Store refresh token
+        db_reset = PasswordResetToken(
+            user_id=user.id,
+            token_hash=su.hash_token(password_reset_token),
+            ip_address=ip_address,
+            expires_at=datetime.now(UTC)
+            + timedelta(minutes=settings.PASSWORD_RESET_TOKEN_EXPIRE_MINUTES),
+        )
+        db.add(db_reset)
+
+        reset_link = f"https://{settings.HOST_DOMAIN}/static/password-reset.html?token={password_reset_token}"
+        email_content = WELCOME_EMAIL_HTML.format(
+            user=user_data.username,
+            reset_link=reset_link,
+            download_link_playstore="https://play.google.com/store/apps/details?id=com.dbadrian.zest",
+        )
+        asyncio.create_task(
+            send_email(
+                user.email,
+                f"Zest: Welcome {user_data.username}",
+                email_content,
+                html=True,
+            )
+        )
+
+    return access_token, refresh_token
+
+
+router = APIRouter(prefix=f"/{constants.AUTH_ROUTER_PREFIX}", tags=["authentication"])
+
+
+@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_200_OK)
+async def register(
+    user_data: UserRegister,
+    request: Request,
+    db: AsyncSession = Depends(get_db),  # Inject your get_db
+):
+    """
+    Register new user with email/password
+
+    Password requirements:
+    - Minimum 8 characters
+    - At least one uppercase letter
+    - At least one lowercase letter
+    - At least one digit
+    - At least one special character
+    """
+    # Validate password strength
+    access_token, refresh_token = register_user(user_data, request, db)
 
     return {
         "access_token": access_token,
@@ -321,7 +361,7 @@ async def verify_email_from_url(
 async def password_reset_request(
     request: Request, data: PasswordResetRequest, db: AsyncSession = Depends(get_db)
 ):
-    
+
     if data.username is not None:
         user_ret = await db.execute(select(User).filter(User.username == data.username))
     elif data.email is not None:
@@ -331,7 +371,7 @@ async def password_reset_request(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Either username or email needs to be submitted",
         )
-        
+
     if (user := user_ret.scalar_one_or_none()) is not None:
 
         password_reset_token = su.create_secure_token()
@@ -358,19 +398,19 @@ async def password_reset_request(
     return {"message": "If an account exists, a password reset link has been sent."}
 
 
-
 class PasswordResetResults(str, Enum):
     SUCCESS = "success"
     INVALID = "invalid"
     EXPIRED = "expired"
     ERROR = "error"
 
-async def password_change_logic(reset_data: PasswordResetConfirm, db: AsyncSession) -> PasswordResetResults:
+
+async def password_change_logic(
+    reset_data: PasswordResetConfirm, db: AsyncSession
+) -> PasswordResetResults:
     token_hash = su.hash_token(reset_data.token)
     result = await db.execute(
-        select(PasswordResetToken).where(
-            PasswordResetToken.token_hash == token_hash
-        )
+        select(PasswordResetToken).where(PasswordResetToken.token_hash == token_hash)
     )
     db_token = result.scalar_one_or_none()
 
@@ -388,12 +428,14 @@ async def password_change_logic(reset_data: PasswordResetConfirm, db: AsyncSessi
     if user is None:
         return PasswordResetResults.ERROR
 
-
     await db.delete(db_token)
 
     return PasswordResetResults.SUCCESS
 
-@router.post("/password-reset/confirm", response_model=dict, status_code=status.HTTP_200_OK)
+
+@router.post(
+    "/password-reset/confirm", response_model=dict, status_code=status.HTTP_200_OK
+)
 async def password_reset_confirm(
     reset_data: PasswordResetConfirm, db: AsyncSession = Depends(get_db)
 ):
@@ -407,15 +449,15 @@ async def password_reset_confirm(
     if ret == PasswordResetResults.EXPIRED:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Password reset token expired. Request new reset link..',
+            detail="Password reset token expired. Request new reset link..",
         )
     elif ret == PasswordResetResults.INVALID:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Invalid reset token.',
+            detail="Invalid reset token.",
         )
     elif ret == PasswordResetResults.SUCCESS:
-        return  {"message": "Password changed successfully"}
+        return {"message": "Password changed successfully"}
 
 
 @router.post("/login", response_model=TokenResponse, status_code=status.HTTP_200_OK)
