@@ -20,6 +20,7 @@ import 'package:zest/settings/settings_provider.dart';
 
 import 'package:zest/ui/widgets/debounced_autocomplete.dart';
 import 'package:zest/utils/networking.dart';
+import 'package:zest/utils/utils.dart';
 
 class RecipeEditScreen extends ConsumerStatefulWidget {
   static String get routeNameEdit => 'recipe_edit';
@@ -75,8 +76,9 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   @override
   void initState() {
     super.initState();
-    WakelockPlus.enable();
-
+    if (!isTestEnvironment) {
+      WakelockPlus.enable();
+    }
     if (widget.recipeId != null) {
       () async {
         setState(() {
@@ -195,7 +197,9 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
       group.dispose();
     }
     super.dispose();
-    WakelockPlus.disable();
+    if (!isTestEnvironment) {
+      WakelockPlus.disable();
+    }
   }
 
   void _saveSnapshot() {

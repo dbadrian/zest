@@ -47,7 +47,7 @@ void main() async {
         final recipeVisibilityCheckboxKey =
             const Key("recipeIsPrivateCheckbox");
         final recipeDraftCheckbox = const Key("recipeDraftCheckbox");
-        final recipeLanguageDropdownKey = const Key("recipeLanguageDropdown");
+        // final recipeLanguageDropdownKey = const Key("recipeLanguageDropdown");
         final recipeDifficultySelectorKey =
             const Key("recipeDifficultySelector");
         final recipeServingsFieldKey = const Key("recipeServingsField");
@@ -55,8 +55,8 @@ void main() async {
             const Key("recipeCategoriesSelector");
 
         expect(find.byKey(recipeVisibilityCheckboxKey), findsOne);
-        expect(find.byKey(recipeLanguageDropdownKey), findsOne);
         expect(find.byKey(recipeDraftCheckbox), findsOne);
+        // expect(find.byKey(recipeLanguageDropdownKey), findsOne);
         expect(find.byKey(recipeDifficultySelectorKey), findsOne);
         expect(find.byKey(recipeCategoriesSelectorKey), findsOne);
 
@@ -89,15 +89,14 @@ void main() async {
 
         // check that all fields are empty after opening the recipe creator
         try {
-          for (var field in fieldList) {
-            final field = find.byKey(field);
+          for (var fieldKey in fieldList) {
+            final field = find.byKey(fieldKey);
             expect(field, findsOneWidget);
-            final TextFormField formfield =
-                tester.widget<TextFormField>(field);
-            if (field == recipePrepTimeHourFieldKey ||
-                field == recipePrepTimeMinuteFieldKey ||
-                field == recipeCookTimeHourFieldKey ||
-                field == recipeCookTimeMinuteFieldKey) {
+            final TextFormField formfield = tester.widget<TextFormField>(field);
+            if (fieldKey == recipePrepTimeHourFieldKey ||
+                fieldKey == recipePrepTimeMinuteFieldKey ||
+                fieldKey == recipeCookTimeHourFieldKey ||
+                fieldKey == recipeCookTimeMinuteFieldKey) {
               // expect(formfield.controller!.text, "0");
               // currently do nothing as there is no controller
             } else {

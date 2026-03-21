@@ -132,3 +132,5 @@ Map<String, dynamic> mergeMaps(
 
   return result;
 }
+
+bool get isTestEnvironment => Platform.environment.containsKey('FLUTTER_TEST');

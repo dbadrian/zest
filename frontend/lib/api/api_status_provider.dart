@@ -13,6 +13,11 @@ class ApiStatus extends _$ApiStatus {
   @override
   Future<({bool isOnline})> build() async {
     ref.watch(apiClientProvider(withAuthentication: false));
+
+    ref.onDispose(() {
+      _timer?.cancel();
+    });
+
     startChecking(const Duration(seconds: kDebugMode ? 10 : 2));
     return await _checkBackendStatus();
   }
@@ -24,6 +29,8 @@ class ApiStatus extends _$ApiStatus {
     try {
       final response = await AsyncValue.guard(
           () => client.get<Map<String, dynamic>>("/info", (e) => e));
+
+      if (!ref.mounted) return (isOnline: false);
 
       if (response.hasValue) {
         if (response.value is ApiSuccess) {
@@ -51,59 +58,18 @@ class ApiStatus extends _$ApiStatus {
 
   // Update the status once without waiting for the periodic interval
   Future<void> _updateStatus() async {
-    state = await AsyncValue.guard(() => _checkBackendStatus());
+    final result = await AsyncValue.guard(() => _checkBackendStatus());
+
+    if (!ref.mounted) return; // ⚡ important!
+
+    state = result;
   }
 
-  Future<void> updateStatus(bool isOnline) async {
-    state = AsyncValue.data((isOnline: isOnline));
+  Future<void> forceUpdateStatus(bool isOnline) async {
+    final result = AsyncValue.data((isOnline: isOnline));
+
+    if (!ref.mounted) return; // ⚡ important!
+
+    state = result;
   }
 }
-
-// @riverpod
-// class ApiStatus extends AsyncNotifier<bool> {
-//   Timer? _timer;
-
-//   @override
-//   Future<bool> build() async {
-//     // Initial state when the provider is first created
-//     return _checkBackendStatus();
-//   }
-
-//   // Function to check backend status
-//   Future<bool> _checkBackendStatus() async {
-//     try {
-//       final response =
-//           await http.get(Uri.parse('https://dbadrian/api/v1/info'));
-//       return response.statusCode == 200; // Online if status is 200
-//     } catch (_) {
-//       return false; // Offline in case of errors
-//     }
-//   }
-
-//   // Start periodic checks
-//   void startChecking(Duration interval) {
-//     _timer?.cancel(); // Cancel existing timer
-//     _timer = Timer.periodic(interval, (_) async {
-//       state = await AsyncValue.guard(() => _checkBackendStatus());
-//     });
-//     // Immediately update state
-//     _updateStatus();
-//   }
-
-//   // Update the status once without waiting for the periodic interval
-//   Future<void> _updateStatus() async {
-//     state = await AsyncValue.guard(() => _checkBackendStatus());
-//   }
-
-//   // Stop periodic checks
-//   void stopChecking() {
-//     _timer?.cancel();
-//     _timer = null;
-//   }
-
-//   // @override
-//   // void dispose() {
-//   //   stopChecking();
-//   //   super.dispose();
-//   // }
-// }

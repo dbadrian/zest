@@ -36,12 +36,19 @@ class MainScaffold extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isAuthenticated = ref.read(
-      authenticationServiceProvider.notifier.select(
-        (value) => value.isAuthenticated,
+      authenticationServiceProvider.select(
+        (s) => s.hasValue && s.value != null,
       ),
     );
+
+    // final isAuthenticated = ref.read(
+    //   authenticationServiceProvider.notifier.select(
+    //     (value) => value.isAuthenticated,
+    //   ),
+    // );
+
     final user = ref.watch(
-      authenticationServiceProvider.notifier.select((value) => value.whoIsUser),
+      authenticationServiceProvider.select((s) => s.value?.user),
     );
 
     final backendStatus = ref.watch(apiStatusProvider);

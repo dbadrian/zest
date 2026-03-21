@@ -74,11 +74,12 @@ class LoginPageState extends ConsumerState<LoginPage> {
         buildLoadingOverlay(context, state.isLoading),
         Center(
           child: SizedBox(
-            height: 280,
+            // height: 280,
             width: 300,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
                   "Login",
@@ -88,18 +89,19 @@ class LoginPageState extends ConsumerState<LoginPage> {
                       fontWeight: FontWeight.w600),
                 ),
                 const ElementsVerticalSpace(),
-                Expanded(
-                  child: TextFormField(
-                    key: const Key('username'),
-                    controller: userCtrl,
-                    decoration: const InputDecoration(
-                      labelText: "Username",
-                    ),
-                    textInputAction: TextInputAction.next,
-                    enabled: !state.isLoading,
-                    // validator: controller.emptyValidator,
+                // Expanded(
+                // child:
+                TextFormField(
+                  key: const Key('username'),
+                  controller: userCtrl,
+                  decoration: const InputDecoration(
+                    labelText: "Username",
                   ),
+                  textInputAction: TextInputAction.next,
+                  enabled: !state.isLoading,
+                  // validator: controller.emptyValidator,
                 ),
+                // ),
                 // const ElementsVerticalSpace(),
                 Stack(
                   children: [

@@ -15,6 +15,7 @@ import 'package:zest/recipes/controller/search_controller.dart';
 import 'package:zest/recipes/screens/recipe_edit.dart' hide Ingredient;
 import 'package:zest/recipes/screens/recipe_search.dart';
 import 'package:zest/utils/networking.dart';
+import 'package:zest/utils/utils.dart';
 
 import '../../routing/app_router.dart';
 import '../../ui/widgets/generics.dart';
@@ -37,13 +38,17 @@ class _RecipeDetailsPageState extends ConsumerState<RecipeDetailsPage> {
   @override
   void initState() {
     super.initState();
-    WakelockPlus.enable();
+    if (!isTestEnvironment) {
+      WakelockPlus.enable();
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-    WakelockPlus.disable();
+    if (!isTestEnvironment) {
+      WakelockPlus.disable();
+    }
   }
 
   @override

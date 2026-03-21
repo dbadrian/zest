@@ -56,7 +56,7 @@ class ApiStatus extends _$ApiStatus {
 
   Future<void> updateStatus(bool isOnline) async {
     state = AsyncValue.data(
-        (isOnline: isOnline, redirects: state.valueOrNull?.redirects ?? false));
+        (isOnline: isOnline, redirects: state.value?.redirects ?? false));
   }
 }
 

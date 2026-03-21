@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -96,6 +95,7 @@ class ZestApp extends ConsumerStatefulWidget {
 }
 
 class _ZestAppState extends ConsumerState<ZestApp> {
+  // ignore: unused_field
   Locale _locale = Locale('de'); // Default locale
 
   @override
