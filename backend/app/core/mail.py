@@ -27,20 +27,17 @@ async def send_email(
     assert subject and subject.strip(), "`subject` must not be empty"
     assert body and body.strip(), "`body` must not be empty"
 
-    
-    
     message = EmailMessage()
     message["From"] = format_from(settings.EMAILS_FROM_NAME, settings.EMAILS_FROM_EMAIL)
     message["To"] = to if isinstance(to, str) else ", ".join(to)
     message["Subject"] = subject
 
+
+    message.set_content("Fallback message", charset="utf-8")
     if html:
         message.add_alternative(body, subtype="html")
-    else:
-        message.set_content(body)
-
-    print("Attemping to send mail... ")
-    await aiosmtplib.send(
+        
+    response = await aiosmtplib.send(
         message,
         hostname=settings.SMTP_HOST,
         port=settings.SMTP_PORT,
@@ -48,4 +45,6 @@ async def send_email(
         password=settings.SMTP_PASSWORD,
         start_tls=settings.SMTP_TLS,
     )
+
+    print("Mail sent!!!!", response)
 

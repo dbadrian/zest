@@ -1,4 +1,4 @@
-HTML_PASSWORD_RESET_EMAIL_TEMPLATE = """
+HTML_PASSWORD_RESET_EMAIL_TEMPLATE = """\
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -115,7 +115,7 @@ WELCOME_EMAIL_HTML = """\
 
               <p style="font-size:16px; line-height:1.5;">
                 You can set yourself a new password using the link below.
-                This link is valid for the next <strong>78 hours</strong>.
+                This link is valid for the next <strong>{reset_time}</strong>.
               </p>
 
               <p style="text-align:center; margin:30px 0;">

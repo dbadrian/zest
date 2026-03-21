@@ -20,6 +20,7 @@ from app.core.config import settings
 from app.db import async_sessionmaker
 from app.auth.models import User
 import app.auth.security_utils as su
+from app.core.mail import send_email
 
 def generate_password(length=16):
     if length < 4:
@@ -54,13 +55,13 @@ async def create_new_user(username: str, email: EmailStr):
 
     async with async_session() as session:
         result = await session.execute(
-            select(User).where(User.username == username or User.email == email)
+            select(User).where((User.username == username) | (User.email == email))
         )
         user = result.scalar_one_or_none()
-
-        if user:
+        if user is not None:
             print("This user already exists")
             return
+        
 
         user_data = UserRegister(username=username, email=email, password=generate_password())
         ret = await register_user(user_data, db=session, request=None, manual_user_creation=True)

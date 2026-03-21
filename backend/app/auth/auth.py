@@ -2,7 +2,15 @@ import asyncio
 from enum import Enum
 from datetime import timedelta, UTC, datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query,
+    status,
+    Request,
+    BackgroundTasks,
+)
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -209,33 +217,32 @@ async def register_user(
     db.add(db_refresh)
 
     if manual_user_creation:
-
         password_reset_token = su.create_secure_token()
 
         # Store refresh token
         db_reset = PasswordResetToken(
             user_id=user.id,
             token_hash=su.hash_token(password_reset_token),
-            ip_address=ip_address,
+            ip_address="asdas",
             expires_at=datetime.now(UTC)
-            + timedelta(minutes=settings.PASSWORD_RESET_TOKEN_EXPIRE_MINUTES),
+            + timedelta(minutes=24*60),
         )
         db.add(db_reset)
+        await db.commit()
 
         reset_link = f"https://{settings.HOST_DOMAIN}/static/password-reset.html?token={password_reset_token}"
-        print(user.username, user.email, user.email_verified)
         email_content = WELCOME_EMAIL_HTML.format(
-            user=user_data.username,
+            user=user.username,
             reset_link=reset_link,
+            reset_time=f"48 hours",
             download_link_playstore="https://play.google.com/store/apps/details?id=com.dbadrian.zest",
         )
-        asyncio.create_task(
-            send_email(
-                user.email,
-                f"Zest: Welcome {user_data.username}",
-                email_content,
-                html=True,
-            )
+        
+        await send_email(
+            user.email,
+            f"Welcome to zest, {user.username}!",
+            email_content,
+            html=True,
         )
 
     return access_token, refresh_token
@@ -360,7 +367,10 @@ async def verify_email_from_url(
 
 @router.post("/password-reset/request", status_code=status.HTTP_200_OK)
 async def password_reset_request(
-    request: Request, data: PasswordResetRequest, db: AsyncSession = Depends(get_db)
+    request: Request,
+    data: PasswordResetRequest,
+    bgtasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
 ):
 
     if data.username is not None:
@@ -390,10 +400,12 @@ async def password_reset_request(
         # reset_link = f"https://{settings.HOST_DOMAIN}{settings.API_V1_STR}/auth/password-reset/confirm?token={password_reset_token}"
         reset_link = f"https://{settings.HOST_DOMAIN}/static/password-reset.html?token={password_reset_token}"
         email_content = HTML_PASSWORD_RESET_EMAIL_TEMPLATE.format(reset_link=reset_link)
-        asyncio.create_task(
-            send_email(
-                user.email, "Zest: password reset link", email_content, html=True
-            )
+        bgtasks.add_task(
+            send_email,
+            user.email,
+            "Zest: password reset link",
+            email_content,
+            html=True,
         )
 
     return {"message": "If an account exists, a password reset link has been sent."}
