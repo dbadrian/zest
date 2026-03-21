@@ -1,0 +1,43 @@
+version: "3"
+
+
+tasks:
+
+  dev:
+    desc: "Sets up what ever is necessary"
+    deps:
+      - dev:stubs:runner
+
+  dev:stubs:runner:
+      cmds:
+      - dart run build_runner watch --delete-conflicting-outputs
+
+
+  build:stubs:
+    desc: "One time run of build_runner"
+    cmds:
+      - dart run build_runner build --delete-conflicting-outputs
+
+  build:linux:
+    desc: "Build linux release"
+    cmds:
+      - flutter build linux --release
+    deps:
+      - build:stubs
+
+
+
+  # test:
+  #   dotenv:
+  #     - .env.test
+  #   vars:
+  #     ZEST_ENV: test
+  #     CODE_VERSION:
+  #       sh: date +%s%N
+  #   cmds:
+  #     - docker compose -f docker-compose.yml -f docker-compose.test.yml up -d db
+  #     - docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm backend alembic upgrade head
+  #     - docker compose -f docker-compose.yml -f docker-compose.test.yml up --build --exit-code-from backend
+  #     - docker compose -f docker-compose.yml -f docker-compose.test.yml down -v
+
+
