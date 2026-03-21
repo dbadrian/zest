@@ -223,6 +223,7 @@ async def register_user(
         db.add(db_reset)
 
         reset_link = f"https://{settings.HOST_DOMAIN}/static/password-reset.html?token={password_reset_token}"
+        print(user.username, user.email, user.email_verified)
         email_content = WELCOME_EMAIL_HTML.format(
             user=user_data.username,
             reset_link=reset_link,
