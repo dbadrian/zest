@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:zest/api/responses/multilingual_data_response.dart';
 import 'package:zest/api/responses/recipe_category_list_response.dart';
@@ -41,14 +40,13 @@ class APIService {
     }
   }
 
-  Future<RecipeSearchListResponse> searchRecipes(
-    String query, {
-    int page = 1,
-    int? pageSize = 50,
-    List<String>? categories,
-    List<String>? languages,
-    bool? favoritesOnly,
-  }) async {
+  Future<RecipeSearchListResponse> searchRecipes(String query,
+      {int page = 1,
+      int? pageSize = 50,
+      List<String>? categories,
+      List<String>? languages,
+      bool? favoritesOnly,
+      bool? userRecipesOnly}) async {
     final queryParameters = {
       "q": query,
       "page": page.toString(),
@@ -56,6 +54,7 @@ class APIService {
       if (categories != null && categories.isNotEmpty) 'categories': categories,
       if (languages != null && languages.isNotEmpty) 'languages': languages,
       if (favoritesOnly != null) 'favorites_only': favoritesOnly.toString(),
+      if (userRecipesOnly != null) 'user_only': userRecipesOnly.toString(),
     };
 
     final response = await client.get<RecipeSearchListResponse>(

@@ -328,7 +328,7 @@ class FilterSettingsBottomWindow extends ConsumerWidget {
                 .updateFilterOwner(value!);
           },
           secondary: const Icon(Icons.private_connectivity),
-          title: const Text('Private Only'),
+          title: const Text('Personal Recipes Only'),
           subtitle: const Text('Only recipes created by you will be shown!'),
         ),
         const Divider(),

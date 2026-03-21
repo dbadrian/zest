@@ -5,8 +5,6 @@ import 'package:zest/api/api_service.dart';
 import 'package:zest/api/responses/responses.dart';
 import 'package:zest/recipes/models/recipe_draft.dart';
 
-
-
 import 'models/recipe.dart';
 
 part 'recipe_repository.g.dart';
@@ -64,11 +62,13 @@ class RecipeRepository {
     List<String>? languages,
     List<String>? categories,
     bool? favoritesOnly,
+    bool? userRecipesOnly,
   }) async {
     return await _client.searchRecipes(query,
         languages: languages,
         categories: categories,
-        favoritesOnly: favoritesOnly);
+        favoritesOnly: favoritesOnly,
+        userRecipesOnly: userRecipesOnly);
   }
 }
 
