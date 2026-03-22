@@ -273,7 +273,7 @@ def _get_recipe(for_write: bool = False, history: bool = False):
                     selectinload(RecipeRevision.instruction_groups),
                 ),
                 selectinload(Recipe.translations),
-                joinedload(Recipe.original_recipe)
+                joinedload(Recipe.original_recipe),
             )
         else:
             query = query.options(
@@ -284,7 +284,7 @@ def _get_recipe(for_write: bool = False, history: bool = False):
                     selectinload(RecipeRevision.instruction_groups),
                 ),
                 selectinload(Recipe.translations),
-                joinedload(Recipe.original_recipe)
+                joinedload(Recipe.original_recipe),
             )
 
         result = await db.execute(query)
@@ -451,6 +451,8 @@ async def get_recipes(
             selectinload(Recipe.latest_revision).selectinload(
                 RecipeRevision.instruction_groups
             ),
+            selectinload(Recipe.translations),
+            selectinload(Recipe.original_recipe),
         )
 
         return stmt
@@ -459,16 +461,16 @@ async def get_recipes(
 
     # add favorited property in post to the found recipes
     # here we could do it via the database, but its difficult
-    # recipe_ids = [r.id for r in results.results]
-    # fav_rows = await db.execute(
-    #     select(user_favorite_recipes.c.recipe_id).where(
-    #         (user_favorite_recipes.c.user_id == current_user.id)
-    #         & (user_favorite_recipes.c.recipe_id.in_(recipe_ids))
-    #     )
-    # )
-    # fav_ids = {r[0] for r in fav_rows.all()}
+    recipe_ids = [r.id for r in results.results]
+    fav_rows = await db.execute(
+        select(user_favorite_recipes.c.recipe_id).where(
+            (user_favorite_recipes.c.user_id == current_user.id)
+            & (user_favorite_recipes.c.recipe_id.in_(recipe_ids))
+        )
+    )
+    fav_ids = {r[0] for r in fav_rows.all()}
     items = [
-        RecipeRead.from_orm(r).copy(update={"is_favorited": False})
+        RecipeRead.from_orm(r).copy(update={"is_favorite": r.id in fav_ids})
         for r in results.results
     ]
     results.results = items
@@ -631,7 +633,7 @@ async def get_recipe(
 
     ret = RecipeRead.from_orm(recipe)
     ret.is_favorited = found
-    
+
     print(ret)
     return ret
 
@@ -763,8 +765,7 @@ async def get_recipe_translation(
         False, description="If translation already exists, we retranslate"
     ),
 ):
-    
-    
+
     if target_language not in ALLOWED_LANGUAGES:
         raise ValidationError(f"target_languge not in {ALLOWED_LANGUAGES}")
 
@@ -777,11 +778,19 @@ async def get_recipe_translation(
         recipe.original_recipe is not None
         and target_language == recipe.original_recipe.language
     ):
-        return await _get_recipe()(recipe_id=recipe.original_recipe_id, db=db, current_user=current_user)
+        return await _get_recipe()(
+            recipe_id=recipe.original_recipe_id, db=db, current_user=current_user
+        )
 
     # get parents or itself for further processing
-    parent = await _get_recipe()(recipe_id=recipe.original_recipe_id, db=db, current_user=current_user)  if recipe.original_recipe is not None else recipe
-    
+    parent = (
+        await _get_recipe()(
+            recipe_id=recipe.original_recipe_id, db=db, current_user=current_user
+        )
+        if recipe.original_recipe is not None
+        else recipe
+    )
+
     # check if parent already has this translation
     translation = None
     for t in parent.translations:
@@ -793,8 +802,9 @@ async def get_recipe_translation(
     # and owns the existing translation
     if translation is not None:
         if not retranslate or translation.owner_id != current_user.id:
-            return await _get_recipe()(recipe_id=translation.id, db=db, current_user=current_user)
-    
+            return await _get_recipe()(
+                recipe_id=translation.id, db=db, current_user=current_user
+            )
 
     # new translation necessary
     # we will translate the descendant, but link via parents

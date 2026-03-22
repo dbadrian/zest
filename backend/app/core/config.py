@@ -78,7 +78,9 @@ class Settings(BaseSettings):
     # Google OAuth2
     GOOGLE_CLIENT_ID: str | None = None
     GOOGLE_CLIENT_SECRET: str | None = None
-    GOOGLE_REDIRECT_URL: str = f"http://{HOST_DOMAIN}{API_V1_STR}/auth/google/callback"  # TODO: too many magic variables
+    GOOGLE_REDIRECT_URL: str = (
+        f"http://{HOST_DOMAIN}{API_V1_STR}/auth/google/callback"  # TODO: too many magic variables
+    )
 
     LOCKED_ACCOUNT_TIMEOUT_MINUTES: int = 15
     MAX_FAILED_LOGIN_ATTEMPTS: int = 5
@@ -90,6 +92,9 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = "changethis"
     POSTGRES_DB: str = ""
 
+    # logging stuff
+    NO_SQLALCHEMY_LOGGING: bool = True
+
     MEILISEARCH_URL: str | None
     MEILISEARCH_MASTER_KEY: str = "changethis"
 
@@ -99,7 +104,7 @@ class Settings(BaseSettings):
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
         password_encoded = quote_plus(self.POSTGRES_PASSWORD)
-        
+
         return PostgresDsn.build(
             scheme="postgresql+psycopg",
             username=self.POSTGRES_USER,

@@ -1,4 +1,4 @@
-from typing import Annotated
+import logging
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -14,6 +14,7 @@ from app.version import __version__
 app_config = {}
 if settings.ENVIRONMENT not in SHOW_DOCS_IN_ENVS:
     app_config["openapi_url"] = None  # set url for docs as null
+    
 
 
 app = FastAPI(**app_config, lifespan=lifespan)
