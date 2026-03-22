@@ -470,7 +470,7 @@ async def get_recipes(
     )
     fav_ids = {r[0] for r in fav_rows.all()}
     items = [
-        RecipeRead.from_orm(r).copy(update={"is_favorite": r.id in fav_ids})
+        RecipeRead.model_validate(r).model_copy(update={"is_favorite": r.id in fav_ids})
         for r in results.results
     ]
     results.results = items
@@ -605,7 +605,7 @@ async def update_recipe(
     )
     found = fav_rows.scalar_one_or_none() is not None
 
-    ret = RecipeRead.from_orm(recipe)
+    ret = RecipeRead.model_validate(recipe)
     ret.is_favorited = found
     return ret
 
@@ -631,7 +631,7 @@ async def get_recipe(
     # )
     # translations = result.scalar_one()
 
-    ret = RecipeRead.from_orm(recipe)
+    ret = RecipeRead.model_validate(recipe)
     ret.is_favorited = found
 
     print(ret)
@@ -648,7 +648,7 @@ async def remove_recipe_favorite(
 ):
     if recipe in current_user.favorite_recipes:
         current_user.favorite_recipes.remove(recipe)
-    ret = RecipeRead.from_orm(recipe)
+    ret = RecipeRead.model_validate(recipe)
     ret.is_favorited = False  # we just assume it was done correctly...
     return ret
 
@@ -664,7 +664,7 @@ async def add_recipe_favorite(
     current_user: User = Depends(get_current_user),
 ):
     current_user.favorite_recipes.append(recipe)
-    ret = RecipeRead.from_orm(recipe)
+    ret = RecipeRead.model_validate(recipe)
     ret.is_favorited = True  # we just assume it was done correctly...
     return ret
 
