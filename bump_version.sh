@@ -86,6 +86,7 @@ sed -i "s/pkgver=.*$/pkgver=${VERSION}/g" PKGBUILD
 cd ..
 git add backend/pyproject.toml
 git add backend/app/version.py
+git add backend/uv.lock
 git add frontend/pubspec.yaml
 git add frontend/PKGBUILD
 git commit -m "Bumping version to ${VERSION}" --no-verify

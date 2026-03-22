@@ -986,7 +986,7 @@ class TitleWidget extends ConsumerWidget {
         Text("[DRAFT]", style: const TextStyle(fontWeight: FontWeight.w600)),
       ],
       Tooltip(
-        message: "Parse recipe from URL",
+        message: "Translate recipe",
         child: IconButton(
           icon: Icon(Icons.translate),
           onPressed: () async {
@@ -1090,9 +1090,15 @@ class TitleWidget extends ConsumerWidget {
                 // Close dialog before navigation
                 Navigator.of(context, rootNavigator: true).pop();
 
+                // context.goNamed(
+                //   RecipeEditScreen.routeNameEdit,
+                //   pathParameters: {'id': recipe.id.toString()},
+                // );
                 context.goNamed(
                   RecipeEditScreen.routeNameEdit,
-                  pathParameters: {'id': recipe.id.toString()},
+                  pathParameters: {
+                    'id': recipe.id.toString(),
+                  },
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
