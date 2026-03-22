@@ -173,6 +173,9 @@ class MeilisearchService:
 
         # Extract category names
         categories = [cat.name for cat in revision.categories]
+        
+        # Get translations' language codes
+        translations = [t.language for t in recipe.translations]
 
         return {
             "id": recipe.id,
@@ -184,6 +187,8 @@ class MeilisearchService:
             "owner_comment": revision.owner_comment,
             "language": recipe.language,
             "is_private": recipe.is_private,
+            "is_translation": recipe.is_translation,
+            "translations": translations,
             "is_draft": recipe.is_draft,
             "owner_id": str(recipe.owner_id),
             "difficulty": revision.difficulty,

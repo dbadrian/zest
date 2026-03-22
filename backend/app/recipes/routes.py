@@ -38,7 +38,11 @@ from app.core.pagination import (
 )
 from app.db import get_db
 from app.recipes.associations import user_favorite_recipes
-from app.recipes.gemini import create_recipe_from_file, create_recipe_from_url, translate_recipe
+from app.recipes.gemini import (
+    create_recipe_from_file,
+    create_recipe_from_url,
+    translate_recipe,
+)
 from .models import (
     FoodCandidate,
     Recipe,
@@ -50,6 +54,7 @@ from .models import (
     RecipeCategories,
 )  # SQLAlchemy models
 from .schemas import (
+    ALLOWED_LANGUAGES,
     FoodCandidateRead,
     RecipeListView,
     RecipeRead,
@@ -154,6 +159,7 @@ async def _create_recipe(
     recipe_data: RecipeCreateUpdate,
     db: AsyncSession,
     owner_id: USER_ID_T,
+    original_recipe: Recipe | None = None,
 ) -> Recipe:
     # Create the Recipe (meta record)
     recipe = Recipe(
@@ -162,6 +168,7 @@ async def _create_recipe(
         is_private=recipe_data.is_private,
         language=recipe_data.language,
         created_at=datetime.now(UTC),
+        original_recipe=original_recipe,  # marks a truly new recipe / parent
     )
     revision = await _create_recipe_revision(recipe_data, recipe, db)
 
@@ -172,20 +179,39 @@ async def _create_recipe(
     # IDs for recipe, revision, ingredient groups, ingredients are generated
     await db.flush()
     await db.refresh(revision)
-    # Eagerly load all relationships for Pydantic conversion
+    # # Eagerly load all relationships for Pydantic conversion
+    # result = await db.execute(
+    #     select(RecipeRevision)
+    #     .where(RecipeRevision.id == revision.id)
+    #     .options(
+    #         selectinload(RecipeRevision.categories),
+    #         selectinload(RecipeRevision.ingredient_groups)
+    #         .selectinload(IngredientGroup.ingredients)
+    #         .selectinload(Ingredient.unit),
+    #         selectinload(RecipeRevision.instruction_groups),
+    #         selectinload(RecipeRevision.recipe),
+    #     )
+    # )
+    # revision = result.scalar_one()
+
+    # Reload the recipe with everything needed for serialization
     result = await db.execute(
-        select(RecipeRevision)
-        .where(RecipeRevision.id == revision.id)
+        select(Recipe)
+        .where(Recipe.id == recipe.id)
         .options(
-            selectinload(RecipeRevision.categories),
-            selectinload(RecipeRevision.ingredient_groups)
-            .selectinload(IngredientGroup.ingredients)
-            .selectinload(Ingredient.unit),
-            selectinload(RecipeRevision.instruction_groups),
-            selectinload(RecipeRevision.recipe),
+            selectinload(Recipe.latest_revision).options(
+                selectinload(RecipeRevision.categories),
+                selectinload(RecipeRevision.ingredient_groups)
+                .selectinload(IngredientGroup.ingredients)
+                .selectinload(Ingredient.unit),
+                selectinload(RecipeRevision.instruction_groups),
+            ),
+            selectinload(Recipe.revisions),
+            selectinload(Recipe.original_recipe),
+            selectinload(Recipe.translations),
         )
     )
-    revision = result.scalar_one()
+    recipe = result.scalar_one()
 
     return recipe
 
@@ -198,7 +224,7 @@ async def _update_recipe(
     recipe.latest_revision = revision
     recipe.is_draft = recipe_data.is_draft
     recipe.is_private = recipe_data.is_private
-    recipe.language = recipe.language
+    recipe.language = recipe_data.language
 
     # --- Add to session and flush for IDs ---
     db.add(recipe)
@@ -245,7 +271,9 @@ def _get_recipe(for_write: bool = False, history: bool = False):
                     .selectinload(IngredientGroup.ingredients)
                     .joinedload(Ingredient.unit),
                     selectinload(RecipeRevision.instruction_groups),
-                )
+                ),
+                selectinload(Recipe.translations),
+                joinedload(Recipe.original_recipe)
             )
         else:
             query = query.options(
@@ -254,7 +282,9 @@ def _get_recipe(for_write: bool = False, history: bool = False):
                     .selectinload(IngredientGroup.ingredients)
                     .joinedload(Ingredient.unit),
                     selectinload(RecipeRevision.instruction_groups),
-                )
+                ),
+                selectinload(Recipe.translations),
+                joinedload(Recipe.original_recipe)
             )
 
         result = await db.execute(query)
@@ -381,69 +411,69 @@ async def get_multilingual(
         return data
 
 
-@router.get(
-    "",
-    response_model=PaginatedResponse[RecipeRead],
-    status_code=status.HTTP_200_OK,
-)
-async def get_recipes(
-    request: Request,
-    pagination_params: PaginationParams = Depends(),
-    date_filter_params: DateFilterParams = Depends(date_filter_dependency(Recipe)),
-    sorting_filter_params: SortParams = Depends(
-        sort_dependency(Recipe, allowed_columns=["id", "updated_at", "created_at"])
-    ),
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    initial_query = select(Recipe).where(
-        or_(Recipe.owner_id == current_user.id, Recipe.is_private.is_(False))
-    )
-    initial_query = apply_date_filter(initial_query, Recipe, date_filter_params)
-    initial_query = apply_sorting(initial_query, Recipe, sorting_filter_params)
+# @router.get(
+#     "",
+#     response_model=PaginatedResponse[RecipeRead],
+#     status_code=status.HTTP_200_OK,
+# )
+# async def get_recipes(
+#     request: Request,
+#     pagination_params: PaginationParams = Depends(),
+#     date_filter_params: DateFilterParams = Depends(date_filter_dependency(Recipe)),
+#     sorting_filter_params: SortParams = Depends(
+#         sort_dependency(Recipe, allowed_columns=["id", "updated_at", "created_at"])
+#     ),
+#     db: AsyncSession = Depends(get_db),
+#     current_user: User = Depends(get_current_user),
+# ):
+#     initial_query = select(Recipe).where(
+#         or_(Recipe.owner_id == current_user.id, Recipe.is_private.is_(False))
+#     )
+#     initial_query = apply_date_filter(initial_query, Recipe, date_filter_params)
+#     initial_query = apply_sorting(initial_query, Recipe, sorting_filter_params)
 
-    fav_subquery = (
-        select(user_favorite_recipes.c.recipe_id)
-        .where(user_favorite_recipes.c.user_id == current_user.id)
-        .subquery()
-    )
+#     # fav_subquery = (
+#     #     select(user_favorite_recipes.c.recipe_id)
+#     #     .where(user_favorite_recipes.c.user_id == current_user.id)
+#     #     .subquery()
+#     # )
 
-    def _enrich(ids: list[int]) -> Select:
-        stmt = select(Recipe).where(Recipe.id.in_(ids))
-        stmt = stmt.options(
-            selectinload(Recipe.latest_revision).selectinload(
-                RecipeRevision.categories
-            ),
-            selectinload(Recipe.latest_revision)
-            .selectinload(RecipeRevision.ingredient_groups)
-            .selectinload(IngredientGroup.ingredients)
-            .selectinload(Ingredient.unit),
-            selectinload(Recipe.latest_revision).selectinload(
-                RecipeRevision.instruction_groups
-            ),
-        )
+#     def _enrich(ids: list[int]) -> Select:
+#         stmt = select(Recipe).where(Recipe.id.in_(ids))
+#         stmt = stmt.options(
+#             selectinload(Recipe.latest_revision).selectinload(
+#                 RecipeRevision.categories
+#             ),
+#             selectinload(Recipe.latest_revision)
+#             .selectinload(RecipeRevision.ingredient_groups)
+#             .selectinload(IngredientGroup.ingredients)
+#             .selectinload(Ingredient.unit),
+#             selectinload(Recipe.latest_revision).selectinload(
+#                 RecipeRevision.instruction_groups
+#             ),
+#         )
 
-        return stmt
+#         return stmt
 
-    results = await paginate(db, initial_query, pagination_params, request, _enrich)
+#     results = await paginate(db, initial_query, pagination_params, request, _enrich)
 
-    # add favorited property in post to the found recipes
-    # here we could do it via the database, but its difficult
-    recipe_ids = [r.id for r in results.results]
-    fav_rows = await db.execute(
-        select(user_favorite_recipes.c.recipe_id).where(
-            (user_favorite_recipes.c.user_id == current_user.id)
-            & (user_favorite_recipes.c.recipe_id.in_(recipe_ids))
-        )
-    )
-    fav_ids = {r[0] for r in fav_rows.all()}
-    items = [
-        RecipeRead.from_orm(r).copy(update={"is_favorited": False})
-        for r in results.results
-    ]
-    results.results = items
+#     # add favorited property in post to the found recipes
+#     # here we could do it via the database, but its difficult
+#     # recipe_ids = [r.id for r in results.results]
+#     # fav_rows = await db.execute(
+#     #     select(user_favorite_recipes.c.recipe_id).where(
+#     #         (user_favorite_recipes.c.user_id == current_user.id)
+#     #         & (user_favorite_recipes.c.recipe_id.in_(recipe_ids))
+#     #     )
+#     # )
+#     # fav_ids = {r[0] for r in fav_rows.all()}
+#     items = [
+#         RecipeRead.from_orm(r).copy(update={"is_favorited": False})
+#         for r in results.results
+#     ]
+#     results.results = items
 
-    return results
+#     return results
 
 
 @router.get(
@@ -513,6 +543,7 @@ async def search_recipes(
                 title=r["title"],
                 subtitle=r["subtitle"],
                 language=r["language"],
+                translations=r["translations"],
                 owner_comment=r["owner_comment"],
                 prep_time=r["prep_time"],
                 cook_time=r["cook_time"],
@@ -592,8 +623,16 @@ async def get_recipe(
     )
     found = fav_rows.scalar_one_or_none() is not None
 
+    # result = await db.execute(
+    #     select(Recipe)
+    #     .where(Recipe.id == recipe_id)
+    # )
+    # translations = result.scalar_one()
+
     ret = RecipeRead.from_orm(recipe)
     ret.is_favorited = found
+    
+    print(ret)
     return ret
 
 
@@ -654,7 +693,9 @@ async def get_recipe_versions(
     return recipe
 
 
-@router.post("/from_file", response_model=RecipeRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/from_file", response_model=RecipeRead, status_code=status.HTTP_201_CREATED
+)
 async def get_recipe_from_pdf(
     file: UploadFile,
     db: AsyncSession = Depends(get_db),
@@ -688,7 +729,9 @@ async def get_recipe_from_pdf(
     return recipe
 
 
-@router.post("/from_url", response_model=RecipeRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/from_url", response_model=RecipeRead, status_code=status.HTTP_201_CREATED
+)
 async def get_recipe_from_url(
     url: HttpUrl,
     db: AsyncSession = Depends(get_db),
@@ -696,7 +739,6 @@ async def get_recipe_from_url(
 ):
     if not url:
         return {"message": "No valid URL sent"}
-
 
     recipe_data = await create_recipe_from_url(url, db)
     recipe = await _create_recipe(
@@ -709,21 +751,70 @@ async def get_recipe_from_url(
     return recipe
 
 
-@router.post("/translate/{recipe_id}", response_model=RecipeRead, status_code=status.HTTP_200_OK)
-async def get_recipe(
+@router.post(
+    "/translate/{recipe_id}", response_model=RecipeRead, status_code=status.HTTP_200_OK
+)
+async def get_recipe_translation(
     recipe: Recipe = Depends(_get_recipe(for_write=False)),
     target_language: str = Query(..., description="Target Language"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    retranslate: bool = Query(
+        False, description="If translation already exists, we retranslate"
+    ),
 ):
+    
+    
+    if target_language not in ALLOWED_LANGUAGES:
+        raise ValidationError(f"target_languge not in {ALLOWED_LANGUAGES}")
 
+    # do not retranslate current recipe
+    if recipe.language == target_language:
+        return recipe
 
+    # check if parent is that language
+    if (
+        recipe.original_recipe is not None
+        and target_language == recipe.original_recipe.language
+    ):
+        return await _get_recipe()(recipe_id=recipe.original_recipe_id, db=db, current_user=current_user)
+
+    # get parents or itself for further processing
+    parent = await _get_recipe()(recipe_id=recipe.original_recipe_id, db=db, current_user=current_user)  if recipe.original_recipe is not None else recipe
+    
+    # check if parent already has this translation
+    translation = None
+    for t in parent.translations:
+        if target_language == t.language:
+            translation = t
+            break
+
+    # continue with translation only if the user wants retranslate
+    # and owns the existing translation
+    if translation is not None:
+        if not retranslate or translation.owner_id != current_user.id:
+            return await _get_recipe()(recipe_id=translation.id, db=db, current_user=current_user)
+    
+
+    # new translation necessary
+    # we will translate the descendant, but link via parents
+    # to enforce a child wont have children and thus languages are unique
+    # this will lead to some weird behaviour, such as getting
+    # translations which are out of sync but thats inevitable
+    # TODO: force an overwrite behavior
     recipe_data = await translate_recipe(recipe, target_language, db)
-    recipe = await _create_recipe(
-        db=db, recipe_data=recipe_data, owner_id=current_user.id
+    recipe_translated = await _create_recipe(
+        db=db,
+        recipe_data=recipe_data,
+        owner_id=current_user.id,
+        original_recipe=parent,
     )
+    db.refresh(parent)
 
     search_service = get_meilisearch_service()
-    await search_service.index_recipe(recipe, db)
+    # update parent in database
+    await search_service.index_recipe(parent, db)
+    # index the new recipe
+    await search_service.index_recipe(recipe_translated, db)
 
-    return recipe
+    return recipe_translated

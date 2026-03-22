@@ -152,7 +152,7 @@ class Recipe(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
     )
-    updated_at = Column(
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC),
         onupdate=lambda: datetime.now(UTC),
@@ -163,8 +163,7 @@ class Recipe(Base):
     latest_revision_id: Mapped[int | None] = mapped_column(
         ForeignKey("recipe_revisions.id"), nullable=True
     )
-
-    # Relationships
+    
     latest_revision: Mapped["RecipeRevision"] = relationship(
         "RecipeRevision", foreign_keys=[latest_revision_id], post_update=True
     )
@@ -176,6 +175,30 @@ class Recipe(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+
+    # Deal with translations etc
+    # Translated recipes point to their original recipe, otherwise null for original recipes
+    original_recipe_id: Mapped[int | None] = mapped_column(
+        ForeignKey("recipes.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    
+    original_recipe: Mapped["Recipe | None"] = relationship(
+        "Recipe",
+        foreign_keys=[original_recipe_id],
+        remote_side=[id],
+        back_populates="translations",
+    )
+
+    translations: Mapped[list["Recipe"]] = relationship(
+        "Recipe",
+        foreign_keys=[original_recipe_id],
+        order_by="Recipe.created_at.desc()",
+        back_populates="original_recipe",
+        passive_deletes=False,
+    )
+    
+    # Extra meta
     favorited_by = relationship(
         "User",
         secondary=user_favorite_recipes,
@@ -190,6 +213,9 @@ class Recipe(Base):
         ),
     )
 
+    @property
+    def is_translation(self) -> bool:
+        return self.original_recipe_id != None
 
 class RecipeRevision(Base):
     __tablename__ = "recipe_revisions"

@@ -41,6 +41,21 @@ tasks:
     cmds:
       - docker compose -f docker-compose.yml -f docker-compose.dev.yml down --volumes --remove-orphans --rmi local
 
+  dev:migrate:
+    desc: "Create alembic migration revision"
+    dotenv:
+      - .env.dev
+    vars:
+      ZEST_ENV: dev
+      CODE_VERSION:
+        sh: date +%s%N
+    cmds:
+      - .venv/bin/python -m alembic upgrade head
+      - .venv/bin/python -m alembic revision --autogenerate -m "{{.MESSAGE}}"
+    deps:
+      - dev:down
+      - dev:detach
+
   dev:init:
     desc: "Init development environment with hot reload"
     dotenv:
