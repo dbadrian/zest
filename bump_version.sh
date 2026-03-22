@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -eou pipefail
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -74,26 +74,27 @@ else
 fi
 
 # run tests and see if we pass
-task backend:dev:down && task backend:test
+go-task backend:dev:down
+go-task backend:test
 
 # now bump versions and commit
 source ./backend/.venv/bin/activate
 on_failure $? "Couldn't activate zest environment"
 
-cd $SCRIPT_DIR
-cd backend
-uv version ${VERSION}
-echo "__version__ = '${VERSION}'" > app/version.py
-cd ../frontend
-cider version ${VERSION}+$(($(git rev-list --count HEAD) + 2000))
-sed -i "s/pkgver=.*$/pkgver=${VERSION}/g" PKGBUILD
-cd ..
-git add backend/pyproject.toml
-git add backend/app/version.py
-git add backend/uv.lock
-git add frontend/pubspec.yaml
-git add frontend/PKGBUILD
-git commit -m "Bumping version to ${VERSION}" --no-verify
-git tag v${VERSION}
-git push
-git push --tags
+# cd $SCRIPT_DIR
+# cd backend
+# uv version ${VERSION}
+# echo "__version__ = '${VERSION}'" > app/version.py
+# cd ../frontend
+# cider version ${VERSION}+$(($(git rev-list --count HEAD) + 2000))
+# sed -i "s/pkgver=.*$/pkgver=${VERSION}/g" PKGBUILD
+# cd ..
+# git add backend/pyproject.toml
+# git add backend/app/version.py
+# git add backend/uv.lock
+# git add frontend/pubspec.yaml
+# git add frontend/PKGBUILD
+# git commit -m "Bumping version to ${VERSION}" --no-verify
+# git tag v${VERSION}
+# git push
+# git push --tags

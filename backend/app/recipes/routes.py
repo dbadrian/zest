@@ -411,69 +411,69 @@ async def get_multilingual(
         return data
 
 
-# @router.get(
-#     "",
-#     response_model=PaginatedResponse[RecipeRead],
-#     status_code=status.HTTP_200_OK,
-# )
-# async def get_recipes(
-#     request: Request,
-#     pagination_params: PaginationParams = Depends(),
-#     date_filter_params: DateFilterParams = Depends(date_filter_dependency(Recipe)),
-#     sorting_filter_params: SortParams = Depends(
-#         sort_dependency(Recipe, allowed_columns=["id", "updated_at", "created_at"])
-#     ),
-#     db: AsyncSession = Depends(get_db),
-#     current_user: User = Depends(get_current_user),
-# ):
-#     initial_query = select(Recipe).where(
-#         or_(Recipe.owner_id == current_user.id, Recipe.is_private.is_(False))
-#     )
-#     initial_query = apply_date_filter(initial_query, Recipe, date_filter_params)
-#     initial_query = apply_sorting(initial_query, Recipe, sorting_filter_params)
+@router.get(
+    "",
+    response_model=PaginatedResponse[RecipeRead],
+    status_code=status.HTTP_200_OK,
+)
+async def get_recipes(
+    request: Request,
+    pagination_params: PaginationParams = Depends(),
+    date_filter_params: DateFilterParams = Depends(date_filter_dependency(Recipe)),
+    sorting_filter_params: SortParams = Depends(
+        sort_dependency(Recipe, allowed_columns=["id", "updated_at", "created_at"])
+    ),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    initial_query = select(Recipe).where(
+        or_(Recipe.owner_id == current_user.id, Recipe.is_private.is_(False))
+    )
+    initial_query = apply_date_filter(initial_query, Recipe, date_filter_params)
+    initial_query = apply_sorting(initial_query, Recipe, sorting_filter_params)
 
-#     # fav_subquery = (
-#     #     select(user_favorite_recipes.c.recipe_id)
-#     #     .where(user_favorite_recipes.c.user_id == current_user.id)
-#     #     .subquery()
-#     # )
+    # fav_subquery = (
+    #     select(user_favorite_recipes.c.recipe_id)
+    #     .where(user_favorite_recipes.c.user_id == current_user.id)
+    #     .subquery()
+    # )
 
-#     def _enrich(ids: list[int]) -> Select:
-#         stmt = select(Recipe).where(Recipe.id.in_(ids))
-#         stmt = stmt.options(
-#             selectinload(Recipe.latest_revision).selectinload(
-#                 RecipeRevision.categories
-#             ),
-#             selectinload(Recipe.latest_revision)
-#             .selectinload(RecipeRevision.ingredient_groups)
-#             .selectinload(IngredientGroup.ingredients)
-#             .selectinload(Ingredient.unit),
-#             selectinload(Recipe.latest_revision).selectinload(
-#                 RecipeRevision.instruction_groups
-#             ),
-#         )
+    def _enrich(ids: list[int]) -> Select:
+        stmt = select(Recipe).where(Recipe.id.in_(ids))
+        stmt = stmt.options(
+            selectinload(Recipe.latest_revision).selectinload(
+                RecipeRevision.categories
+            ),
+            selectinload(Recipe.latest_revision)
+            .selectinload(RecipeRevision.ingredient_groups)
+            .selectinload(IngredientGroup.ingredients)
+            .selectinload(Ingredient.unit),
+            selectinload(Recipe.latest_revision).selectinload(
+                RecipeRevision.instruction_groups
+            ),
+        )
 
-#         return stmt
+        return stmt
 
-#     results = await paginate(db, initial_query, pagination_params, request, _enrich)
+    results = await paginate(db, initial_query, pagination_params, request, _enrich)
 
-#     # add favorited property in post to the found recipes
-#     # here we could do it via the database, but its difficult
-#     # recipe_ids = [r.id for r in results.results]
-#     # fav_rows = await db.execute(
-#     #     select(user_favorite_recipes.c.recipe_id).where(
-#     #         (user_favorite_recipes.c.user_id == current_user.id)
-#     #         & (user_favorite_recipes.c.recipe_id.in_(recipe_ids))
-#     #     )
-#     # )
-#     # fav_ids = {r[0] for r in fav_rows.all()}
-#     items = [
-#         RecipeRead.from_orm(r).copy(update={"is_favorited": False})
-#         for r in results.results
-#     ]
-#     results.results = items
+    # add favorited property in post to the found recipes
+    # here we could do it via the database, but its difficult
+    # recipe_ids = [r.id for r in results.results]
+    # fav_rows = await db.execute(
+    #     select(user_favorite_recipes.c.recipe_id).where(
+    #         (user_favorite_recipes.c.user_id == current_user.id)
+    #         & (user_favorite_recipes.c.recipe_id.in_(recipe_ids))
+    #     )
+    # )
+    # fav_ids = {r[0] for r in fav_rows.all()}
+    items = [
+        RecipeRead.from_orm(r).copy(update={"is_favorited": False})
+        for r in results.results
+    ]
+    results.results = items
 
-#     return results
+    return results
 
 
 @router.get(
