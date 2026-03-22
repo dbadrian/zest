@@ -1090,12 +1090,8 @@ class TitleWidget extends ConsumerWidget {
                 // Close dialog before navigation
                 Navigator.of(context, rootNavigator: true).pop();
 
-                // context.goNamed(
-                //   RecipeEditScreen.routeNameEdit,
-                //   pathParameters: {'id': recipe.id.toString()},
-                // );
                 context.goNamed(
-                  RecipeEditScreen.routeNameEdit,
+                  RecipeDetailsPage.routeName,
                   pathParameters: {
                     'id': recipe.id.toString(),
                   },
@@ -1106,7 +1102,7 @@ class TitleWidget extends ConsumerWidget {
                     content: TextButton(
                       onPressed: () {
                         context.goNamed(
-                          RecipeEditScreen.routeNameEdit,
+                          RecipeDetailsPage.routeName,
                           pathParameters: {
                             'id': recipe.id.toString(),
                           },
