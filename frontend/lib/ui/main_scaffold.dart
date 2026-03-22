@@ -11,6 +11,7 @@ import 'package:zest/core/network/api_exception.dart';
 
 import 'package:zest/main.dart';
 import 'package:zest/recipes/controller/search_controller.dart';
+import 'package:zest/recipes/screens/recipe_details.dart';
 import 'package:zest/recipes/screens/recipe_edit.dart';
 
 import 'package:zest/settings/settings_screen.dart';
@@ -183,7 +184,7 @@ class MainScaffold extends ConsumerWidget {
                             Navigator.of(context, rootNavigator: true).pop();
 
                             context.goNamed(
-                              RecipeEditScreen.routeNameEdit,
+                              RecipeDetailsPage.routeName,
                               pathParameters: {'id': recipe.id.toString()},
                             );
                           } else {
@@ -192,9 +193,9 @@ class MainScaffold extends ConsumerWidget {
                                 content: TextButton(
                                   onPressed: () {
                                     context.goNamed(
-                                      RecipeEditScreen.routeNameEdit,
+                                      RecipeDetailsPage.routeName,
                                       pathParameters: {
-                                        'id': recipe.id.toString(),
+                                        'id': recipe.id.toString()
                                       },
                                     );
                                   },
@@ -349,7 +350,7 @@ class MainScaffold extends ConsumerWidget {
                             Navigator.of(context, rootNavigator: true).pop();
 
                             context.goNamed(
-                              RecipeEditScreen.routeNameEdit,
+                              RecipeDetailsPage.routeName,
                               pathParameters: {'id': recipe.id.toString()},
                             );
                           } else {
@@ -358,7 +359,7 @@ class MainScaffold extends ConsumerWidget {
                                 content: TextButton(
                                   onPressed: () {
                                     context.goNamed(
-                                      RecipeEditScreen.routeNameEdit,
+                                      RecipeDetailsPage.routeName,
                                       pathParameters: {
                                         'id': recipe.id.toString(),
                                       },
