@@ -73,6 +73,10 @@ else
     exit
 fi
 
+# run tests and see if we pass
+task backend:dev:down && task backend:test
+
+# now bump versions and commit
 source ./backend/.venv/bin/activate
 on_failure $? "Couldn't activate zest environment"
 
