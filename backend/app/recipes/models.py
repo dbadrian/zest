@@ -215,7 +215,7 @@ class Recipe(Base):
 
     @property
     def is_translation(self) -> bool:
-        return self.original_recipe_id != None
+        return self.original_recipe_id is not None
 
 class RecipeRevision(Base):
     __tablename__ = "recipe_revisions"

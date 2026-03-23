@@ -86,6 +86,24 @@ abstract class RecipeRevision with _$RecipeRevision {
 }
 
 @freezed
+abstract class RecipeReadHeader with _$RecipeReadHeader {
+  const factory RecipeReadHeader({
+    required int id,
+    required String language,
+    @JsonKey(name: 'owner_id') required String ownerId,
+    @JsonKey(name: 'is_private') required bool isPrivate,
+    @JsonKey(name: 'is_draft') required bool isDraft,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'updated_at') required DateTime updatedAt,
+    @JsonKey(name: 'is_favorited') required bool isFavorited,
+  }) = _RecipeReadHeader;
+
+  const RecipeReadHeader._();
+  factory RecipeReadHeader.fromJson(Map<String, dynamic> json) =>
+      _$RecipeReadHeaderFromJson(json);
+}
+
+@freezed
 abstract class Recipe with _$Recipe {
   const factory Recipe({
     required int id,
@@ -97,6 +115,8 @@ abstract class Recipe with _$Recipe {
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
     @JsonKey(name: 'is_favorited') required bool isFavorited,
     @JsonKey(name: 'latest_revision') required RecipeRevision latestRevision,
+    @JsonKey(name: 'original_recipe') required RecipeReadHeader? originalRecipe,
+    @JsonKey(name: 'translations') required List<RecipeReadHeader> translations,
   }) = _Recipe;
 
   const Recipe._();

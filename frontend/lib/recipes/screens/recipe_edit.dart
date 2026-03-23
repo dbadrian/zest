@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -76,7 +78,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   @override
   void initState() {
     super.initState();
-    if (!isTestEnvironment) {
+    if (!isTestEnvironment && !Platform.isLinux) {
       WakelockPlus.enable();
     }
     if (widget.recipeId != null) {
@@ -197,7 +199,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
       group.dispose();
     }
     super.dispose();
-    if (!isTestEnvironment) {
+    if (!isTestEnvironment && !Platform.isLinux) {
       WakelockPlus.disable();
     }
   }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -38,7 +40,7 @@ class _RecipeDetailsPageState extends ConsumerState<RecipeDetailsPage> {
   @override
   void initState() {
     super.initState();
-    if (!isTestEnvironment) {
+    if (!isTestEnvironment && !Platform.isLinux) {
       WakelockPlus.enable();
     }
   }
@@ -46,7 +48,7 @@ class _RecipeDetailsPageState extends ConsumerState<RecipeDetailsPage> {
   @override
   void dispose() {
     super.dispose();
-    if (!isTestEnvironment) {
+    if (!isTestEnvironment && !Platform.isLinux) {
       WakelockPlus.disable();
     }
   }
@@ -279,6 +281,24 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
           ),
           const Divider(),
         ],
+        if (recipe.originalRecipe != null) ...[
+          Padding(
+              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+              child: Text("Is translation....")),
+          const Divider(),
+        ],
+        // if (recipe.translations.isNotEmpty) ...[
+        //   Padding(
+        //     padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+        //     child: Row(
+        //       children: [
+        //         Text("See in the following other languages: "),
+        //         Text(recipe.translations.map((e) => e.language).join(", "))
+        //       ],
+        //     ),
+        //   ),
+        //   const Divider(),
+        // ],
         if (recipe.latestRevision.ownerComment != null &&
             recipe.latestRevision.ownerComment != "") ...[
           Padding(
