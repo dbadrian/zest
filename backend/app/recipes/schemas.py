@@ -1,4 +1,4 @@
-from enum import StrEnum
+from __future__ import annotations
 from typing import Annotated, List
 from datetime import datetime
 
@@ -418,6 +418,9 @@ class RecipeReadHeader(RecipeBase):
     created_at: datetime
     updated_at: datetime
 
+    # translation metadata
+    original_recipe: RecipeReadHeader | None = None
+    translations: list[RecipeReadHeader] = Field(default_factory=list)
 
     # meta data
     is_favorited: bool = False
@@ -426,9 +429,7 @@ class RecipeReadHeader(RecipeBase):
 class RecipeRead(RecipeReadHeader):
     model_config = ConfigDict(from_attributes=True)
     latest_revision: RecipeRevisionRead
-    # translation metadata
-    original_recipe: RecipeReadHeader | None = None
-    translations: list[RecipeReadHeader] = Field(default_factory=list)
+
 
 
 class RecipeReadHistory(RecipeReadHeader):

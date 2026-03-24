@@ -283,22 +283,41 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
         ],
         if (recipe.originalRecipe != null) ...[
           Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-              child: Text("Is translation....")),
+            padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+            child: TextButton(
+                child:
+                    Text("View Original (${recipe.originalRecipe!.language})"),
+                onPressed: () => context.goNamed(
+                      RecipeDetailsPage.routeName,
+                      pathParameters: {
+                        'id': recipe.originalRecipe!.id.toString(),
+                      },
+                    )),
+          ),
           const Divider(),
         ],
-        // if (recipe.translations.isNotEmpty) ...[
-        //   Padding(
-        //     padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-        //     child: Row(
-        //       children: [
-        //         Text("See in the following other languages: "),
-        //         Text(recipe.translations.map((e) => e.language).join(", "))
-        //       ],
-        //     ),
-        //   ),
-        //   const Divider(),
-        // ],
+        if (recipe.translations.isNotEmpty) ...[
+          Padding(
+            padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+            child: Row(
+              children: [
+                Text("See in the following other languages: "),
+                ...recipe.translations.map(
+                  (e) => TextButton(
+                      child: Text(
+                          "View Original (${recipe.originalRecipe!.language})"),
+                      onPressed: () => context.goNamed(
+                            RecipeDetailsPage.routeName,
+                            pathParameters: {
+                              'id': recipe.originalRecipe!.id.toString(),
+                            },
+                          )),
+                ),
+              ],
+            ),
+          ),
+          const Divider(),
+        ],
         if (recipe.latestRevision.ownerComment != null &&
             recipe.latestRevision.ownerComment != "") ...[
           Padding(
