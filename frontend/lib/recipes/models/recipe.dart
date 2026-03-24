@@ -96,6 +96,8 @@ abstract class RecipeReadHeader with _$RecipeReadHeader {
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
     @JsonKey(name: 'is_favorited') required bool isFavorited,
+    // @JsonKey(name: 'original_recipe') required RecipeReadHeader? originalRecipe,
+    // @JsonKey(name: 'translations') required List<RecipeReadHeader> translations,
   }) = _RecipeReadHeader;
 
   const RecipeReadHeader._();

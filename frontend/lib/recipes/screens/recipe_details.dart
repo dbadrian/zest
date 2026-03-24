@@ -294,25 +294,27 @@ class RecipeMetaInfoColumn extends ConsumerWidget {
                       },
                     )),
           ),
-          const Divider(),
+          // if (recipe.originalRecipe.)
+          // const Divider(),
         ],
         if (recipe.translations.isNotEmpty) ...[
           Padding(
             padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-            child: Row(
+            child: Column(
               children: [
                 Text("See in the following other languages: "),
-                ...recipe.translations.map(
-                  (e) => TextButton(
-                      child: Text(
-                          "View Original (${recipe.originalRecipe!.language})"),
-                      onPressed: () => context.goNamed(
-                            RecipeDetailsPage.routeName,
-                            pathParameters: {
-                              'id': recipe.originalRecipe!.id.toString(),
-                            },
-                          )),
-                ),
+                Wrap(children: [
+                  ...recipe.translations.map(
+                    (e) => TextButton(
+                        child: Text("${e.language} "),
+                        onPressed: () => context.goNamed(
+                              RecipeDetailsPage.routeName,
+                              pathParameters: {
+                                'id': e.id.toString(),
+                              },
+                            )),
+                  ),
+                ])
               ],
             ),
           ),

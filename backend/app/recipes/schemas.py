@@ -418,18 +418,24 @@ class RecipeReadHeader(RecipeBase):
     created_at: datetime
     updated_at: datetime
 
-    # translation metadata
-    original_recipe: RecipeReadHeader | None = None
-    translations: list[RecipeReadHeader] = Field(default_factory=list)
-
     # meta data
     is_favorited: bool = False
+
+
+
+class RecipeReadHeaderWithTranslations(RecipeReadHeader):
+    model_config = ConfigDict(from_attributes=True)
+
+    translations: list[RecipeBase] = Field(default_factory=list)
 
 
 class RecipeRead(RecipeReadHeader):
     model_config = ConfigDict(from_attributes=True)
     latest_revision: RecipeRevisionRead
-
+    
+    # translation metadata
+    original_recipe: RecipeReadHeader | None
+    translations: list[RecipeReadHeader] = Field(default_factory=list)
 
 
 class RecipeReadHistory(RecipeReadHeader):
