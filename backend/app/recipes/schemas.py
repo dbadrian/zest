@@ -427,7 +427,7 @@ class RecipeRead(RecipeReadHeader):
     model_config = ConfigDict(from_attributes=True)
     latest_revision: RecipeRevisionRead
     # translation metadata
-    original_recipe_id: RecipeReadHeader | None = None
+    original_recipe: RecipeReadHeader | None = None
     translations: list[RecipeReadHeader] = Field(default_factory=list)
 
 
