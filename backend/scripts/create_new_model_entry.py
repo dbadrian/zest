@@ -1,37 +1,59 @@
 """
 Helper tool to create a new entry in any registered SQLAlchemy model interactively
-with confirmation before saving.
+with confirmation, enum support, and optional manual ID selection.
 """
 
 import asyncio
 from argparse import ArgumentParser
-from sqlalchemy import inspect
+from sqlalchemy import inspect, select
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.types import Enum as SQLAlchemyEnum
-
 from app.core.config import settings
 from app.db import async_sessionmaker
 
-# Import all your models here
+# Import your models here
 from app.recipes.models import Unit, RecipeCategories, FoodCandidate
 
 # Base models registry
 MODELS = {
     "Unit": Unit,
     "RecipeCategories": RecipeCategories,
-    "FoodCandidate": FoodCandidate,
 }
 
-async def prompt_for_fields(model_class):
-    """Prompt user to fill all NOT NULL fields except auto-increment PKs, with enum support"""
+async def get_next_id(session, model_class):
+    """Fetch the next available ID from the table"""
+    pk_column = inspect(model_class).primary_key[0]
+    result = await session.execute(select(pk_column).order_by(pk_column.desc()).limit(1))
+    last_id = result.scalar()
+    return (last_id or 0) + 1
+
+async def prompt_for_fields(session, model_class):
+    """Prompt user for all fields, with enum support and optional manual ID"""
     mapper = inspect(model_class)
     values = {}
 
+    # Handle ID field first if exists
+    pk_column = mapper.primary_key[0] if mapper.primary_key else None
+    if pk_column is not None and pk_column.autoincrement:
+        # Ask user if they want to manually set ID
+        next_id = await get_next_id(session, model_class)
+        use_manual = input(f"Next available ID is {next_id}. Do you want to set a custom ID? [y/N]: ").strip().lower()
+        if use_manual == "y":
+            while True:
+                val = input(f"Enter ID (must be integer >= 1): ").strip()
+                if val.isdigit() and int(val) >= 1:
+                    values[pk_column.name] = int(val)
+                    break
+                print("Invalid ID. Try again.")
+        else:
+            # let database handle ID (do not add to values)
+            pass
+
     for column in mapper.columns:
-        # Skip auto-generated primary keys
-        if column.primary_key and column.autoincrement:
+        # Skip PK if already handled
+        if pk_column is not None and column.name == pk_column.name:
             continue
 
         # Handle Enum fields
@@ -46,7 +68,7 @@ async def prompt_for_fields(model_class):
                     print(f"Invalid choice. Please choose from: {', '.join(enum_values)}")
             continue
 
-        # Handle NOT NULL fields
+        # Required fields
         if not column.nullable and column.default is None:
             while True:
                 val = input(f"Enter value for {column.name} ({column.type}): ").strip()
@@ -60,7 +82,6 @@ async def prompt_for_fields(model_class):
     return values
 
 def display_summary(model_name, data):
-    """Display a summary of the entered data for confirmation"""
     print("\nSummary of the new entry:")
     print(f"Model: {model_name}")
     print("-" * 30)
@@ -74,19 +95,18 @@ async def create_entry(model_name):
         print(f"Model {model_name} not found.")
         return
 
-    data = await prompt_for_fields(model_class)
-    display_summary(model_name, data)
-
-    # Ask for confirmation
-    confirm = input("Do you want to save this entry? [y/N]: ").strip().lower()
-    if confirm != "y":
-        print("Entry creation canceled.")
-        return
-
     engine = create_async_engine(str(settings.SQLALCHEMY_DATABASE_URI), echo=False)
     async_session = async_sessionmaker(engine, expire_on_commit=False)
 
     async with async_session() as session:
+        data = await prompt_for_fields(session, model_class)
+        display_summary(model_name, data)
+
+        confirm = input("Do you want to save this entry? [y/N]: ").strip().lower()
+        if confirm != "y":
+            print("Entry creation canceled.")
+            return
+
         instance = model_class(**data)
         session.add(instance)
         try:
@@ -103,5 +123,4 @@ if __name__ == "__main__":
         help="The SQLAlchemy model to create a new entry for"
     )
     args = parser.parse_args()
-
     asyncio.run(create_entry(args.model))
