@@ -1,9 +1,9 @@
 # Gosh AI can be great and can be shit. Translating recipes it does pretty well.
-from enum import IntEnum, StrEnum, Enum
+from enum import StrEnum, Enum
 import json
 from pathlib import Path
-import select
 import tempfile
+from typing import IO
 
 from google import genai
 import requests
@@ -252,11 +252,13 @@ CRITICAL INSTRUCTIONS:
  - DO NOT CHANGE INGREDIENTS. Keep accurate and detailed as possible
  - Ingredients have an option "comments" field. Use this to specify things such as chopped, or specifying size such as large!
  - Keep original units as specified in the recipe. Do not perform automatic conversion!
+ - Only use amount_max if there is also an amount_min. amount_max needs to be more than amount_min. Do not use it, if it is the same.
  - If no amount is specify minimum amount as 1. Use piece or dash as unit, or whatever makes the most sense in the context.
 - For instruction_groups "instructions" field: preserve ALL newlines (\\n\\n) exactly as they appear in the source
  - Each step should be separated by \\n\\n (double newline)
  - Do not write anything into owner_commment
  - If a step has preceeding number in the recipe, it can be removed. Just keep the order and the spacing with \\n\\n
+ - Urls need to start with http:// or https://
  - Return structured data matching the provided schema
 """
 
@@ -267,11 +269,13 @@ CRITICAL INSTRUCTIONS:
  - DO NOT CHANGE INGREDIENTS. Keep accurate and detailed as possible
  - Ingredients have an option "comments" field. Use this to specify things such as chopped, or specifying size such as large!
  - Keep original units as specified in the recipe. Do not perform automatic conversion!
+ - Only use amount_max if there is also an amount_min. amount_max needs to be more than amount_min. Do not use it, if it is the same.
  - If no amount is specify minimum amount as 1. Use piece or dash as unit, or whatever makes the most sense in the context.
 - For instruction_groups "instructions" field: preserve ALL newlines (\\n\\n) exactly as they appear in the source
  - Each step should be separated by \\n\\n (double newline)
  - Do not write anything into owner_commment
  - If a step has preceeding number in the recipe, it can be removed. Just keep the order and the spacing with \\n\\n
+ - Urls need to start with http:// or https://
  - Return structured data matching the provided schema
 """
 
@@ -282,47 +286,28 @@ CRITICAL INSTRUCTIONS:
  - DO NOT CHANGE INGREDIENTS. Keep accurate and detailed as possible
  - Ingredients have an option "comments" field. Use this to specify things such as chopped, or specifying size such as large!
  - Keep original units as specified in the recipe. Do not perform automatic conversion!
+ - Only use amount_max if there is also an amount_min. amount_max needs to be more than amount_min. Do not use it, if it is the same.
  - If no amount is specify minimum amount as 1. Use piece or dash as unit, or whatever makes the most sense in the context.
 - For instruction_groups "instructions" field: preserve ALL newlines (\\n\\n) exactly as they appear in the source
  - Each step should be separated by \\n\\n (double newline)
  - Do not write anything into owner_commment
  - If a step has preceeding number in the recipe, it can be removed. Just keep the order and the spacing with \\n\\n
+ - Urls need to start with http:// or https://
  - Return structured data matching the provided schema
 """
 
-async def create_recipe_from_file(
-    file: UploadFile, db: AsyncSession
-) -> RecipeCreateUpdate:
-    """
-    Extract recipe data from a PDF file using Google GenAI with structured output.
+DEFAULT_MODEL="gemini-2.5-flash"
 
-    Args:
-        file: FastAPI UploadFile object containing the PDF
 
-    Returns:
-        dict: Recipe data matching RECIPE_SCHEMA
-
-    Raises:
-        Exception: If file upload or AI processing fails
-    """
-
-    # Read file content
-    content = await file.read()
-
-    # Create a temporary file to store the PDF
-    with tempfile.NamedTemporaryFile(
-        delete=False, suffix=Path(file.filename).suffix
-    ) as tmp_file:
-        tmp_file.write(content)
-        tmp_path = tmp_file.name
+async def create_recipe_from_file(file_path: str | Path) -> RecipeCreateUpdate:
 
     try:
         # Upload file to GenAI
         async with genai.Client(api_key=settings.GEMINI_API_KEY).aio as aclient:
-            uploaded_file = await aclient.files.upload(file=tmp_path)
+            uploaded_file = await aclient.files.upload(file=file_path)
 
             response = await aclient.models.generate_content(
-                model="gemini-2.5-flash",
+                model=DEFAULT_MODEL,
                 contents=[uploaded_file, PROMPT_FILE],
                 config={
                     "response_mime_type": "application/json",
@@ -347,7 +332,34 @@ async def create_recipe_from_file(
         raise Exception(f"Failed to create recipe from PDF: {str(e)}")
 
 
-async def create_recipe_from_url(url: str, db: AsyncSession) -> RecipeCreateUpdate:
+async def create_recipe_from_upload(file: UploadFile) -> RecipeCreateUpdate:
+    """
+    Extract recipe data from a PDF file using Google GenAI with structured output.
+
+    Args:
+        file: FastAPI UploadFile object containing the PDF
+
+    Returns:
+        dict: Recipe data matching RECIPE_SCHEMA
+
+    Raises:
+        Exception: If file upload or AI processing fails
+    """
+
+    # Read file content
+    content = await file.read()
+
+    # Create a temporary file to store the PDF
+    with tempfile.NamedTemporaryFile(
+        delete=False, suffix=Path(file.filename).suffix
+    ) as tmp_file:
+        tmp_file.write(content)
+        tmp_path = tmp_file.name
+
+    return await create_recipe_from_file(tmp_path)
+
+
+async def create_recipe_from_url(url: str) -> RecipeCreateUpdate:
     """
     Extract recipe data from a url using Google GenAI with structured output.
 
@@ -377,7 +389,7 @@ async def create_recipe_from_url(url: str, db: AsyncSession) -> RecipeCreateUpda
         async with genai.Client(api_key=settings.GEMINI_API_KEY).aio as aclient:
 
             response = await aclient.models.generate_content(
-                model="gemini-2.5-flash",
+                model=DEFAULT_MODEL,
                 contents=[PROMPT_URL, html],
                 config=GenerateContentConfig(
                     response_mime_type="application/json",
@@ -402,7 +414,7 @@ async def create_recipe_from_url(url: str, db: AsyncSession) -> RecipeCreateUpda
         raise Exception(f"Failed to create recipe from URL: {str(e)}")
 
 
-async def translate_recipe(recipe: Recipe, target_language: str, db: AsyncSession) -> RecipeCreateUpdate:
+async def translate_recipe(recipe: Recipe, target_language: str) -> RecipeCreateUpdate:
     """
     Translate recipe to desired language.
 
@@ -423,7 +435,7 @@ async def translate_recipe(recipe: Recipe, target_language: str, db: AsyncSessio
         async with genai.Client(api_key=settings.GEMINI_API_KEY).aio as aclient:
 
             response = await aclient.models.generate_content(
-                model="gemini-2.5-flash",
+                model=DEFAULT_MODEL,
                 contents=[PROMPT_TRANSLATE.format(langcode=target_language), json_str],
                 config=GenerateContentConfig(
                     response_mime_type="application/json",
