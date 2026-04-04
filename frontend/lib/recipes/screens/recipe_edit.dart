@@ -1074,6 +1074,13 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
         .map((e) =>
             (e, currentLanguageData["units"][e.name]["singular"] as String))
         .toList();
+    // also add abbreviations to the search options so `g` or `lbs` work.
+    final List<(Unit, String)> translatedAbbreviations = units
+        .map((e) => (
+              e.copyWith(), // ensure they have a different key. is there a better solution for this?
+              currentLanguageData["units"][e.name]["abbreviation"] as String
+            ))
+        .toList();
 
     // Sort units according to the unit order
     // TODO: Move this to a shared utils file
@@ -1133,7 +1140,10 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                       }
                       return extractTop<(Unit, String)>(
                               query: query.toLowerCase(),
-                              choices: translatedUnits,
+                              choices: [
+                                ...translatedUnits,
+                                ...translatedAbbreviations
+                              ],
                               limit: 500,
                               getter: (x) => x.$2.toLowerCase())
                           .map((e) => e.choice.$1)
@@ -1759,6 +1769,12 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
     );
   }
 
+  String unitString(String base, String unitSystem) {
+    String postfix =
+        (unitSystem.isEmpty || unitSystem == "Metric") ? "" : " ($unitSystem)";
+    return "$base$postfix";
+  }
+
   Widget _buildUnitDropdown() {
     var initValue = "";
 
@@ -1770,11 +1786,21 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
     return Autocomplete<Unit>(
       initialValue: TextEditingValue(text: initValue),
       optionsBuilder: (textEditingValue) async {
-        return await widget.searchUnits(
+        final units = await widget.searchUnits(
             textEditingValue.text.isEmpty ? " " : textEditingValue.text);
+        // quick duplication
+        final unitsDedup = units.fold<List<Unit>>([], (prev, e) {
+          if (!prev.any((p) => p.id == e.id)) {
+            prev.add(e);
+          }
+          return prev;
+        });
+        return unitsDedup;
       },
       displayStringForOption: (option) =>
-          widget.currentLangData["units"][option.name]["singular"],
+          // widget.currentLangData["units"][option.name]["singular"],
+          unitString(widget.currentLangData["units"][option.name]["singular"],
+              option.unitSystem),
       onSelected: (selection) {
         setState(() => widget.ingredient.selectedUnit = selection);
       },
