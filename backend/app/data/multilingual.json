@@ -300,6 +300,11 @@
         "singular": "block",
         "plural": "blocks",
         "abbreviation": ""
+      },
+      "glass": {
+        "singular": "glass",
+        "plural": "glasses",
+        "abbreviation": ""
       }
     },
     "categories": {
@@ -626,6 +631,11 @@
         "singular": "Block",
         "plural": "Blöcke",
         "abbreviation": ""
+      },
+      "glass": {
+        "singular": "Glas",
+        "plural": "Gläser",
+        "abbreviation": ""
       }
     },
     "categories": {
@@ -648,7 +658,9 @@
       "Cakes & Cupcakes": "Kuchen & Cupcakes",
       "Cookies & Bars": "Kekse & Riegel",
       "Pastries & Pies": "Gebäck & Kuchen",
-      "Holiday & Special Occasion": "Feiertage & besondere Anlässe"
+      "Holiday & Special Occasion": "Feiertage & besondere Anlässe",
+      "Vegan": "Vegan",
+      "Vegetarian": "Vegetarisch"
     }
   },
   "cs": {
@@ -952,6 +964,11 @@
         "singular": "blok",
         "plural": "bloky",
         "abbreviation": ""
+      },
+      "glass": {
+        "singular": "sklenice",
+        "plural": "sklenice",
+        "abbreviation": ""
       }
     },
     "categories": {
@@ -974,7 +991,9 @@
       "Cakes & Cupcakes": "Dorty a cupcakes",
       "Cookies & Bars": "Sušenky a řezy",
       "Pastries & Pies": "Pečivo a koláče",
-      "Holiday & Special Occasion": "Svátky a zvláštní příležitosti"
+      "Holiday & Special Occasion": "Svátky a zvláštní příležitosti",
+      "Vegan": "Veganské",
+      "Vegetarian": "Vegetariánské"
     }
   }
 }

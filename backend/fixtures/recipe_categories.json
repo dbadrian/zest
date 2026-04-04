@@ -138,5 +138,19 @@
       "name": "Holiday & Special Occasion",
       "id": 19
     }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Vegetarian",
+      "id": 20
+    }
+  },
+  {
+    "model": "RecipeCategories",
+    "fields": {
+      "name": "Vegan",
+      "id": 21
+    }
   }
 ]
