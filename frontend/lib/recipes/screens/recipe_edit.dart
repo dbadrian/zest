@@ -1070,24 +1070,28 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
 
   Widget _buildIngredientGroupsSection(List<Unit> units, List<Food> foods,
       Map<String, dynamic> currentLanguageData) {
-    final List<(Unit, String)> translatedUnits = units
+    // Sort units according to the unit order
+    // TODO: Move this to a shared utils file
+    final units0 = units.where((e) => e.unitSystem != "Shakkanhou").toList();
+    units0.sort(
+      (a, b) => (a.id).compareTo((b.id)),
+    );
+
+    final List<(Unit, String)> translatedUnits = units0
         .map((e) =>
             (e, currentLanguageData["units"][e.name]["singular"] as String))
         .toList();
     // also add abbreviations to the search options so `g` or `lbs` work.
-    final List<(Unit, String)> translatedAbbreviations = units
+    final List<(Unit, String)> translatedAbbreviations = units0
         .map((e) => (
               e.copyWith(), // ensure they have a different key. is there a better solution for this?
               currentLanguageData["units"][e.name]["abbreviation"] as String
             ))
         .toList();
 
-    // Sort units according to the unit order
-    // TODO: Move this to a shared utils file
-    final units0 = units.toList();
-    units0.sort(
-      (a, b) => (a.id).compareTo((b.id)),
-    );
+    // TODO: Filter out unwanted units for now
+    final unitCandidates =
+        [...translatedUnits, ...translatedAbbreviations].toList();
 
     return Card(
       child: Padding(
@@ -1140,10 +1144,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                       }
                       return extractTop<(Unit, String)>(
                               query: query.toLowerCase(),
-                              choices: [
-                                ...translatedUnits,
-                                ...translatedAbbreviations
-                              ],
+                              choices: unitCandidates,
                               limit: 500,
                               getter: (x) => x.$2.toLowerCase())
                           .map((e) => e.choice.$1)
