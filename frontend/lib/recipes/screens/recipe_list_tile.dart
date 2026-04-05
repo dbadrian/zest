@@ -48,38 +48,16 @@ class RecipeListTile extends ConsumerWidget {
       key: const Key("recipeListTile"),
       // trailing: ,
 
-      trailing: SizedBox(
-        width: 100,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            if (language != null &&
-                language!.isNotEmpty &&
-                language != ref.watch(settingsProvider).current.language)
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CountryFlag.fromLanguageCode(language!,
-                      theme: ImageTheme(
-                        height: 20,
-                        width: 30,
-                        shape: const RoundedRectangle(6),
-                      ))
-                ],
-              ),
-            SizedBox(
-              width: 10,
-            ),
-            if (onDelete != null)
-              IconButton(
-                key: const Key("deleteIcon"),
-                icon: const Icon(Icons.delete),
-                onPressed: onDelete,
-                // make it lightlight shaded
-              ),
-          ],
-        ),
-      ),
+      trailing: (language != null &&
+              language!.isNotEmpty &&
+              language != ref.watch(settingsProvider).current.language)
+          ? CountryFlag.fromLanguageCode(language!,
+              theme: ImageTheme(
+                height: 20,
+                width: 30,
+                shape: const RoundedRectangle(6),
+              ))
+          : null,
       visualDensity: const VisualDensity(horizontal: 0, vertical: -4),
       title: Row(children: [
         Expanded(
@@ -93,7 +71,8 @@ class RecipeListTile extends ConsumerWidget {
           SizedBox(
             width: 5,
           ),
-          Text("[DRAFT]", style: const TextStyle(fontWeight: FontWeight.w600)),
+          Icon(Icons.construction),
+          // Text("[DRAFT]", style: const TextStyle(fontWeight: FontWeight.w600)),
         ],
         if (isFavorite != null && isFavorite!)
           Icon(
