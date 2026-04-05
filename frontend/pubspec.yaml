@@ -78,7 +78,7 @@ dependencies:
   upgrader: ^12.5.0
   
   wakelock_plus: ^1.5.1
-
+  in_app_update: ^4.2.5
 
   # flutter_web_plugins: any
 dev_dependencies:

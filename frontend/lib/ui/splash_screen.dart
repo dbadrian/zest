@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:in_app_update/in_app_update.dart';
 import 'package:zest/authentication/auth_service.dart';
 import 'package:zest/recipes/screens/recipe_search.dart';
 import 'package:zest/settings/settings_provider.dart';
@@ -36,7 +39,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   Future<void> _initializeApp() async {
-    // await Future.delayed(Duration(milliseconds: 500));
+    if (Platform.isAndroid) {
+      // Instead of Updat we use the official APIs to check playstore.
+      await _checkForUpdate();
+    }
 
     // Perform network test
     bool isAuthed = await _refreshAuthState();
@@ -48,6 +54,24 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       if (mounted) {
         context.goNamed(LoginPage.routeName);
       }
+    }
+  }
+
+  // Delay slightly to avoid calling too early
+
+  Future<void> _checkForUpdate() async {
+    try {
+      final info = await InAppUpdate.checkForUpdate();
+
+      if (info.updateAvailability == UpdateAvailability.updateAvailable) {
+        if (info.immediateUpdateAllowed) {
+          await InAppUpdate.performImmediateUpdate();
+        } else if (info.flexibleUpdateAllowed) {
+          await InAppUpdate.startFlexibleUpdate();
+        }
+      }
+    } catch (e) {
+      debugPrint("Update error: $e");
     }
   }
 
