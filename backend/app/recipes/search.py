@@ -36,28 +36,29 @@ class MeilisearchService:
             self.client.wait_for_task(task.task_uid)
             index = self.client.get_index(self.food_index_name)
 
+        tasks = []
         # Configure searchable attributes with priority
-        index.update_searchable_attributes(
+        tasks.append(index.update_searchable_attributes(
             [
                 "name",  # Highest priority
                 "description",
             ]
-        )
+        ))
 
         # Configure filterable attributes for faceted search
-        index.update_filterable_attributes(
+        tasks.append(index.update_filterable_attributes(
             [
                 "language",
             ]
-        )
+        ))
         #
         # # Configure sortable attributes
-        # index.update_sortable_attributes(
+        # tasks.append(index.update_sortable_attributes(
         #     ["created_at", "updated_at", "difficulty", "prep_time", "cook_time"]
         # )
 
         # Configure ranking rules (title prioritization)
-        index.update_ranking_rules(
+        tasks.append(index.update_ranking_rules(
             [
                 "words",
                 "typo",
@@ -66,7 +67,10 @@ class MeilisearchService:
                 "sort",
                 "exactness",
             ]
-        )
+        ))
+        
+        for task in tasks:
+            self.client.wait_for_task(task.task_uid)
 
     def _setup_recipe_index(self):
         """Initialize Meilisearch index with proper configuration"""
@@ -74,11 +78,14 @@ class MeilisearchService:
             index = self.client.get_index(self.recipe_index_name)
         except MeilisearchError:
             # Create index if it doesn't exist
-            self.client.create_index(self.recipe_index_name, {"primaryKey": "id"})
+            task = self.client.create_index(self.recipe_index_name, {"primaryKey": "id"})
+            self.client.wait_for_task(task.task_uid)
             index = self.client.get_index(self.recipe_index_name)
 
+        tasks = []
+
         # Configure searchable attributes with priority
-        index.update_searchable_attributes(
+        tasks.append(index.update_searchable_attributes(
             [
                 "title",  # Highest priority
                 "subtitle",
@@ -87,10 +94,10 @@ class MeilisearchService:
                 "categories",
                 "owner_comment",
             ]
-        )
+        ))
 
         # Configure filterable attributes for faceted search
-        index.update_filterable_attributes(
+        tasks.append(index.update_filterable_attributes(
             [
                 "language",
                 "is_private",
@@ -102,15 +109,15 @@ class MeilisearchService:
                 "cook_time",
                 "servings",
             ]
-        )
+        ))
 
         # Configure sortable attributes
-        index.update_sortable_attributes(
+        tasks.append(index.update_sortable_attributes(
             ["created_at", "updated_at", "difficulty", "prep_time", "cook_time"]
-        )
+        ))
 
         # Configure ranking rules (title prioritization)
-        index.update_ranking_rules(
+        tasks.append(index.update_ranking_rules(
             [
                 "words",
                 "typo",
@@ -119,8 +126,11 @@ class MeilisearchService:
                 "sort",
                 "exactness",
             ]
-        )
-
+        ))
+        
+        for task in tasks:
+            self.client.wait_for_task(task.task_uid)
+            
     async def index_recipe(self, recipe: Recipe, db: AsyncSession):
         """Index a single recipe"""
         # Load all relationships if not already loaded
