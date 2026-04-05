@@ -1,6 +1,7 @@
 # Gosh AI can be great and can be shit. Translating recipes it does pretty well.
 from enum import StrEnum, Enum
 import json
+import mimetypes
 from pathlib import Path
 import tempfile
 from typing import IO
@@ -301,10 +302,14 @@ DEFAULT_MODEL="gemini-2.5-flash"
 
 async def create_recipe_from_file(file_path: str | Path) -> RecipeCreateUpdate:
 
+    mime_type, _ = mimetypes.guess_type(file_path.name)
+    mime_type = mime_type or "application/octet-stream"
+
     try:
         # Upload file to GenAI
         async with genai.Client(api_key=settings.GEMINI_API_KEY).aio as aclient:
-            uploaded_file = await aclient.files.upload(file=file_path)
+            with open(file_path, 'rb') as f:
+                uploaded_file = await aclient.files.upload(file=f, config={'mime_type': mime_type})
 
             response = await aclient.models.generate_content(
                 model=DEFAULT_MODEL,
