@@ -58,7 +58,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   final _languageController = TextEditingController();
 
   // ignore: unused_field
-  String? _selectedLanguage = "en";
+  String? _selectedLanguage;
   bool _isPrivate = false;
   bool _isDraft = false;
   int _difficulty = 3;
@@ -222,7 +222,7 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
       final prepTime = _prepTimeHours * 60 + _prepTimeMinutes;
       final cookTime = _cookTimeHours * 60 + _cookTimeMinutes;
       final draft = RecipeDraft(
-          language: _selectedLanguage = "en",
+          language: _selectedLanguage ?? "en",
           isPrivate: _isPrivate,
           isDraft: _isDraft,
           latestRevision: RecipeRevisionDraft(
@@ -429,7 +429,8 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
                             _buildCategoriesSection(data.categories
                                 .map((e) => e.copyWith(
                                     name: data.currentLanguageData["categories"]
-                                        [e.name]))
+                                            [e.name] ??
+                                        "<Translation Missing>"))
                                 .toList()),
                             const SizedBox(height: 32),
                             _buildIngredientGroupsSection(data.units,
@@ -545,14 +546,19 @@ class _RecipeEditScreenState extends ConsumerState<RecipeEditScreen> {
   }
 
   Widget _buildLanguageDropdown(RecipeFormData staticData) {
-    final currentLanguage =
-        ref.watch(settingsProvider.select((s) => s.current.language));
     final localizedLanguges = staticData.localizedLanguageNames;
-    // TODO: grab the current default language
+
+    // if selectedLang is not set yet, set to current language
+    if (_selectedLanguage == null) {
+      final currentLanguage =
+          ref.read(settingsProvider.select((s) => s.current.language));
+      _selectedLanguage = currentLanguage;
+    }
+
     return Autocomplete<MapEntry<String, String>>(
       initialValue: _selectedLanguage != null
           ? TextEditingValue(
-              text: localizedLanguges[currentLanguage] ?? '',
+              text: localizedLanguges[_selectedLanguage] ?? '',
             )
           : TextEditingValue.empty,
       optionsBuilder: (TextEditingValue textEditingValue) {
@@ -1789,13 +1795,8 @@ class _IngredientWidgetState extends State<_IngredientWidget> {
       optionsBuilder: (textEditingValue) async {
         final units = await widget.searchUnits(
             textEditingValue.text.isEmpty ? " " : textEditingValue.text);
-        // quick duplication
-        final unitsDedup = units.fold<List<Unit>>([], (prev, e) {
-          if (!prev.any((p) => p.id == e.id)) {
-            prev.add(e);
-          }
-          return prev;
-        });
+        // quick duplication since we added each units twice (name, abbreviation)
+        final unitsDedup = {for (var u in units) u.id: u}.values.toList();
         return unitsDedup;
       },
       displayStringForOption: (option) =>
