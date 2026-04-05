@@ -54,24 +54,6 @@ class RecipeSearchPageState<T> extends ConsumerState<RecipeSearchPage<T>> {
   // }
 
   Widget buildLeading() {
-    // final NavigatorState? navigator = Navigator.maybeOf(context);
-    // if (navigator != null && navigator.canPop()) {
-    //   return IconButton(
-    //     icon: const Icon(Icons.arrow_back_ios_new_rounded),
-    //     onPressed: () {
-    //       context.go(HomePage.routeLocation);
-    //       ref.read(recipeSearchControllerProvider.notifier).searchRecipes("");
-    //     },
-    //   );
-    // } else {
-    //   return const SizedBox(
-    //     width: 10,
-    //   );
-    // }
-    // return const SizedBox(
-    //   width: 10,
-    // );
-
     // styling is controlled by theme
     return const Icon(Icons.search);
   }

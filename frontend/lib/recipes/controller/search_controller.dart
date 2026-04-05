@@ -150,6 +150,7 @@ class RecipeSearchController extends _$RecipeSearchController {
           categories:
               filterSettings.categories.map((e) => mapcat[e]!.name).toList(),
           favoritesOnly: filterSettings.favoritesOnly,
+          userRecipesOnly: filterSettings.filterOwner,
 
           // searchFields: filterSettings.searchFields
           //     .map<String>((e) => API_RECIPE_SEARCH_FIELDS[e]!.left)
