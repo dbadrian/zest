@@ -20,37 +20,27 @@ zipfile=$backupfolder/$zipfile_name
 #create backup folder
 mkdir -p $backupfolder
 # Create a backup
-if pg_dump -U zest -h localhost > $sqlfile ; then
+if pg_dump -U zest > $sqlfile ; then
     echo 'Sql dump created'
 else
-    echo 'pg_dump return non-zero code' | mailx -s 'No backup was created!' $recipient_email
+    echo 'pg_dump return non-zero code: $?' | mailx -s 'No backup was created!' $recipient_email
     exit
 fi
 
 
-DATE=$(date +%Y-%m-%d)
-pushd ~/zest/
-./zest --env env.json manage dumpdata --indent 2 users > $backupfolder/${DATE}_users.json
-./zest --env env.json manage dumpdata --indent 2 favorites > $backupfolder/${DATE}_favorites.json
-./zest --env env.json manage dumpdata --indent 2 recipes > $backupfolder/${DATE}_recipes.json
-./zest --env env.json manage dumpdata --indent 2 shopping_lists > $backupfolder/${DATE}_shopping_lists.json
-./zest --env env.json manage dumpdata --indent 2 units > $backupfolder/${DATE}_units.json
-./zest --env env.json manage dumpdata --indent 2 tags > $backupfolder/${DATE}_tags.json
-./zest --env env.json manage dumpdata --indent 2 foods > $backupfolder/${DATE}_food.json
-popd
-
+# TODO: replace/create own dump script to export into json files?
 
 # Compress backup
 pushd $backupfolder
-if tar -czvf $zipfile_name $sqlfile_name *.json; then
+if tar -czvf $zipfile_name $sqlfile_name; then
     echo 'The backup was successfully compressed'
 else
-    echo 'Error compressing backup' #| mailx -s 'Backup was not created!' $recipient_email
+    echo 'Error compressing backup' | mailx -s 'Backup was not created!' $recipient_email
     exit
 fi
 popd
 rm $sqlfile 
-rm $backupfolder/*.json
+#rm $backupfolder/*.json
 
 # Delete old backups 
 echo "Deleting following files older than ${keep_day} days":
@@ -68,8 +58,7 @@ SIZE=$(du -hs $backupfolder)
 echo "Backup folder size is: $SIZE"
 
 # Send final mail with infos
-printf "New Backup made: $zipfile\n\nFolder Size: $SIZE\n\nFiles Deleted:\n$FILES" 
-#| mailx -s 'Backup was successfully created' $recipient_email
+printf "New Backup made: $zipfile\n\nFolder Size: $SIZE\n\nFiles Deleted:\n$FILES" | mailx -s 'Backup was successfully created' $recipient_email
 
 printf "Backup was successfully created. Sync to B2 now"
 /home/zest/bin/b2 sync ~/backups/zest/ b2://zest-db-backup/ --delete
