@@ -72,11 +72,11 @@ Future<void> main() async {
 
   packageInfo = await PackageInfo.fromPlatform();
 
-  // Configure headers
-  // TODO: LOW RELEASE Remove for public version
-  UpdatGlobalOptions.downloadReleaseHeaders = {
-    "Accept": "application/octet-stream",
-  };
+  // // Configure headers
+  // // TODO: LOW RELEASE Remove for public version
+  // UpdatGlobalOptions.downloadReleaseHeaders = {
+  //   "Accept": "application/octet-stream",
+  // };
 
   runApp(ProviderScope(
     overrides: [

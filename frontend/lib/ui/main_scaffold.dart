@@ -459,6 +459,46 @@ class MainScaffold extends ConsumerWidget {
                   ////////////////////////////////////////////////////////////////
                   //// Main Body
                   ////////////////////////////////////////////////////////////////
+                  if (Platform.isWindows)
+                    UpdatWidget(
+                      currentVersion: packageInfo.version,
+                      getLatestVersion: () async {
+                        final ret = await ref
+                            .read(githubServiceProvider)
+                            .getLatestVersion();
+                        return ret;
+                      },
+                      openOnDownload: false,
+                      getDownloadFileLocation: (latestVersion) async {
+                        Directory downloadDirectory =
+                            await getDownloadDirectory();
+                        final file = File(p.join(downloadDirectory.path,
+                            "zest-$latestVersion.$platformUpdateExt"));
+                        debugPrint("Update file: $file");
+                        return file;
+                      },
+                      getBinaryUrl: (latestVersion) async {
+                        final assets = await ref
+                            .read(githubServiceProvider)
+                            .getLatestAssetList();
+
+                        String? downloadUrl = "";
+                        int? assetId;
+                        if (assets != null) {
+                          final assetCandidate = assets.firstWhere((e) {
+                            return e["name"] as String ==
+                                platformUpdateName(latestVersion);
+                          }, orElse: () => {});
+                          assetId = assetCandidate["id"] as int?;
+                          downloadUrl =
+                              assetCandidate["browser_download_url"] as String?;
+                        }
+                        debugPrint("Download URL: $downloadUrl");
+                        return downloadUrl!;
+                      },
+                      // Lastly, enter your app name so we know what to call your files.
+                      appName: "Zest",
+                    ),
                   if (isAuthenticated) ...[
                     if (GoRouter.of(context).state.name !=
                         RecipeSearchPage.routeName)
@@ -551,43 +591,6 @@ class MainScaffold extends ConsumerWidget {
                       },
                     ),
                   //TODO: Feature on linux??!
-                  if (Platform.isWindows || Platform.isLinux)
-                    UpdatWidget(
-                      currentVersion: packageInfo.version,
-                      getLatestVersion: () async {
-                        final ret = await ref
-                            .read(githubServiceProvider)
-                            .getLatestVersion();
-                        return ret;
-                      },
-                      openOnDownload: false,
-                      getDownloadFileLocation: (latestVersion) async {
-                        Directory downloadDirectory =
-                            await getDownloadDirectory();
-                        final file = File(p.join(downloadDirectory.path,
-                            "zest-$latestVersion.$platformUpdateExt"));
-                        debugPrint("Update file: $file");
-                        return file;
-                      },
-                      getBinaryUrl: (latestVersion) async {
-                        final assets = await ref
-                            .read(githubServiceProvider)
-                            .getLatestAssetList();
-                        int? assetId;
-                        if (assets != null) {
-                          final assetCandidate = assets.firstWhere((e) {
-                            return e["name"] as String ==
-                                platformUpdateName(latestVersion);
-                          }, orElse: () => {});
-                          assetId = assetCandidate["id"] as int?;
-                        }
-                        debugPrint(
-                            "Downlaod URL: https://api.github.com/repos/dbadrian/zest/releases/assets/$assetId");
-                        return "https://api.github.com/repos/dbadrian/zest/releases/assets/$assetId";
-                      },
-                      // Lastly, enter your app name so we know what to call your files.
-                      appName: "Zest",
-                    ),
                 ],
               ),
             ),
