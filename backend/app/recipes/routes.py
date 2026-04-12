@@ -39,7 +39,7 @@ from app.core.pagination import (
 from app.db import get_db
 from app.recipes.associations import user_favorite_recipes
 from app.recipes.gemini import (
-    create_recipe_from_upload,
+    create_recipe_from_file,
     create_recipe_from_url,
     translate_recipe,
 )
@@ -720,7 +720,7 @@ async def get_recipe_from_pdf(
             detail=f"Invalid file format. Only supporting: pdf, png, jpg, jpeg, webp, heic, heif",
         )
 
-    recipe_data = await create_recipe_from_upload(file, db)
+    recipe_data = await create_recipe_from_file(file, db)
     recipe = await _create_recipe(
         db=db, recipe_data=recipe_data, owner_id=current_user.id
     )
