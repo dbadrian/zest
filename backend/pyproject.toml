@@ -30,8 +30,8 @@ ai = [
     "ollama>=0.6.1",
 ]
 dev = [
-    "alembic>=1.17.2",
+    "alembic>=1.18.4",
     "grequests>=0.7.0",
-    "pytest-cov>=7.0.0",
+    "pytest-cov>=7.1.0",
     "wikidata>=0.9.0",
 ]
