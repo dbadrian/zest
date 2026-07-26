@@ -1,64 +1,77 @@
 #!/usr/bin/env bash
-set -e
+set -Eeuo pipefail
 
-# move old log file
-cp /home/zest/backup_logs /home/zest/backup_logs.old
+# --- Config ---
+DB_NAME="zest"
+DB_USER="zest"
+BACKUP_DIR="$HOME/backups/zest"
+RECIPIENT_EMAIL="dawidh.adrian+zest@gmail.com"
+KEEP_DAYS=14
+DATE="$(date +%Y-%m-%d_%H-%M-%S)"
 
-# Database name
-db_name=zest
-# Backup storage directory 
-backupfolder=~/backups/zest
-# Notification email address 
-recipient_email=dawidh.adrian+zest@gmail.com
-# Number of days to store the backup 
-keep_day=14
-DATE=$(date +%d-%m-%Y_%H-%M-%S)
-sqlfile_name=zest-${DATE}.sql
-sqlfile=$backupfolder/$sqlfile_name
-zipfile_name=zest-${DATE}.tar.gz
-zipfile=$backupfolder/$zipfile_name
-#create backup folder
-mkdir -p $backupfolder
-# Create a backup
-if pg_dump -U zest > $sqlfile ; then
-    echo 'Sql dump created'
+DUMP_FILE="$BACKUP_DIR/${DB_NAME}_${DATE}.sql"
+ARCHIVE_FILE="$BACKUP_DIR/${DB_NAME}_${DATE}.tar.gz"
+
+# --- Ensure backup dir exists ---
+mkdir -p "$BACKUP_DIR"
+
+# --- Create dump ---
+if pg_dump -U "$DB_USER" "$DB_NAME" > "$DUMP_FILE"; then
+    echo "✅ SQL dump created: $DUMP_FILE"
 else
-    echo 'pg_dump return non-zero code: $?' | mailx -s 'No backup was created!' $recipient_email
-    exit
+    echo "❌ pg_dump failed!" | mailx -s "Backup FAILED" "$RECIPIENT_EMAIL"
+    exit 1
 fi
 
-
-# TODO: replace/create own dump script to export into json files?
-
-# Compress backup
-pushd $backupfolder
-if tar -czvf $zipfile_name $sqlfile_name; then
-    echo 'The backup was successfully compressed'
+# --- Compress ---
+if tar -czf "$ARCHIVE_FILE" -C "$BACKUP_DIR" "$(basename "$DUMP_FILE")"; then
+    echo "✅ Compressed: $ARCHIVE_FILE"
 else
-    echo 'Error compressing backup' | mailx -s 'Backup was not created!' $recipient_email
-    exit
-fi
-popd
-rm $sqlfile 
-#rm $backupfolder/*.json
-
-# Delete old backups 
-echo "Deleting following files older than ${keep_day} days":
-FILES=$(find $backupfolder -mtime +$keep_day -print)
-if [ -z "$FILES" ]
-then
-    echo "No old backups to delete"
-    FILES="None"
-else
-    echo "$FILES"
-    find $backupfolder -mtime +$keep_day -delete
+    echo "❌ Compression failed!" | mailx -s "Backup FAILED" "$RECIPIENT_EMAIL"
+    exit 1
 fi
 
-SIZE=$(du -hs $backupfolder)
-echo "Backup folder size is: $SIZE"
+# --- Remove raw dump ---
+rm -f "$DUMP_FILE"
 
-# Send final mail with infos
-printf "New Backup made: $zipfile\n\nFolder Size: $SIZE\n\nFiles Deleted:\n$FILES" | mailx -s 'Backup was successfully created' $recipient_email
+# --- Cleanup old backups ---
+echo "🧹 Removing backups older than $KEEP_DAYS days..."
+DELETED_FILES=$(find "$BACKUP_DIR" -type f -name "*.tar.gz" -mtime +"$KEEP_DAYS" -print -delete || true)
 
-printf "Backup was successfully created. Sync to B2 now"
-/home/zest/bin/b2 sync ~/backups/zest/ b2://zest-db-backup/ --delete
+# --- Folder size ---
+SIZE=$(du -sh "$BACKUP_DIR" | cut -f1)
+
+
+# --- Sync to Backblaze B2 ---
+echo "☁️ Syncing to B2..."
+
+if /home/zest/bin/b2 sync "$BACKUP_DIR/" b2://zest-db-backup/ --delete; then
+    echo "✅ B2 sync successful"
+
+    mailx -s "Backup + Sync successful" "$RECIPIENT_EMAIL" <<EOF
+Backup and sync completed successfully.
+
+Latest backup:
+$ARCHIVE_FILE
+
+Folder size:
+$SIZE
+EOF
+
+else
+    echo "❌ B2 sync FAILED!"
+
+    mailx -s "Backup OK but B2 sync FAILED" "$RECIPIENT_EMAIL" <<EOF
+Backup was created successfully, but sync to Backblaze B2 FAILED.
+
+Backup file:
+$ARCHIVE_FILE
+
+Folder size:
+$SIZE
+
+ACTION REQUIRED: Check B2 connectivity or credentials.
+EOF
+
+    exit 1
+fi
