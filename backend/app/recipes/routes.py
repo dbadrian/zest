@@ -720,7 +720,7 @@ async def get_recipe_from_pdf(
             detail=f"Invalid file format. Only supporting: pdf, png, jpg, jpeg, webp, heic, heif",
         )
 
-    recipe_data = await create_recipe_from_file(file, db)
+    recipe_data = await create_recipe_from_file(file)
     recipe = await _create_recipe(
         db=db, recipe_data=recipe_data, owner_id=current_user.id
     )
@@ -742,7 +742,7 @@ async def get_recipe_from_url(
     if not url:
         return {"message": "No valid URL sent"}
 
-    recipe_data = await create_recipe_from_url(url, db)
+    recipe_data = await create_recipe_from_url(url)
     recipe = await _create_recipe(
         db=db, recipe_data=recipe_data, owner_id=current_user.id
     )
