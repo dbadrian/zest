@@ -300,7 +300,7 @@ CRITICAL INSTRUCTIONS:
 DEFAULT_MODEL="gemini-2.5-flash"
 
 
-async def create_recipe_from_file(file_path: str | Path) -> RecipeCreateUpdate:
+async def create_recipe_from_file(file_path: Path) -> RecipeCreateUpdate:
 
     mime_type, _ = mimetypes.guess_type(file_path.name)
     mime_type = mime_type or "application/octet-stream"
@@ -361,7 +361,7 @@ async def create_recipe_from_upload(file: UploadFile) -> RecipeCreateUpdate:
         tmp_file.write(content)
         tmp_path = tmp_file.name
 
-    return await create_recipe_from_file(tmp_path)
+    return await create_recipe_from_file(Path(tmp_path))
 
 
 async def create_recipe_from_url(url: str) -> RecipeCreateUpdate:
