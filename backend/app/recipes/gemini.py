@@ -334,7 +334,12 @@ async def create_recipe_from_file(file_path: Path) -> RecipeCreateUpdate:
         return RecipeCreateUpdate.model_validate(out)
 
     except Exception as e:
-        raise Exception(f"Failed to create recipe from PDF: {str(e)}")
+        error_message = getattr(e, "message", str(e))
+
+        if isinstance(error_message, dict):
+            error_message = error_message.get("error", {}).get("message", str(e))
+
+        raise Exception(f"Failed to create recipe from PDF: {error_message}") from e
 
 
 async def create_recipe_from_upload(file: UploadFile) -> RecipeCreateUpdate:

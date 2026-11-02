@@ -215,7 +215,8 @@ class MainScaffold extends ConsumerWidget {
                             errorReason =
                                 "Network connection failed (backend unreachable).";
                           } else if (e.isServerError) {
-                            errorReason = "Server couldn't process the file.";
+                            errorReason =
+                                "Server couldn't process the file. ${e.message}";
                           } else {
                             errorReason = "Unknown error ($e)";
                           }
@@ -381,7 +382,8 @@ class MainScaffold extends ConsumerWidget {
                             errorReason =
                                 "Network connection failed (backend unreachable).";
                           } else if (e.isServerError) {
-                            errorReason = "Server couldn't process the file.";
+                            errorReason =
+                                "Server couldn't process the file. ${e.message}";
                           } else {
                             errorReason = "Unknown error ($e)";
                           }
