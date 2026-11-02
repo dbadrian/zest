@@ -297,7 +297,7 @@ CRITICAL INSTRUCTIONS:
  - Return structured data matching the provided schema
 """
 
-DEFAULT_MODEL="gemini-3.8-flash"
+DEFAULT_MODEL="gemini-3.6-flash"
 
 
 async def create_recipe_from_file(file_path: Path) -> RecipeCreateUpdate:
